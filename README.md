@@ -9,9 +9,39 @@ Practice project for learning UI test automation with [Playwright](https://playw
 
 ## Installation
 
+### Create a new Playwright project
+
+```bash
+npm init playwright@latest
+```
+
+This scaffolds a new project with `@playwright/test`, config files, and example tests. To skip the interactive prompts, pass flags such as `--yes` (defaults) or `--lang=ts`.
+
+### Add Playwright to an existing project
+
+```bash
+npm install -D @playwright/test
+```
+
+### Install dependencies and browsers
+
 ```bash
 npm install
-npx playwright install   # install browser binaries (chromium)
+npx playwright install   # installs the chromium browser binary
+```
+
+Install a specific browser (or all three):
+
+```bash
+npx playwright install firefox
+npx playwright install webkit
+npx playwright install --with-deps   # browsers + OS system dependencies
+```
+
+The CI workflow for this repo installs all browsers and Linux system dependencies with:
+
+```bash
+npx playwright install --with-deps
 ```
 
 ## Test Setup
