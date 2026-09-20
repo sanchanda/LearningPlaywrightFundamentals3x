@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CSS Selectors in JavaScript / Playwright — Help Reference</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface-alt: #eef2f7;
+    --border: #d9e0ea;
+    --text: #1c2533;
+    --text-muted: #5b6779;
+    --primary: #0b6bcb;
+    --primary-dark: #084f96;
+    --accent: #7c3aed;
+    --code-bg: #101826;
+    --code-text: #e6edf6;
+    --tip-bg: #e8f6ee;
+    --tip-border: #34a853;
+    --warn-bg: #fdf3e3;
+    --warn-border: #e08a00;
+    --note-bg: #e8f1fd;
+    --note-border: #0b6bcb;
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 6px 18px rgba(16, 24, 40, 0.06);
+    --radius: 10px;
+    --sidebar-w: 280px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+
+  code, pre, kbd {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+  }
+
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    max-width: 1500px;
+    margin: 0 auto;
+    gap: 0;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 22px 18px 40px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.02rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .brand .logo {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 0.85rem;
+  }
+  .brand small {
+    display: block;
+    font-weight: 500;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+  }
+
+  .search-wrap { margin: 16px 0 8px; }
+  .search-wrap label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  #search {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--surface-alt);
+    color: var(--text);
+  }
+  #search:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(11, 107, 203, 0.15);
+  }
+  #resultCount {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-height: 16px;
+    margin-top: 6px;
+  }
+
+  .nav ul { list-style: none; margin: 10px 0 0; padding: 0; }
+  .nav li { margin: 1px 0; }
+  .nav a {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 7px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .nav a:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav a.nav-dim { opacity: 0.32; }
+  .nav .group {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #8b96a8;
+    margin: 16px 0 4px 12px;
+    font-weight: 700;
+  }
+
+  /* ---------- Main ---------- */
+  main { padding: 30px 40px 100px; min-width: 0; }
+
+  .page-header {
+    background: linear-gradient(135deg, #0b6bcb, #7c3aed);
+    color: #fff;
+    border-radius: 14px;
+    padding: 30px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+  }
+  .page-header .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.72rem;
+    opacity: 0.9;
+    font-weight: 600;
+  }
+  .page-header h1 { margin: 8px 0 10px; font-size: 2rem; line-height: 1.2; }
+  .page-header p { margin: 0; opacity: 0.94; max-width: 70ch; }
+  .badges { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  section.doc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 26px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+    scroll-margin-top: 16px;
+  }
+  section.doc.search-hidden { display: none; }
+
+  h2 {
+    font-size: 1.4rem;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--surface-alt);
+    color: var(--text);
+  }
+  h2 .num {
+    display: inline-block;
+    background: var(--surface-alt);
+    color: var(--primary);
+    font-size: 0.8rem;
+    padding: 2px 9px;
+    border-radius: 6px;
+    margin-right: 10px;
+    vertical-align: middle;
+    font-weight: 700;
+  }
+  h3 { font-size: 1.12rem; margin: 22px 0 10px; color: var(--primary-dark); }
+  h4 { font-size: 0.98rem; margin: 16px 0 6px; color: var(--text); }
+  p { margin: 10px 0; }
+  ul, ol { margin: 10px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+
+  .lead { font-size: 1.02rem; color: var(--text-muted); }
+
+  /* ---------- Code ---------- */
+  .code { position: relative; margin: 14px 0; }
+  .code pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 18px;
+    border-radius: 9px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    margin: 0;
+    tab-size: 2;
+  }
+  .code code { color: inherit; }
+  .copy-btn {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    background: rgba(255,255,255,0.12);
+    color: #dce6f5;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.24); }
+  .copy-btn.copied { background: #34a853; border-color: #34a853; color: #fff; }
+
+  code.inline {
+    background: var(--surface-alt);
+    color: #b4245a;
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Tables ---------- */
+  .table-wrap { overflow-x: auto; margin: 14px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+    min-width: 640px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--surface-alt);
+    font-weight: 700;
+    color: var(--text);
+    position: sticky;
+    top: 0;
+  }
+  tbody tr:nth-child(even) { background: #fafbfd; }
+  td code, th code {
+    background: #eef2f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #b4245a;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Callouts ---------- */
+  .callout {
+    border-left: 4px solid;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  .callout .title { font-weight: 700; display: block; margin-bottom: 3px; }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.note { background: var(--note-bg); border-color: var(--note-border); }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .card {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px 16px;
+  }
+  .card h4 { margin: 0 0 6px; color: var(--primary-dark); }
+  .card p { margin: 0; font-size: 0.88rem; color: var(--text-muted); }
+
+  /* ---------- Function details ---------- */
+  details.fn {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    margin: 10px 0;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  details.fn > summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 0.94rem;
+    background: var(--surface-alt);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  details.fn > summary::-webkit-details-marker { display: none; }
+  details.fn > summary::after {
+    content: "+";
+    font-size: 1.15rem;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  details.fn[open] > summary::after { content: "\2013"; }
+  details.fn[open] > summary { border-bottom: 1px solid var(--border); }
+  .fn-body { padding: 6px 18px 18px; }
+  .fn-body dl { margin: 0; }
+  .fn-body dt {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-top: 14px;
+  }
+  .fn-body dd { margin: 4px 0 0; }
+
+  .controls { display: flex; gap: 8px; margin: 6px 0 14px; flex-wrap: wrap; }
+  .controls button {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 6px 13px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .controls button:hover { background: #e2e9f3; }
+
+  /* ---------- Q&A ---------- */
+  .qa { border-left: 3px solid var(--accent); padding: 2px 0 2px 16px; margin: 16px 0; }
+  .qa .q { font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .qa .a { color: var(--text-muted); font-size: 0.93rem; }
+
+  /* ---------- Misc ---------- */
+  .no-results {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: #7a4a00;
+    padding: 14px 18px;
+    border-radius: 9px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  [hidden] { display: none !important; }
+
+  #toTop {
+    position: fixed;
+    bottom: 26px;
+    right: 26px;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 50;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; }
+  #toTop:hover { transform: translateY(-3px); background: var(--primary-dark); }
+
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 60;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 13px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  footer.doc-footer {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    text-align: center;
+    padding: 10px 0 40px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 82%;
+      max-width: 320px;
+      height: 100vh;
+      z-index: 55;
+      transform: translateX(-102%);
+      transition: transform .25s ease;
+      box-shadow: var(--shadow);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: block; }
+    main { padding: 70px 18px 90px; }
+    .page-header { padding: 22px 20px; }
+    .page-header h1 { font-size: 1.5rem; }
+    section.doc { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">&#9776; Menu</button>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="logo">CSS</span>
+      <span>Help Portal<small>Playwright &middot; JavaScript</small></span>
+    </div>
+
+    <div class="search-wrap">
+      <label for="search">Search this page</label>
+      <input id="search" type="search" placeholder="e.g. :has(), nth-child, [attr^=]" autocomplete="off" />
+      <div id="resultCount" role="status" aria-live="polite"></div>
+    </div>
+
+    <nav class="nav" aria-label="Page sections">
+      <div class="group">Overview</div>
+      <ul>
+        <li><a href="#what">What Is It?</a></li>
+        <li><a href="#syntax">Syntax</a></li>
+        <li><a href="#inplaywright">CSS in Playwright</a></li>
+      </ul>
+      <div class="group">Reference</div>
+      <ul>
+        <li><a href="#reference">Selector Reference</a></li>
+        <li><a href="#extensions">Playwright Extensions</a></li>
+        <li><a href="#functions">Detailed Selectors</a></li>
+      </ul>
+      <div class="group">Practice</div>
+      <ul>
+        <li><a href="#examples">Practical Examples</a></li>
+        <li><a href="#beforeafter">Before vs After</a></li>
+        <li><a href="#mistakes">Common Mistakes</a></li>
+        <li><a href="#bestpractices">Best Practices</a></li>
+      </ul>
+      <div class="group">Learn</div>
+      <ul>
+        <li><a href="#interview">Interview Questions</a></li>
+        <li><a href="#cheatsheet">Cheat Sheet</a></li>
+        <li><a href="#related">Related Topics</a></li>
+        <li><a href="#takeaways">Key Takeaways</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="page-header">
+      <div class="eyebrow">Selector Reference</div>
+      <h1>CSS Selectors in JavaScript / Playwright</h1>
+      <p>Patterns that match DOM elements by tag, class, id, attribute, and structural position &mdash; the default selector engine in Playwright, extended with its own pseudo-classes.</p>
+      <div class="badges">
+        <span class="badge">@playwright/test</span>
+        <span class="badge">Default engine</span>
+        <span class="badge">locator('.class')</span>
+        <span class="badge">Beginner &rarr; Advanced</span>
+      </div>
+    </header>
+
+    <!-- 1. WHAT IS IT -->
+    <section class="doc" id="what" data-searchable>
+      <h2><span class="num">01</span>What Is It?</h2>
+      <p class="lead"><strong>CSS selectors</strong> are patterns that match elements in a DOM tree. They are the language you already use in stylesheets, and they are also the <strong>default selector engine</strong> in Playwright &mdash; when you write <code class="inline">page.locator('.btn')</code>, you are using CSS.</p>
+
+      <p>A selector answers the question "which element(s)?" by describing what the element <em>is</em> or <em>where it sits</em>:</p>
+      <div class="code"><pre><code>form.checkout input[type="email"]</code></pre></div>
+      <p>That reads as: an <code class="inline">input</code> whose <code class="inline">type</code> is <code class="inline">email</code>, inside any element with class <code class="inline">checkout</code> on a <code class="inline">form</code>.</p>
+
+      <h3>Why it exists</h3>
+      <p>CSS selectors were designed for styling, so they are concise, fast, and supported natively by the browser through <code class="inline">querySelector</code> / <code class="inline">querySelectorAll</code>. Because the whole web already speaks CSS, using it for testing means no new syntax for developers to learn.</p>
+
+      <h3>What problem it solves</h3>
+      <ul>
+        <li><strong>Precise, compact targeting</strong> &mdash; <code class="inline">#login</code> is shorter and faster than a full XPath.</li>
+        <li><strong>Attribute matching</strong> &mdash; match by any attribute, with prefix, suffix, and substring operators.</li>
+        <li><strong>Structural matching</strong> &mdash; target the first row, the last item, or every third card.</li>
+        <li><strong>Composability</strong> &mdash; Playwright adds <code class="inline">:has()</code>, <code class="inline">:has-text()</code>, and <code class="inline">:nth-match()</code> on top of standard CSS.</li>
+      </ul>
+
+      <h3>Where it is commonly used</h3>
+      <ul>
+        <li>Playwright locators &mdash; the default, and the engine behind <code class="inline">getByTestId</code> (which targets a data attribute).</li>
+        <li>Browser DevTools styles and the elements panel.</li>
+        <li>Selenium, Cypress, Puppeteer, and virtually every browser automation tool.</li>
+        <li>JavaScript DOM queries in application code.</li>
+      </ul>
+
+      <h3>When a tester should use it</h3>
+      <p>CSS is a strong default for <strong>attribute and structure</strong> matching: test ids, names, types, and roles expressed as attributes. Prefer Playwright's user-facing locators where they fit, use CSS when the element is best identified by an attribute or a structural relationship, and reach for XPath only when you need text matching or upward traversal.</p>
+
+      <div class="callout note">
+        <span class="title">CSS only matches downward</span>
+        CSS has no parent or ancestor selector. You can match a child, a descendant, or a following sibling, but you cannot select "the parent of this cell" in plain CSS. Playwright's <code class="inline">:has()</code> helps by matching a container that contains something, and its <code class="inline">filter()</code> API lets you narrow a set &mdash; but for true upward traversal you need XPath.
+      </div>
+    </section>
+
+    <!-- 2. SYNTAX -->
+    <section class="doc" id="syntax" data-searchable>
+      <h2><span class="num">02</span>Syntax</h2>
+
+      <h3>Basic form</h3>
+      <div class="code"><pre><code>tag.class[attribute="value"]:pseudo-class</code></pre></div>
+
+      <p>Broken down for <code class="inline">button.btn-primary[type="submit"]:enabled</code>:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Part</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>button</code></td><td>Type selector &mdash; matches elements with that tag name.</td></tr>
+            <tr><td><code>.btn-primary</code></td><td>Class selector &mdash; element has that class in its class list.</td></tr>
+            <tr><td><code>[type="submit"]</code></td><td>Attribute selector &mdash; attribute exists and equals the value.</td></tr>
+            <tr><td><code>:enabled</code></td><td>Pseudo-class &mdash; state or structural condition (here, not disabled).</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>All parts of a compound selector apply to the <em>same</em> element. Adding a space or a combinator moves to a different element.</p>
+
+      <div class="callout warn">
+        <span class="title">Space matters</span>
+        <code class="inline">div.card</code> means "a <code class="inline">div</code> that has class <code class="inline">card</code>". <code class="inline">div .card</code> (with a space) means "an element with class <code class="inline">card</code> inside a <code class="inline">div</code>". These match different elements.
+      </div>
+
+      <h3>Selector variants</h3>
+      <div class="code"><pre><code>#login                       // id="login"
+.btn                         // class contains "btn"
+[data-testid="submit"]       // attribute equals
+[href^="https://"]           // attribute starts with
+[href$=".pdf"]               // attribute ends with
+[class*="card"]              // attribute contains substring
+ul > li                      // direct child
+h2 + p                       // immediately following sibling
+h2 ~ p                       // any following sibling
+li:first-child               // first child of its parent
+li:nth-child(2n+1)           // odd children
+input:not([disabled])        // negation
+article:has(img)             // contains a descendant img (Playwright)
+:is(h1, h2, h3)              // any of these</code></pre></div>
+
+      <h3>Playwright usage</h3>
+      <div class="code"><pre><code>// CSS is the default engine
+const button = page.locator('button.btn-primary');
+
+// Explicit prefix when you want to be unambiguous
+const input = page.locator('css=input[type="email"]');
+
+// Chained: CSS scoped to the result of the previous locator
+const price = page.locator('.product-card').locator('.price');
+
+// Narrow a set with filter()
+const inStock = page.locator('.product-card').filter({ hasText: 'In stock' });</code></pre></div>
+    </section>
+
+    <!-- 3. CSS IN PLAYWRIGHT -->
+    <section class="doc" id="inplaywright" data-searchable>
+      <h2><span class="num">03</span>CSS in Playwright</h2>
+      <p>Playwright implements the full CSS selector syntax plus additional pseudo-classes of its own. A CSS locator behaves like any other locator: it auto-waits, respects strict mode, chains, and works with <code class="inline">expect</code>.</p>
+
+      <h3>Key facts</h3>
+      <ul>
+        <li><strong>It is the default.</strong> No prefix is needed &mdash; <code class="inline">page.locator('.card')</code> uses the CSS engine. Add <code class="inline">css=</code> only to remove ambiguity.</li>
+        <li><strong>Strict mode applies.</strong> A selector matching multiple elements throws on action; narrow it or use <code class="inline">.first()</code> / <code class="inline">.nth()</code>.</li>
+        <li><strong>Auto-waiting applies.</strong> The locator waits for the element to be actionable &mdash; no manual waits.</li>
+        <li><strong>It pierces open shadow DOM.</strong> Unlike XPath, Playwright's CSS engine crosses open shadow roots. The <code class="inline">:light()</code> extension restricts a match to the light DOM.</li>
+        <li><strong>It is fast.</strong> The engine compiles the selector and runs it against the DOM natively.</li>
+        <li><strong>It only matches downward.</strong> No parent/ancestor axis &mdash; use <code class="inline">:has()</code>, <code class="inline">filter()</code>, or XPath.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="title">Prefer user-facing locators first</span>
+        Playwright recommends <code class="inline">getByRole</code>, <code class="inline">getByLabel</code>, <code class="inline">getByPlaceholder</code>, <code class="inline">getByText</code>, and <code class="inline">getByTestId</code>. Use raw CSS when an attribute or structural relationship is the clearest identifier, and avoid long chains of classes that change with styling.
+      </div>
+
+      <h3>The three families of Playwright locators</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>User-facing (best)</h4>
+          <p><code class="inline">getByRole('button', { name: 'Save' })</code> &mdash; accessible, stable, readable.</p>
+        </div>
+        <div class="card">
+          <h4>CSS / test id (good)</h4>
+          <p><code class="inline">locator('[data-testid="save"]')</code> or <code class="inline">locator('.card .title')</code> &mdash; fast and precise.</p>
+        </div>
+        <div class="card">
+          <h4>XPath (fallback)</h4>
+          <p><code class="inline">locator('xpath=//td[text()="Ada"]/..')</code> &mdash; for text and upward traversal.</p>
+        </div>
+      </div>
+
+      <h3>Using CSS with assertions</h3>
+      <div class="code"><pre><code>await expect(page.locator('h1.title')).toHaveText('Dashboard');
+await expect(page.locator('.todo-list li')).toHaveCount(3);
+await expect(page.locator('button[type="submit"]')).toBeEnabled();
+await expect(page.locator('.card').filter({ hasText: 'Laptop' })).toBeVisible();</code></pre></div>
+    </section>
+
+    <!-- 4. REFERENCE -->
+    <section class="doc" id="reference" data-searchable>
+      <h2><span class="num">04</span>Selector Reference</h2>
+      <p>Standard CSS selectors you will use in tests, grouped by category. Every entry is valid in Playwright.</p>
+
+      <h3>Basic selectors</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Selector</th><th>Matches</th><th>Syntax</th><th>Example</th><th>Playwright</th></tr></thead>
+          <tbody>
+            <tr><td>Universal</td><td>Every element</td><td><code>*</code></td><td><code>*</code></td><td><code>locator('*')</code></td></tr>
+            <tr><td>Type</td><td>Elements of a tag</td><td><code>tag</code></td><td><code>button</code></td><td><code>locator('button')</code></td></tr>
+            <tr><td>Class</td><td>Elements with a class</td><td><code>.class</code></td><td><code>.btn-primary</code></td><td><code>locator('.btn-primary')</code></td></tr>
+            <tr><td>ID</td><td>Element with the id</td><td><code>#id</code></td><td><code>#login</code></td><td><code>locator('#login')</code></td></tr>
+            <tr><td>Grouping</td><td>Any of the listed</td><td><code>a, b</code></td><td><code>h1, h2</code></td><td><code>locator('h1, h2')</code></td></tr>
+            <tr><td>Compound</td><td>All conditions at once</td><td><code>tag.class</code></td><td><code>input.field</code></td><td><code>locator('input.field')</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Combinators</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Combinator</th><th>Matches</th><th>Syntax</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>Descendant</td><td>Any depth below</td><td><em>space</em></td><td><code>form input</code></td></tr>
+            <tr><td>Child</td><td>Direct child only</td><td><code>&gt;</code></td><td><code>ul &gt; li</code></td></tr>
+            <tr><td>Adjacent sibling</td><td>Next sibling</td><td><code>+</code></td><td><code>h2 + p</code></td></tr>
+            <tr><td>General sibling</td><td>Any later sibling</td><td><code>~</code></td><td><code>h2 ~ p</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Attribute selectors</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Selector</th><th>Matches</th><th>Syntax</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>Presence</td><td>Attribute exists</td><td><code>[attr]</code></td><td><code>[required]</code></td></tr>
+            <tr><td>Exact</td><td>Equals the value</td><td><code>[attr="v"]</code></td><td><code>[type="email"]</code></td></tr>
+            <tr><td>Word</td><td>Whitespace-separated word</td><td><code>[attr~="v"]</code></td><td><code>[class~="card"]</code></td></tr>
+            <tr><td>Prefix</td><td>Starts with</td><td><code>[attr^="v"]</code></td><td><code>[href^="https"]</code></td></tr>
+            <tr><td>Suffix</td><td>Ends with</td><td><code>[attr$="v"]</code></td><td><code>[href$=".pdf"]</code></td></tr>
+            <tr><td>Substring</td><td>Contains</td><td><code>[attr*="v"]</code></td><td><code>[class*="card"]</code></td></tr>
+            <tr><td>Language</td><td>Value or value-</td><td><code>[attr|="v"]</code></td><td><code>[lang|="en"]</code></td></tr>
+            <tr><td>Case-insensitive</td><td>Exact, ignoring case</td><td><code>[attr="v" i]</code></td><td><code>[type="EMAIL" i]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Structural pseudo-classes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pseudo-class</th><th>Matches</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>:first-child</code></td><td>First child of its parent</td><td><code>li:first-child</code></td></tr>
+            <tr><td><code>:last-child</code></td><td>Last child of its parent</td><td><code>li:last-child</code></td></tr>
+            <tr><td><code>:nth-child(n)</code></td><td>Nth child (all types)</td><td><code>tr:nth-child(2)</code></td></tr>
+            <tr><td><code>:nth-of-type(n)</code></td><td>Nth of its tag among siblings</td><td><code>p:nth-of-type(2)</code></td></tr>
+            <tr><td><code>:first-of-type</code> / <code>:last-of-type</code></td><td>First/last of its tag</td><td><code>div:last-of-type</code></td></tr>
+            <tr><td><code>:only-child</code></td><td>Only child of its parent</td><td><code>li:only-child</code></td></tr>
+            <tr><td><code>:empty</code></td><td>No children or text</td><td><code>div:empty</code></td></tr>
+            <tr><td><code>:not(sel)</code></td><td>Does not match</td><td><code>input:not([disabled])</code></td></tr>
+            <tr><td><code>:is(sel, ...)</code></td><td>Matches any listed</td><td><code>:is(h1, h2, h3)</code></td></tr>
+            <tr><td><code>:where(sel, ...)</code></td><td>Like <code>:is()</code>, zero specificity</td><td><code>:where(.a, .b)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Form-state pseudo-classes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pseudo-class</th><th>Matches</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>:checked</code></td><td>Checked checkbox/radio or selected option</td><td><code>input:checked</code></td></tr>
+            <tr><td><code>:disabled</code></td><td>Disabled control</td><td><code>button:disabled</code></td></tr>
+            <tr><td><code>:enabled</code></td><td>Enabled control</td><td><code>button:enabled</code></td></tr>
+            <tr><td><code>:required</code> / <code>:optional</code></td><td>Required / optional field</td><td><code>input:required</code></td></tr>
+            <tr><td><code>:focus</code></td><td>Element with focus</td><td><code>input:focus</code></td></tr>
+            <tr><td><code>:read-only</code></td><td>Read-only field</td><td><code>input:read-only</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <span class="title">Pseudo-elements are not matchable</span>
+        <code class="inline">::before</code>, <code class="inline">::after</code>, and <code class="inline">::marker</code> generate content that is not part of the DOM node tree, so no selector engine can target it. Assert the element's rendered text or a screenshot instead.
+      </div>
+    </section>
+
+    <!-- 5. PLAYWRIGHT EXTENSIONS -->
+    <section class="doc" id="extensions" data-searchable>
+      <h2><span class="num">05</span>Playwright Pseudo-class Extensions</h2>
+      <p>Playwright adds pseudo-classes that are not part of the CSS standard. They are only valid inside a Playwright locator.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Extension</th><th>Purpose</th><th>Syntax</th><th>Result</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>:has()</code></td><td>Contains a matching descendant</td><td><code>sel:has(inner)</code></td><td>Node set</td><td><code>article:has(div.promo)</code></td></tr>
+            <tr><td><code>:has-text()</code></td><td>Contains the given text</td><td><code>sel:has-text("text")</code></td><td>Node set</td><td><code>button:has-text("Save")</code></td></tr>
+            <tr><td><code>:text()</code></td><td>Contains text (smart match)</td><td><code>:text("text")</code></td><td>Node set</td><td><code>:text("Log in")</code></td></tr>
+            <tr><td><code>:text-is()</code></td><td>Exact text</td><td><code>:text-is("text")</code></td><td>Node set</td><td><code>:text-is("Submit")</code></td></tr>
+            <tr><td><code>:text-matches()</code></td><td>Text matches a regex</td><td><code>:text-matches("re", "flags")</code></td><td>Node set</td><td><code>:text-matches("^Save$")</code></td></tr>
+            <tr><td><code>:nth-match()</code></td><td>Nth match of a selector globally</td><td><code>:nth-match(sel, n)</code></td><td>Node set</td><td><code>:nth-match(.btn, 3)</code></td></tr>
+            <tr><td><code>:visible</code></td><td>Only visible elements</td><td><code>sel:visible</code></td><td>Node set</td><td><code>li:visible</code></td></tr>
+            <tr><td><code>:light()</code></td><td>Restrict a match to the light DOM</td><td><code>:light(sel)</code></td><td>Node set</td><td><code>:light(.host)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="title">:visible is legacy</span>
+        Playwright still supports the <code class="inline">:visible</code> pseudo-class, but the modern way to filter to visible elements is <code class="inline">locator.filter({ visible: true })</code>, which composes with other filters and reads more clearly. For assertions, <code class="inline">expect(locator).toBeVisible()</code> is the idiomatic choice.
+      </div>
+
+      <div class="callout tip">
+        <span class="title">Prefer filter() over pseudo-class soup</span>
+        Playwright's <code class="inline">locator.filter({ has, hasText, hasNot })</code> expresses the same ideas as <code class="inline">:has()</code> and <code class="inline">:has-text()</code> but yields a reusable, chainable locator with clearer failure messages.
+      </div>
+
+      <h3>Text matching notes</h3>
+      <ul>
+        <li>Matching is <strong>case-insensitive</strong> and <strong>whitespace-normalised</strong> for <code class="inline">:has-text()</code> and <code class="inline">:text()</code>.</li>
+        <li><code class="inline">:text()</code> matches the smallest element containing the text, then falls back to the smallest element that contains it as a substring.</li>
+        <li><code class="inline">:text-is()</code> requires the full text to match exactly.</li>
+        <li>For <code class="inline">input</code> elements of type <code class="inline">button</code> and <code class="inline">submit</code>, the <code class="inline">value</code> attribute is matched instead of text content.</li>
+      </ul>
+    </section>
+
+    <!-- 6. DETAILED -->
+    <section class="doc" id="functions" data-searchable>
+      <h2><span class="num">06</span>Detailed Explanation of Key Selectors</h2>
+      <p>Expand any selector for its full description. Use the buttons to open or close all entries.</p>
+
+      <div class="controls">
+        <button type="button" id="expandAll">Expand all</button>
+        <button type="button" id="collapseAll">Collapse all</button>
+      </div>
+
+      <!-- attribute selectors -->
+      <details class="fn">
+        <summary>[attr], [attr="v"], ^=, $=, *= &mdash; attribute selectors</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Match elements by the presence or content of an HTML attribute, without relying on classes that change with styling.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>[disabled]            /* attribute exists        */
+[type="email"]        /* exactly equals          */
+[href^="https://"]    /* starts with             */
+[href$=".pdf"]        /* ends with               */
+[class*="card"]       /* contains substring      */
+[class~="card"]       /* contains the whole word */
+[type="EMAIL" i]      /* case-insensitive exact  */</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>The attribute name, optionally followed by an operator and a quoted value. The trailing <code class="inline">i</code> flag makes the comparison case-insensitive.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>A node set of every element satisfying the condition.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('input[type="email"]').fill('qa@example.com');
+await page.locator('a[href$=".pdf"]').first().click();
+await page.locator('[data-testid="submit"]').click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Each locator resolves to the matching element(s); assertions and actions behave normally.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Targeting form fields, links by destination, and elements carrying <code class="inline">data-*</code> test attributes.</dd>
+
+            <dt>Important Notes</dt>
+            <dd><code class="inline">[class*="card"]</code> is a raw substring test, so it also matches <code class="inline">card-header</code>. Use <code class="inline">[class~="card"]</code> to match the whole class token. For ids that are not valid identifiers (for example <code class="inline">#123</code>), use an attribute selector: <code class="inline">[id="123"]</code>.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- combinators -->
+      <details class="fn">
+        <summary>Combinators: descendant, &gt;, +, ~</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Express the positional relationship between two elements: inside, direct child, immediate sibling, or any later sibling.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>A B     /* B anywhere inside A        */
+A &gt; B   /* B is a direct child of A   */
+A + B   /* B is the next sibling of A */
+A ~ B   /* B is any later sibling of A*/</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>Two selectors joined by a combinator. Either side may be a complex compound selector.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>The set of elements matching the right-hand selector in that relationship to a left-hand match.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('nav > ul > li').first().click();
+await page.locator('form input[type="text"]').fill('Ada');
+await page.locator('label + input').fill('Ada');</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Only the elements in the specified relationship are matched &mdash; direct children for <code class="inline">&gt;</code>, siblings for <code class="inline">+</code> and <code class="inline">~</code>.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Scoping a search under a container, and pairing a label with its input via the sibling combinator.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Sibling combinators only look <em>forward</em> in the document; there is no previous-sibling combinator. Keep chains short &mdash; a four-level descendant chain is brittle.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- nth-child -->
+      <details class="fn">
+        <summary>:nth-child() and :nth-of-type()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Select elements by their position among siblings, using a number, a keyword, or an <code class="inline">an+b</code> formula.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>li:nth-child(2)      /* the 2nd child        */
+li:nth-child(odd)    /* 1st, 3rd, 5th ...    */
+li:nth-child(2n)     /* even children        */
+li:nth-child(3n+1)   /* 1st, 4th, 7th ...    */
+p:nth-of-type(2)     /* the 2nd &lt;p&gt; sibling */</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>An integer, <code class="inline">odd</code> / <code class="inline">even</code>, or an <code class="inline">an+b</code> expression. <code class="inline">:nth-of-type()</code> counts only siblings of the same tag.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>The elements occupying those positions within their parent.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await expect(page.locator('table tbody tr:nth-child(2)')).toContainText('Ada');
+await page.locator('ul > li:nth-child(odd)').first().click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Matches the specified rows/items based on their index among siblings.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Fixed tables and grids where an element has no unique attribute, such as asserting the second row of a result set.</dd>
+
+            <dt>Important Notes</dt>
+            <dd><code class="inline">:nth-child()</code> counts every sibling regardless of tag, while <code class="inline">:nth-of-type()</code> counts only elements of the same tag. Positions shift when rows are inserted, so prefer a unique attribute or <code class="inline">getByRole</code> with a name when possible.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- has -->
+      <details class="fn">
+        <summary>:has() &mdash; container that contains a descendant</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Matches an element only if it contains a descendant matching the inner selector. It is the closest CSS gets to "select a parent", and Playwright supports it in locators.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>outer:has(inner)
+outer:has(> inner)   /* direct child only */</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>A selector describing the required descendant, optionally with a <code class="inline">&gt;</code> to require a direct child.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>The set of <code class="inline">outer</code> elements that contain at least one matching descendant.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('.product-card:has(.badge.out-of-stock)')
+  .locator('button.add-to-cart')
+  .first()
+  .click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Finds a product card that contains an out-of-stock badge, then clicks its add-to-cart button.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Row-scoped actions, selecting cards by their contents, and asserting state on a container.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Playwright also exposes this as <code class="inline">locator.filter({ has: locator })</code>, which is preferred when the inner condition is a locator and gives clearer errors. <code class="inline">:has()</code> cannot look upwards, only at descendants.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- has-text -->
+      <details class="fn">
+        <summary>:has-text() &mdash; match by contained text</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Filters elements to those whose text content contains the given string, case-insensitively and with whitespace normalised.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>selector:has-text("text")</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>A text string, optionally quoted. Matching is a substring test against the element's text content.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Elements containing the text anywhere within them.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('button:has-text("Sign in")').click();
+await expect(page.locator('.alert:has-text("Invalid credentials")')).toBeVisible();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Matches the button whose label contains "Sign in" and the alert containing the error text.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Quick text-based targeting combined with a structural or attribute selector for precision.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>It matches the element <em>and</em> its ancestors, so an overly broad base selector can match several nodes &mdash; combine with a tag or class. Use <code class="inline">getByText()</code> or <code class="inline">filter({ hasText })</code> for a more semantic, better-named alternative.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- text-is -->
+      <details class="fn">
+        <summary>:text-is() and :text()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd><code class="inline">:text-is()</code> matches text exactly, while <code class="inline">:text()</code> performs a smart match, preferring the element whose own text equals the value and falling back to the smallest element containing it.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>:text-is("Submit")
+:text("Submit")</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>A text string. Matching is case-insensitive and whitespace-normalised in both forms.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>The matching element(s). <code class="inline">:text-is()</code> rejects partial matches; <code class="inline">:text()</code> accepts them.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator(':text-is("Submit")').click();
+await expect(page.locator(':text("Order #")')).toBeVisible();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>The first locator matches only the element whose full text is "Submit"; the second matches an element containing the phrase.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Differentiating "Save" from "Save draft", or targeting a label that includes dynamic values.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>These are Playwright text-engine concepts used inside CSS; for everyday tests <code class="inline">getByText()</code> with <code class="inline">{ exact: true }</code> is the recommended, more readable form.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- nth-match -->
+      <details class="fn">
+        <summary>:nth-match()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Selects the nth element matching a selector <em>across the whole document</em>, which avoids the per-parent behaviour of <code class="inline">:nth-child()</code>.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>:nth-match(selector, index)</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>A selector and a 1-based index.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>A single element &mdash; the nth match of the selector in document order.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator(':nth-match(button.btn, 3)').click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Clicks the third button with class <code class="inline">btn</code> in the document, regardless of which parent it lives in.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Picking one element from a set that spans multiple containers, where per-parent indexing would be wrong.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Often <code class="inline">locator('button.btn').nth(2)</code> is preferable &mdash; it is clearer and avoids the legacy pseudo-class syntax. Both are 1-based via <code class="inline">:nth-match</code> and 0-based via <code class="inline">.nth()</code>; mind the difference.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- not is where -->
+      <details class="fn">
+        <summary>:not(), :is(), :where()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Logical negation and grouping inside a selector. <code class="inline">:not()</code> excludes; <code class="inline">:is()</code> and <code class="inline">:where()</code> accept any of several alternatives.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>input:not([disabled])
+:is(h1, h2, h3)
+:where(.a, .b)</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>One or more selectors. <code class="inline">:where()</code> behaves like <code class="inline">:is()</code> but contributes zero specificity (relevant in stylesheets, not in tests).</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Elements that fail the negated selector, or that match any listed alternative.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('button:not([disabled])').first().click();
+await expect(page.locator(':is(h1, h2):has-text("Dashboard")')).toBeVisible();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Targets the first enabled button, and the heading among h1/h2 containing "Dashboard".</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Excluding hidden or disabled options, and grouping headings or list roles.</dd>
+
+            <dt>Important Notes</dt>
+            <dd><code class="inline">:not()</code> takes a selector list in modern browsers, but keep it simple for portability. Negation complements the CSS inability to traverse upward &mdash; it filters a set rather than finding a parent.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- visible -->
+      <details class="fn">
+        <summary>:visible and filter({ visible: true })</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Narrow a set to elements that are actually visible, which is common when a hidden template copy and a rendered copy share the same markup.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>page.locator('li:visible')                              /* legacy pseudo-class */
+page.locator('li').filter({ visible: true })            /* modern API        */</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>The pseudo-class takes no arguments; <code class="inline">filter()</code> accepts an options object with <code class="inline">visible</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Only elements that are visible (non-empty bounding box, not hidden by CSS).</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>const visibleCount = page.locator('.todo-list li').filter({ visible: true });
+await expect(visibleCount).toHaveCount(2);</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Counts only the list items that are actually rendered, ignoring hidden ones.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Menus with duplicated mobile/desktop markup, tabs where inactive panels remain in the DOM.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Prefer <code class="inline">filter({ visible: true })</code> over the <code class="inline">:visible</code> pseudo-class. When you simply want to assert visibility, use <code class="inline">expect(locator).toBeVisible()</code>.</dd>
+          </dl>
+        </div>
+      </details>
+    </section>
+
+    <!-- 7. EXAMPLES -->
+    <section class="doc" id="examples" data-searchable>
+      <h2><span class="num">07</span>Practical Examples</h2>
+
+      <h3>Example 1 &mdash; Basic Usage</h3>
+      <p>Locate an element by id and class, then assert it is visible.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('click the login button', async ({ page }) =&gt; {
+  await page.goto('https://example.com');
+
+  const login = page.locator('button#login.btn-primary');
+  await expect(login).toBeVisible();
+  await login.click();
+});</code></pre></div>
+
+      <h3>Example 2 &mdash; Real-World Usage</h3>
+      <p>A login form using attribute, child, and sibling selectors.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('user can log in', async ({ page }) =&gt; {
+  await page.goto('https://demo.example.com/login');
+
+  await page.locator('form.login input[type="email"]').fill('qa@example.com');
+  await page.locator('form.login input[type="password"]').fill('secret123');
+  await page.locator('form.login button[type="submit"]').click();
+
+  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page.locator('header .user-name')).toHaveText('QA User');
+});</code></pre></div>
+
+      <h3>Example 3 &mdash; Multiple Selectors</h3>
+      <p>Combining <code class="inline">:has()</code>, <code class="inline">:has-text()</code>, structural pseudo-classes, and attribute selectors.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('filter and act on product cards', async ({ page }) =&gt; {
+  await page.goto('/catalogue');
+
+  // Cards that contain an out-of-stock badge
+  await expect(page.locator('.card:has(.badge.out-of-stock)')).toHaveCount(2);
+
+  // The first in-stock card's add button
+  await page.locator('.card:has-text("In stock"):nth-child(1) button.add')
+    .click();
+
+  // Attribute + child combinator
+  await expect(page.locator('table#cart > tbody > tr')).toHaveCount(1);
+
+  // Sibling combinator: the error paragraph after the email field
+  await expect(page.locator('input[type="email"] + p.error')).toBeHidden();
+});</code></pre></div>
+
+      <h3>Example 4 &mdash; Negative Scenario</h3>
+      <p>A selector that matches nothing, and why.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('this selector fails on purpose', async ({ page }) =&gt; {
+  await page.goto('https://example.com');
+
+  // There is no element with data-testid="buy-now" on this page
+  await page.locator('[data-testid="buy-now"]').click();
+});</code></pre></div>
+      <p><strong>Why it fails:</strong> the attribute selector matches zero elements, so the action times out waiting for the element to appear and become actionable. If a strict-mode error appears instead, the selector matched several elements and needs narrowing.</p>
+
+      <h3>Example 5 &mdash; Advanced Usage</h3>
+      <p>Scoped chains, filtering with <code class="inline">has</code> and <code class="inline">hasText</code>, structural selection, and a polled assertion.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('advanced CSS techniques', async ({ page }) =&gt; {
+  await page.goto('/orders');
+
+  // Scope a search to a specific panel
+  const panel = page.locator('section#open-orders');
+  await expect(panel.locator('table tbody > tr')).toHaveCount(3);
+
+  // filter({ has }) == :has(), filter({ hasText }) == :has-text()
+  const appleRow = panel.locator('tbody > tr').filter({
+    has: page.locator('td.customer', { hasText: 'Apple' }),
+  });
+  await expect(appleRow).toHaveCount(1);
+
+  // Structural pseudo-classes
+  const firstRow = panel.locator('tbody > tr:nth-child(1)');
+  await expect(firstRow.locator('td.status')).toHaveText('Open');
+
+  // Sibling combinator for the summary after the table
+  await expect(panel.locator('table + .summary')).toBeVisible();
+
+  // Poll a computed value
+  await expect.poll(async () =&gt; await panel.locator('tbody > tr').count()).toBe(3);
+});</code></pre></div>
+    </section>
+
+    <!-- 8. BEFORE AFTER -->
+    <section class="doc" id="beforeafter" data-searchable>
+      <h2><span class="num">08</span>Before vs After</h2>
+      <p>Playwright replaced the old <code class="inline">page.$</code> / <code class="inline">waitForSelector</code> pattern with locators. This is a real migration for CSS-based suites.</p>
+
+      <h3>Without locators (element handles + manual waits)</h3>
+      <div class="code"><pre><code>// Old approach: handle resolved once, no auto-waiting, no retrying assertions
+import { test, expect } from '@playwright/test';
+
+test('old style', async ({ page }) =&gt; {
+  await page.goto('/inbox');
+
+  await page.waitForSelector('.compose-btn', { state: 'visible' });
+  const handle = await page.$('.compose-btn');
+  await handle.click();
+
+  const status = await page.$('.status');
+  expect(await status.textContent()).toBe('Ready');   // no retry: flaky
+});</code></pre></div>
+
+      <h3>With CSS locators (current API)</h3>
+      <div class="code"><pre><code>// Modern approach: auto-waiting locator + retrying assertion
+import { test, expect } from '@playwright/test';
+
+test('new style', async ({ page }) =&gt; {
+  await page.goto('/inbox');
+
+  await page.locator('.compose-btn').click();
+  await expect(page.locator('.status')).toHaveText('Ready');
+});</code></pre></div>
+
+      <h3>Why the "after" version is better</h3>
+      <ul>
+        <li><strong>Auto-waiting</strong> &mdash; the locator waits for actionability; the handle had to be found first and could go stale.</li>
+        <li><strong>Retrying assertions</strong> &mdash; <code class="inline">toHaveText()</code> retries; reading <code class="inline">textContent()</code> once does not.</li>
+        <li><strong>Strict mode</strong> &mdash; ambiguous selectors fail loudly instead of silently using the first match.</li>
+        <li><strong>Composability</strong> &mdash; chaining, <code class="inline">filter()</code>, and <code class="inline">.nth()</code> build precise locators from simple ones.</li>
+      </ul>
+
+      <h3>Reference: CSS vs XPath for the same target</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Goal</th><th>CSS</th><th>XPath</th></tr></thead>
+          <tbody>
+            <tr><td>By attribute</td><td><code>[data-testid="save"]</code></td><td><code>//*[@data-testid="save"]</code></td></tr>
+            <tr><td>By text</td><td><code>:has-text("Save")</code></td><td><code>//button[normalize-space()="Save"]</code></td></tr>
+            <tr><td>First match globally</td><td><code>.btn</code> + <code>.first()</code></td><td><code>(//button[@class="btn"])[1]</code></td></tr>
+            <tr><td>Parent</td><td>not supported</td><td><code>//td[text()="Ada"]/..</code></td></tr>
+            <tr><td>Contains descendant</td><td><code>article:has(img)</code></td><td><code>//article[.//img]</code></td></tr>
+            <tr><td>Shadow DOM</td><td>pierces open roots</td><td>does not pierce</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9. MISTAKES -->
+    <section class="doc" id="mistakes" data-searchable>
+      <h2><span class="num">09</span>Common Mistakes</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mistake</th><th>Why It Happens</th><th>Incorrect Example</th><th>Correct Example</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Selecting on generated class names</td>
+              <td>CSS-in-JS produces hashed classes that change each build.</td>
+              <td><code>locator('.css-1x2y3z')</code></td>
+              <td><code>locator('[data-testid="submit"]')</code></td>
+            </tr>
+            <tr>
+              <td>Over-long descendant chains</td>
+              <td>Copied from DevTools; any markup change breaks it.</td>
+              <td><code>locator('div &gt; div &gt; main &gt; form &gt; div &gt; input')</code></td>
+              <td><code>locator('form input[type="email"]')</code></td>
+            </tr>
+            <tr>
+              <td>Confusing descendant with child</td>
+              <td>Forgetting that a space matches any depth.</td>
+              <td><code>locator('ul li')</code> for direct items only</td>
+              <td><code>locator('ul &gt; li')</code></td>
+            </tr>
+            <tr>
+              <td>Substring class matching</td>
+              <td><code>*=</code> is a raw substring, not a token match.</td>
+              <td><code>[class*="card"]</code> also matches <code>card-header</code></td>
+              <td><code>[class~="card"]</code></td>
+            </tr>
+            <tr>
+              <td>Using an invalid id selector</td>
+              <td>Ids that start with a digit or need escaping.</td>
+              <td><code>locator('#123')</code></td>
+              <td><code>locator('[id="123"]')</code></td>
+            </tr>
+            <tr>
+              <td>Mixing up <code>:nth-child</code> and <code>:nth-of-type</code></td>
+              <td>One counts all siblings, the other only same-tag siblings.</td>
+              <td><code>p:nth-child(2)</code> when a heading precedes it</td>
+              <td><code>p:nth-of-type(2)</code></td>
+            </tr>
+            <tr>
+              <td>Ignoring strict mode</td>
+              <td>A broad selector matches several elements and errors.</td>
+              <td><code>locator('.btn').click()</code></td>
+              <td><code>locator('.card:has-text("Laptop") .btn').click()</code></td>
+            </tr>
+            <tr>
+              <td>Broad <code>:has-text()</code> base</td>
+              <td>Text matches ancestors too, so many nodes qualify.</td>
+              <td><code>locator(':has-text("Save")')</code></td>
+              <td><code>locator('button:has-text("Save")')</code></td>
+            </tr>
+            <tr>
+              <td>Relying on <code>:hover</code> or <code>::before</code></td>
+              <td>Generated and transient states are not matchable DOM.</td>
+              <td><code>locator('.tooltip::after')</code></td>
+              <td><code>hover()</code> the trigger, then assert the real tooltip element</td>
+            </tr>
+            <tr>
+              <td>Using <code>:visible</code> in modern code</td>
+              <td>It is a legacy extension; filter() is preferred.</td>
+              <td><code>locator('li:visible')</code></td>
+              <td><code>locator('li').filter({ visible: true })</code></td>
+            </tr>
+            <tr>
+              <td>Expecting CSS to select a parent</td>
+              <td>CSS matches downward only.</td>
+              <td><code>locator('input[type="email"]:parent')</code></td>
+              <td><code>locator('.field:has(input[type="email"])')</code></td>
+            </tr>
+            <tr>
+              <td>Relying on the tag in a class-heavy app</td>
+              <td>Frameworks render different tags after refactors.</td>
+              <td><code>locator('div.submit')</code></td>
+              <td><code>locator('[data-testid="submit"]')</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 10. BEST PRACTICES -->
+    <section class="doc" id="bestpractices" data-searchable>
+      <h2><span class="num">10</span>Best Practices</h2>
+      <ol>
+        <li><strong>Prefer user-facing locators first.</strong> Use <code class="inline">getByRole</code> / <code class="inline">getByLabel</code> / <code class="inline">getByTestId</code> before raw CSS.</li>
+        <li><strong>Anchor on stable attributes.</strong> <code class="inline">[data-testid]</code>, <code class="inline">[name]</code>, and <code class="inline">[type]</code> change far less than classes or structure.</li>
+        <li><strong>Avoid generated class names.</strong> Hashed CSS-in-JS classes are build artifacts, not contracts.</li>
+        <li><strong>Keep selectors short.</strong> One or two steps; a long descendant chain is a maintenance liability.</li>
+        <li><strong>Use the child combinator when you mean direct.</strong> A space matches any depth and can pull in nested elements.</li>
+        <li><strong>Prefer <code class="inline">[class~="token"]</code> over <code class="inline">[class*="token"]</code></strong> to avoid substring collisions like <code class="inline">card</code> matching <code class="inline">card-header</code>.</li>
+        <li><strong>Use <code class="inline">filter()</code> over <code class="inline">:has()</code> / <code class="inline">:has-text()</code></strong> in modern code &mdash; it chains better and produces clearer failures.</li>
+        <li><strong>Respect strict mode.</strong> Aim for exactly one match rather than hiding ambiguity with <code class="inline">.first()</code>.</li>
+        <li><strong>Scope before you search.</strong> Locate a container once, then chain &mdash; it is faster and prevents cross-page matches.</li>
+        <li><strong>Avoid positional selectors for uniqueness.</strong> <code class="inline">:nth-child()</code> shifts when data changes; use it only for genuinely positional assertions.</li>
+        <li><strong>Do not target pseudo-elements.</strong> <code class="inline">::before</code> / <code class="inline">::after</code> content is not in the DOM.</li>
+        <li><strong>Encapsulate fragile selectors.</strong> Keep them inside page objects so a markup change is a one-line fix.</li>
+      </ol>
+    </section>
+
+    <!-- 11. INTERVIEW -->
+    <section class="doc" id="interview" data-searchable>
+      <h2><span class="num">11</span>Interview Questions</h2>
+
+      <h3>Beginner Questions</h3>
+      <div class="qa">
+        <div class="q">1. Are CSS selectors the default in Playwright?</div>
+        <div class="a">Yes. <code class="inline">page.locator('.btn')</code> uses the CSS engine. Other engines are selected with a prefix such as <code class="inline">xpath=</code> or the <code class="inline">getBy*</code> methods.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2. What is the difference between <code class="inline">.btn</code> and <code class="inline">#btn</code>?</div>
+        <div class="a"><code class="inline">.btn</code> matches elements whose class list contains <code class="inline">btn</code>; <code class="inline">#btn</code> matches the single element whose <code class="inline">id</code> is <code class="inline">btn</code>.</div>
+      </div>
+      <div class="qa">
+        <div class="q">3. What does <code class="inline">ul &gt; li</code> match compared with <code class="inline">ul li</code>?</div>
+        <div class="a"><code class="inline">ul &gt; li</code> matches only <code class="inline">li</code> that are direct children of a <code class="inline">ul</code>; <code class="inline">ul li</code> matches <code class="inline">li</code> at any depth below a <code class="inline">ul</code>.</div>
+      </div>
+      <div class="qa">
+        <div class="q">4. How do you select an input by its type?</div>
+        <div class="a">With an attribute selector: <code class="inline">input[type="email"]</code>, or <code class="inline">[type="email"]</code> to allow any tag.</div>
+      </div>
+      <div class="qa">
+        <div class="q">5. What does <code class="inline">:nth-child(2)</code> select?</div>
+        <div class="a">The element that is the second child of its parent, counting all sibling elements regardless of tag. <code class="inline">:nth-of-type(2)</code> counts only siblings of the same tag.</div>
+      </div>
+
+      <h3>Intermediate Questions</h3>
+      <div class="qa">
+        <div class="q">1. Can CSS select a parent element? How do you work around it?</div>
+        <div class="a">No &mdash; CSS only matches downward. Use Playwright's <code class="inline">:has()</code> or <code class="inline">filter({ has })</code> to match a container by its descendant, or switch to XPath (<code class="inline">/..</code>) for true upward traversal.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2. What is the difference between <code class="inline">[class*="card"]</code> and <code class="inline">[class~="card"]</code>?</div>
+        <div class="a"><code class="inline">*=</code> is a raw substring test, so it also matches <code class="inline">card-header</code>. <code class="inline">~=</code> matches only when <code class="inline">card</code> appears as a whitespace-separated word, i.e. a whole class token.</div>
+      </div>
+      <div class="qa">
+        <div class="q">3. How does Playwright's strict mode affect CSS locators?</div>
+        <div class="a">If a selector resolves to more than one element, actions and assertions throw a strict-mode violation. Narrow the selector or resolve it with <code class="inline">.first()</code> / <code class="inline">.nth()</code>.</div>
+      </div>
+      <div class="qa">
+        <div class="q">4. What does <code class="inline">:has-text()</code> do, and why can it be too broad?</div>
+        <div class="a">It filters elements whose text content contains the string, case-insensitively. Because ancestors also contain that text, an unqualified base selector matches many nodes &mdash; always anchor it to a tag or class.</div>
+      </div>
+      <div class="qa">
+        <div class="q">5. Why is <code class="inline">.css-1x2y3z</code> a bad locator?</div>
+        <div class="a">It is a generated hash from a CSS-in-JS tool. It carries no semantic meaning and changes between builds, so the test breaks whenever styles are regenerated. Use a test id or a stable attribute instead.</div>
+      </div>
+
+      <h3>Advanced Questions</h3>
+      <div class="qa">
+        <div class="q">1. How does Playwright's CSS engine differ from <code class="inline">querySelectorAll</code>?</div>
+        <div class="a">Playwright's engine is a superset: it adds pseudo-classes such as <code class="inline">:has()</code>, <code class="inline">:has-text()</code>, <code class="inline">:nth-match()</code>, and <code class="inline">:visible</code>, and it can pierce open shadow DOM. Plain <code class="inline">querySelectorAll</code> supports only standard CSS and does not cross shadow boundaries.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2. When would you choose XPath over CSS?</div>
+        <div class="a">When you need upward traversal (parent/ancestor), sibling selection that runs backwards, or text matching that CSS cannot express. For attribute and structural matching, and for shadow DOM, CSS is preferable.</div>
+      </div>
+      <div class="qa">
+        <div class="q">3. How would you locate the row containing "Ada" and click its Edit button in CSS?</div>
+        <div class="a">Match the row by its content, then chain: <code class="inline">page.locator('tr:has(td:has-text("Ada"))').locator('button:has-text("Edit")')</code>. In modern code, <code class="inline">.filter({ hasText: 'Ada' })</code> reads better.</div>
+      </div>
+      <div class="qa">
+        <div class="q">4. Why can you not assert on <code class="inline">::before</code> content with a selector?</div>
+        <div class="a">Pseudo-elements are generated by CSS and are not in the DOM node tree, so no selector engine can address them. Assert the parent element's rendered text or use a visual assertion instead.</div>
+      </div>
+      <div class="qa">
+        <div class="q">5. A selector works in DevTools but fails in Playwright. What could differ?</div>
+        <div class="a">Playwright's strict mode may be reporting a multi-match, shadow DOM may be involved, the element may be inside an iframe (which needs <code class="inline">frameLocator</code>), or the element may not yet exist. Check the locator in the trace viewer for the exact state Playwright observed.</div>
+      </div>
+    </section>
+
+    <!-- 12. CHEAT SHEET -->
+    <section class="doc" id="cheatsheet" data-searchable>
+      <h2><span class="num">12</span>Quick Reference / Cheat Sheet</h2>
+
+      <h3>Basics &amp; attributes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Selector</th></tr></thead>
+          <tbody>
+            <tr><td>By tag</td><td><code>button</code></td></tr>
+            <tr><td>By class</td><td><code>.btn-primary</code></td></tr>
+            <tr><td>By id</td><td><code>#login</code></td></tr>
+            <tr><td>Attribute equals</td><td><code>[type="email"]</code></td></tr>
+            <tr><td>Attribute exists</td><td><code>[required]</code></td></tr>
+            <tr><td>Starts with</td><td><code>[href^="https"]</code></td></tr>
+            <tr><td>Ends with</td><td><code>[href$=".pdf"]</code></td></tr>
+            <tr><td>Contains substring</td><td><code>[class*="card"]</code></td></tr>
+            <tr><td>Whole class token</td><td><code>[class~="card"]</code></td></tr>
+            <tr><td>Case-insensitive</td><td><code>[type="EMAIL" i]</code></td></tr>
+            <tr><td>Test id</td><td><code>[data-testid="save"]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Structure &amp; state</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Selector</th></tr></thead>
+          <tbody>
+            <tr><td>Direct child</td><td><code>ul &gt; li</code></td></tr>
+            <tr><td>Next sibling</td><td><code>h2 + p</code></td></tr>
+            <tr><td>Any later sibling</td><td><code>h2 ~ p</code></td></tr>
+            <tr><td>First child</td><td><code>li:first-child</code></td></tr>
+            <tr><td>Last child</td><td><code>li:last-child</code></td></tr>
+            <tr><td>Nth child</td><td><code>tr:nth-child(2)</code></td></tr>
+            <tr><td>Odd rows</td><td><code>tr:nth-child(odd)</code></td></tr>
+            <tr><td>Enabled button</td><td><code>button:not([disabled])</code></td></tr>
+            <tr><td>Checked input</td><td><code>input:checked</code></td></tr>
+            <tr><td>Required field</td><td><code>input:required</code></td></tr>
+            <tr><td>Any of several tags</td><td><code>:is(h1, h2, h3)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Playwright extensions &amp; API</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Syntax</th></tr></thead>
+          <tbody>
+            <tr><td>Contains descendant</td><td><code>locator('article:has(img)')</code></td></tr>
+            <tr><td>Contains text</td><td><code>locator('button:has-text("Save")')</code></td></tr>
+            <tr><td>Exact text</td><td><code>locator(':text-is("Submit")')</code></td></tr>
+            <tr><td>Regex text</td><td><code>locator(':text-matches("^Save$")')</code></td></tr>
+            <tr><td>Nth match globally</td><td><code>locator(':nth-match(.btn, 3)')</code></td></tr>
+            <tr><td>Visible only</td><td><code>locator('li').filter({ visible: true })</code></td></tr>
+            <tr><td>Filter by descendant</td><td><code>locator('.card').filter({ has: inner })</code></td></tr>
+            <tr><td>Filter by text</td><td><code>locator('.card').filter({ hasText: 'Laptop' })</code></td></tr>
+            <tr><td>Nth (0-based)</td><td><code>locator('li').nth(2)</code></td></tr>
+            <tr><td>Assert count</td><td><code>await expect(loc).toHaveCount(3)</code></td></tr>
+            <tr><td>Assert CSS property</td><td><code>await expect(loc).toHaveCSS('display', 'none')</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 13. RELATED -->
+    <section class="doc" id="related" data-searchable>
+      <h2><span class="num">13</span>Related Topics</h2>
+      <ul>
+        <li><strong>Locators</strong> &mdash; the Playwright abstraction every selector engine feeds into.</li>
+        <li><strong>getByRole / getByLabel / getByTestId / getByText</strong> &mdash; the recommended user-facing locators.</li>
+        <li><strong>XPath</strong> &mdash; the complementary engine for text and upward traversal.</li>
+        <li><strong>Strict mode</strong> &mdash; why a selector matching several elements fails.</li>
+        <li><strong>Auto-waiting</strong> &mdash; the actionability checks behind every locator action.</li>
+        <li><strong>Shadow DOM</strong> &mdash; how Playwright's CSS engine pierces open shadow roots, and <code class="inline">:light()</code>.</li>
+        <li><strong>Frames</strong> &mdash; using <code class="inline">frameLocator()</code> to search inside an iframe.</li>
+        <li><strong>Assertions (<code class="inline">expect</code>)</strong> &mdash; verifying what a locator found.</li>
+      </ul>
+    </section>
+
+    <!-- 14. TAKEAWAYS -->
+    <section class="doc" id="takeaways" data-searchable>
+      <h2><span class="num">14</span>Key Takeaways</h2>
+      <ul>
+        <li>CSS is the default selector engine in Playwright &mdash; no prefix is required for <code class="inline">locator('.class')</code>.</li>
+        <li>Playwright extends standard CSS with <code class="inline">:has()</code>, <code class="inline">:has-text()</code>, <code class="inline">:text-is()</code>, <code class="inline">:nth-match()</code>, <code class="inline">:visible</code>, and <code class="inline">:light()</code>.</li>
+        <li>CSS matches downward only; there is no parent selector. Use <code class="inline">:has()</code>, <code class="inline">filter()</code>, or XPath for containers and upward traversal.</li>
+        <li>Attribute selectors (<code class="inline">[data-testid]</code>, <code class="inline">[name]</code>, <code class="inline">[type]</code>) are more stable than class names, and far more stable than generated hashes.</li>
+        <li><code class="inline">[class*=...]</code> is a substring test; <code class="inline">[class~=...]</code> matches a whole class token.</li>
+        <li>Prefer <code class="inline">locator.filter()</code> and the <code class="inline">getBy*</code> locators over pseudo-class-heavy selectors &mdash; they read better and fail more clearly.</li>
+        <li>Strict mode, auto-waiting, chaining, and shadow-DOM piercing all apply to CSS locators.</li>
+        <li>Pseudo-elements are not in the DOM and cannot be targeted by any selector.</li>
+      </ul>
+    </section>
+
+    <footer class="doc-footer">
+      Playwright CSS Selector Reference &middot; JavaScript &middot; Self-contained help page &middot; Verify behaviour against the official Playwright documentation for your installed version.
+    </footer>
+  </main>
+</div>
+
+<button id="toTop" aria-label="Back to top">&#8593;</button>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Copy-to-clipboard buttons ---------- */
+  document.querySelectorAll('.code').forEach(function (block) {
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var text = pre.innerText;
+      var done = function () {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+    block.appendChild(btn);
+  });
+
+  function fallbackCopy(text, done) {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'absolute';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+    document.body.removeChild(area);
+    done();
+  }
+
+  /* ---------- Expand / collapse all function entries ---------- */
+  var allDetails = document.querySelectorAll('details.fn');
+  var expandAll = document.getElementById('expandAll');
+  var collapseAll = document.getElementById('collapseAll');
+  if (expandAll) {
+    expandAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = true; });
+    });
+  }
+  if (collapseAll) {
+    collapseAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = false; });
+    });
+  }
+
+  /* ---------- Client-side search ---------- */
+  var search = document.getElementById('search');
+  var counter = document.getElementById('resultCount');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('[data-searchable]'));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+
+  var noResults = document.createElement('div');
+  noResults.className = 'no-results';
+  noResults.hidden = true;
+  noResults.textContent = 'No matching sections found. Try a different keyword.';
+  var firstSection = sections[0];
+  if (firstSection && firstSection.parentNode) {
+    firstSection.parentNode.insertBefore(noResults, firstSection);
+  }
+
+  function runSearch(rawQuery) {
+    var query = rawQuery.trim().toLowerCase();
+    var matches = 0;
+
+    sections.forEach(function (section) {
+      var haystack = (section.textContent || '').toLowerCase();
+      var hit = query === '' || haystack.indexOf(query) !== -1;
+      section.classList.toggle('search-hidden', !hit);
+      if (hit) { matches++; }
+    });
+
+    navLinks.forEach(function (link) {
+      var target = document.querySelector(link.getAttribute('href'));
+      var hidden = target && target.classList.contains('search-hidden');
+      link.classList.toggle('nav-dim', !!hidden);
+    });
+
+    if (query === '') {
+      counter.textContent = '';
+      noResults.hidden = true;
+    } else {
+      counter.textContent = matches + (matches === 1 ? ' section matches' : ' sections match');
+      noResults.hidden = matches !== 0;
+    }
+  }
+
+  if (search) {
+    search.addEventListener('input', function () { runSearch(search.value); });
+    search.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        search.value = '';
+        runSearch('');
+      }
+    });
+  }
+
+  /* ---------- Back-to-top button ---------- */
+  var toTop = document.getElementById('toTop');
+  function onScroll() {
+    if (window.scrollY > 400) {
+      toTop.classList.add('show');
+    } else {
+      toTop.classList.remove('show');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ---------- Mobile menu toggle ---------- */
+  var menuToggle = document.getElementById('menuToggle');
+  var sidebar = document.getElementById('sidebar');
+  if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', function () {
+      var open = sidebar.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', String(open));
+    });
+    sidebar.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && window.innerWidth <= 980) {
+        sidebar.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

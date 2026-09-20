@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ARIA in HTML — Help Reference</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface-alt: #eef2f7;
+    --border: #d9e0ea;
+    --text: #1c2533;
+    --text-muted: #5b6779;
+    --primary: #0b6bcb;
+    --primary-dark: #084f96;
+    --accent: #7c3aed;
+    --code-bg: #101826;
+    --code-text: #e6edf6;
+    --tip-bg: #e8f6ee;
+    --tip-border: #34a853;
+    --warn-bg: #fdf3e3;
+    --warn-border: #e08a00;
+    --note-bg: #e8f1fd;
+    --note-border: #0b6bcb;
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 6px 18px rgba(16, 24, 40, 0.06);
+    --radius: 10px;
+    --sidebar-w: 280px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+
+  code, pre, kbd {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+  }
+
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    max-width: 1500px;
+    margin: 0 auto;
+    gap: 0;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 22px 18px 40px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.02rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .brand .logo {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 0.85rem;
+  }
+  .brand small {
+    display: block;
+    font-weight: 500;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+  }
+
+  .search-wrap { margin: 16px 0 8px; }
+  .search-wrap label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  #search {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--surface-alt);
+    color: var(--text);
+  }
+  #search:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(11, 107, 203, 0.15);
+  }
+  #resultCount {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-height: 16px;
+    margin-top: 6px;
+  }
+
+  .nav ul { list-style: none; margin: 10px 0 0; padding: 0; }
+  .nav li { margin: 1px 0; }
+  .nav a {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 7px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .nav a:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav a.nav-dim { opacity: 0.32; }
+  .nav .group {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #8b96a8;
+    margin: 16px 0 4px 12px;
+    font-weight: 700;
+  }
+
+  /* ---------- Main ---------- */
+  main { padding: 30px 40px 100px; min-width: 0; }
+
+  .page-header {
+    background: linear-gradient(135deg, #0b6bcb, #7c3aed);
+    color: #fff;
+    border-radius: 14px;
+    padding: 30px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+  }
+  .page-header .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.72rem;
+    opacity: 0.9;
+    font-weight: 600;
+  }
+  .page-header h1 { margin: 8px 0 10px; font-size: 2rem; line-height: 1.2; }
+  .page-header p { margin: 0; opacity: 0.94; max-width: 70ch; }
+  .badges { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  section.doc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 26px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+    scroll-margin-top: 16px;
+  }
+  section.doc.search-hidden { display: none; }
+
+  h2 {
+    font-size: 1.4rem;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--surface-alt);
+    color: var(--text);
+  }
+  h2 .num {
+    display: inline-block;
+    background: var(--surface-alt);
+    color: var(--primary);
+    font-size: 0.8rem;
+    padding: 2px 9px;
+    border-radius: 6px;
+    margin-right: 10px;
+    vertical-align: middle;
+    font-weight: 700;
+  }
+  h3 { font-size: 1.12rem; margin: 22px 0 10px; color: var(--primary-dark); }
+  h4 { font-size: 0.98rem; margin: 16px 0 6px; color: var(--text); }
+  p { margin: 10px 0; }
+  ul, ol { margin: 10px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+
+  .lead { font-size: 1.02rem; color: var(--text-muted); }
+
+  /* ---------- Code ---------- */
+  .code { position: relative; margin: 14px 0; }
+  .code pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 18px;
+    border-radius: 9px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    margin: 0;
+    tab-size: 2;
+  }
+  .code code { color: inherit; }
+  .copy-btn {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    background: rgba(255,255,255,0.12);
+    color: #dce6f5;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.24); }
+  .copy-btn.copied { background: #34a853; border-color: #34a853; color: #fff; }
+
+  code.inline {
+    background: var(--surface-alt);
+    color: #b4245a;
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Tables ---------- */
+  .table-wrap { overflow-x: auto; margin: 14px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+    min-width: 640px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--surface-alt);
+    font-weight: 700;
+    color: var(--text);
+    position: sticky;
+    top: 0;
+  }
+  tbody tr:nth-child(even) { background: #fafbfd; }
+  td code, th code {
+    background: #eef2f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #b4245a;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Callouts ---------- */
+  .callout {
+    border-left: 4px solid;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  .callout .title { font-weight: 700; display: block; margin-bottom: 3px; }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.note { background: var(--note-bg); border-color: var(--note-border); }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .card {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px 16px;
+  }
+  .card h4 { margin: 0 0 6px; color: var(--primary-dark); }
+  .card p { margin: 0; font-size: 0.88rem; color: var(--text-muted); }
+
+  /* ---------- Function details ---------- */
+  details.fn {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    margin: 10px 0;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  details.fn > summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 0.94rem;
+    background: var(--surface-alt);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  details.fn > summary::-webkit-details-marker { display: none; }
+  details.fn > summary::after {
+    content: "+";
+    font-size: 1.15rem;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  details.fn[open] > summary::after { content: "\2013"; }
+  details.fn[open] > summary { border-bottom: 1px solid var(--border); }
+  .fn-body { padding: 6px 18px 18px; }
+  .fn-body dl { margin: 0; }
+  .fn-body dt {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-top: 14px;
+  }
+  .fn-body dd { margin: 4px 0 0; }
+
+  .controls { display: flex; gap: 8px; margin: 6px 0 14px; flex-wrap: wrap; }
+  .controls button {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 6px 13px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .controls button:hover { background: #e2e9f3; }
+
+  /* ---------- Q&A ---------- */
+  .qa { border-left: 3px solid var(--accent); padding: 2px 0 2px 16px; margin: 16px 0; }
+  .qa .q { font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .qa .a { color: var(--text-muted); font-size: 0.93rem; }
+
+  /* ---------- Misc ---------- */
+  .no-results {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: #7a4a00;
+    padding: 14px 18px;
+    border-radius: 9px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  [hidden] { display: none !important; }
+
+  #toTop {
+    position: fixed;
+    bottom: 26px;
+    right: 26px;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 50;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; }
+  #toTop:hover { transform: translateY(-3px); background: var(--primary-dark); }
+
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 60;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 13px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  footer.doc-footer {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    text-align: center;
+    padding: 10px 0 40px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 82%;
+      max-width: 320px;
+      height: 100vh;
+      z-index: 55;
+      transform: translateX(-102%);
+      transition: transform .25s ease;
+      box-shadow: var(--shadow);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: block; }
+    main { padding: 70px 18px 90px; }
+    .page-header { padding: 22px 20px; }
+    .page-header h1 { font-size: 1.5rem; }
+    section.doc { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">&#9776; Menu</button>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="logo">AR</span>
+      <span>Help Portal<small>HTML &middot; WAI-ARIA</small></span>
+    </div>
+
+    <div class="search-wrap">
+      <label for="search">Search this page</label>
+      <input id="search" type="search" placeholder="e.g. aria-label, role=dialog, live region" autocomplete="off" />
+      <div id="resultCount" role="status" aria-live="polite"></div>
+    </div>
+
+    <nav class="nav" aria-label="Page sections">
+      <div class="group">Overview</div>
+      <ul>
+        <li><a href="#what">What Is It?</a></li>
+        <li><a href="#syntax">Syntax</a></li>
+        <li><a href="#inhtml">ARIA in HTML</a></li>
+      </ul>
+      <div class="group">Reference</div>
+      <ul>
+        <li><a href="#roles">Role Reference</a></li>
+        <li><a href="#attributes">Attribute Reference</a></li>
+        <li><a href="#names">Accessible Names</a></li>
+        <li><a href="#live">Live Regions</a></li>
+        <li><a href="#details">Detailed Reference</a></li>
+      </ul>
+      <div class="group">Practice</div>
+      <ul>
+        <li><a href="#examples">Practical Examples</a></li>
+        <li><a href="#beforeafter">Before vs After</a></li>
+        <li><a href="#mistakes">Common Mistakes</a></li>
+        <li><a href="#bestpractices">Best Practices</a></li>
+      </ul>
+      <div class="group">Learn</div>
+      <ul>
+        <li><a href="#interview">Interview Questions</a></li>
+        <li><a href="#cheatsheet">Cheat Sheet</a></li>
+        <li><a href="#related">Related Topics</a></li>
+        <li><a href="#takeaways">Key Takeaways</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="page-header">
+      <div class="eyebrow">Accessibility Reference</div>
+      <h1>ARIA in HTML</h1>
+      <p>WAI-ARIA roles, states, and properties used with HTML &mdash; what they do, when they are appropriate, and why native HTML elements usually win.</p>
+      <div class="badges">
+        <span class="badge">WAI-ARIA 1.2</span>
+        <span class="badge">HTML + JavaScript</span>
+        <span class="badge">role / aria-*</span>
+        <span class="badge">WCAG 2.2</span>
+        <span class="badge">Beginner &rarr; Advanced</span>
+      </div>
+    </header>
+
+    <!-- 1. WHAT IS IT -->
+    <section class="doc" id="what" data-searchable>
+      <h2><span class="num">01</span>What Is It?</h2>
+      <p class="lead"><strong>ARIA</strong> (Accessible Rich Internet Applications), formally <strong>WAI-ARIA</strong>, is a W3C specification that lets you add accessibility semantics to HTML: a <strong>role</strong> says what an element <em>is</em>, and <code class="inline">aria-*</code> <strong>states and properties</strong> describe its current condition. Browsers turn those semantics into the <strong>accessibility tree</strong> that assistive technologies such as screen readers consume.</p>
+
+      <p>ARIA is expressed entirely through attributes. It is markup that annotates the DOM &mdash; it is not a separate language, and it adds no behaviour of its own.</p>
+      <div class="code"><pre><code>&lt;!-- Semantics only: this claims "button" but behaves like a div --&gt;
+&lt;div role="button" tabindex="0" aria-pressed="false"&gt;Mute&lt;/div&gt;</code></pre></div>
+
+      <h3>Why it exists</h3>
+      <p>HTML has a fixed vocabulary. When you build a custom widget out of generic <code class="inline">&lt;div&gt;</code> and <code class="inline">&lt;span&gt;</code> elements, the markup carries no meaning: a screen reader sees anonymous text with no idea that it is a button, tab, slider, or dialog. ARIA fills that gap by supplying the missing role and the state information that a custom widget needs to be usable non-visually.</p>
+
+      <h3>What problem it solves</h3>
+      <ul>
+        <li><strong>Naming</strong> &mdash; gives an accessible name to controls that have no visible label, such as an icon-only button.</li>
+        <li><strong>Semantics</strong> &mdash; describes composite widgets (tabs, menus, grids, trees, comboboxes) that HTML has no native element for.</li>
+        <li><strong>State</strong> &mdash; communicates dynamic conditions like expanded, checked, selected, busy, invalid, and current.</li>
+        <li><strong>Live updates</strong> &mdash; announces content that changes without a page reload (live regions).</li>
+      </ul>
+
+      <h3>Where it is commonly used</h3>
+      <ul>
+        <li>Reusable component libraries (design systems) that build custom buttons, dialogs, tabs, and menus.</li>
+        <li>Single-page applications where the DOM is rewritten by JavaScript.</li>
+        <li>Icon-only controls, loading states, toasts, and validation messages.</li>
+        <li>Landmark landmarks on complex page layouts so screen reader users can jump between regions.</li>
+        <li>Automated tests: Playwright's <code class="inline">getByRole()</code>, <code class="inline">toHaveAccessibleName()</code>, and <code class="inline">toHaveRole()</code> read exactly these semantics.</li>
+      </ul>
+
+      <h3>When a developer should use it</h3>
+      <p>Use ARIA <strong>after</strong> you have exhausted native HTML, never before. The W3C's own guidance is blunt: <em>"No ARIA is better than bad ARIA."</em> Reach for ARIA when (a) no HTML element provides the required role or state, (b) you are composing a custom widget, or (c) you need to describe a dynamic state that native HTML cannot express. If a native element already does the job, adding ARIA is redundant at best and contradictory at worst.</p>
+
+      <div class="callout warn">
+        <span class="title">ARIA does not add behaviour</span>
+        Adding <code class="inline">role="button"</code> to a <code class="inline">&lt;div&gt;</code> does not make it focusable, clickable, or keyboard-operable. ARIA only changes what assistive technology is <em>told</em>. You must supply focus handling and keyboard events in JavaScript yourself.
+      </div>
+
+      <div class="callout note">
+        <span class="title">Versions</span>
+        This page targets <strong>WAI-ARIA 1.2</strong> (W3C Recommendation, June 2023), the version implemented by current browsers. ARIA 1.1 added <code class="inline">aria-details</code>, <code class="inline">aria-errormessage</code>, <code class="inline">aria-keyshortcuts</code>, and <code class="inline">aria-modal</code>. <code class="inline">aria-description</code> is an ARIA 1.3 addition with limited support &mdash; use <code class="inline">aria-describedby</code> when broad support matters.
+      </div>
+    </section>
+
+    <!-- 2. SYNTAX -->
+    <section class="doc" id="syntax" data-searchable>
+      <h2><span class="num">02</span>Syntax</h2>
+
+      <h3>Basic form</h3>
+      <div class="code"><pre><code>&lt;element role="ROLE" aria-STATE="VALUE"&gt;content&lt;/element&gt;</code></pre></div>
+
+      <p>ARIA is written as ordinary HTML attributes. <code class="inline">role</code> and every <code class="inline">aria-*</code> attribute are global HTML attributes &mdash; they are valid on any element, though they are only <em>meaningful</em> on the roles that allow them.</p>
+
+      <div class="code"><pre><code>&lt;!-- 1. Role: what the element is --&gt;
+&lt;div role="tablist"&gt;
+
+  &lt;!-- 2. Composite widget: a tab controlled by aria-selected --&gt;
+  &lt;button role="tab" id="tab-a" aria-selected="true" aria-controls="panel-a"&gt;Overview&lt;/button&gt;
+  &lt;button role="tab" id="tab-b" aria-selected="false" aria-controls="panel-b" tabindex="-1"&gt;Details&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- 3. The panel the tab points at --&gt;
+&lt;div role="tabpanel" id="panel-a" aria-labelledby="tab-a"&gt;Overview content&lt;/div&gt;</code></pre></div>
+
+      <h3>Breaking down the parts</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Part</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>role</code></td><td>A single token naming the element's type, e.g. <code>button</code>, <code>navigation</code>, <code>dialog</code>. The first recognised token in the list wins; unknown values are ignored.</td></tr>
+            <tr><td><code>aria-*</code></td><td>A state or property. Names are lowercase, hyphen-separated, and always prefixed with <code>aria-</code>.</td></tr>
+            <tr><td>Attribute value</td><td>Usually a token (<code>"true"</code>, <code>"polite"</code>, <code>"mixed"</code>), a number, a string, or a space-separated list of element <code>id</code>s for reference attributes.</td></tr>
+            <tr><td><code>id</code> / <code>aria-labelledby</code></td><td>Reference attributes point at other elements by <code>id</code>. The referenced element's text becomes the name or description.</td></tr>
+            <tr><td><code>tabindex</code></td><td>Not ARIA, but the companion attribute that makes a custom widget reachable by keyboard.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="title">Role wins over the element</span>
+        Once you set <code class="inline">role</code>, assistive technology stops treating the element as its native type. <code class="inline">&lt;button role="heading"&gt;</code> is announced as a heading, not a button &mdash; a semantic contradiction you should never create.
+      </div>
+
+      <h3>Value formats</h3>
+      <div class="code"><pre><code>aria-hidden="true"                 // boolean token: "true" | "false"
+aria-live="polite"                 // enumerated token: off | polite | assertive
+aria-checked="mixed"               // tri-state enum: true | false | mixed
+aria-level="2"                     // integer
+aria-valuenow="42"                 // number
+aria-label="Close dialog"          // free text
+aria-labelledby="title close-btn"  // ID reference list (space separated)
+aria-keyshortcuts="Control+S"      // keystroke string</code></pre></div>
+
+      <h3>Attribute kinds</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kind</th><th>Definition</th><th>Examples</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Role</strong></td><td>What the element is; the anchor for every other ARIA attribute.</td><td><code>role="dialog"</code></td></tr>
+            <tr><td><strong>State</strong></td><td>Can change during the page's lifetime; usually updated by JavaScript in response to user action.</td><td><code>aria-expanded</code>, <code>aria-checked</code>, <code>aria-selected</code></td></tr>
+            <tr><td><strong>Property</strong></td><td>Describes a relatively stable characteristic of the element.</td><td><code>aria-label</code>, <code>aria-describedby</code>, <code>aria-required</code></td></tr>
+            <tr><td><strong>Global</strong></td><td>Applicable to essentially every role.</td><td><code>aria-hidden</code>, <code>aria-label</code>, <code>aria-live</code>, <code>aria-controls</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <span class="title">State vs property is pragmatic, not absolute</span>
+        The spec classifies many attributes in both camps. The practical question is whether the value changes at runtime &mdash; if it does, keep it in sync with the visual state, because a stale ARIA value is worse than no value.
+      </div>
+    </section>
+
+    <!-- 3. ARIA IN HTML -->
+    <section class="doc" id="inhtml" data-searchable>
+      <h2><span class="num">03</span>ARIA in HTML</h2>
+      <p>The HTML Accessibility API Mappings (<strong>HTML-AAM</strong>) define a default ARIA role for most HTML elements. That default is why the first rule of ARIA is to prefer native HTML: the role is already applied for you, and the browser supplies focus, keyboard, and form behaviour as well.</p>
+
+      <h3>Native elements already have implicit roles</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>HTML element</th><th>Implicit ARIA role</th><th>Adding ARIA is&hellip;</th></tr></thead>
+          <tbody>
+            <tr><td><code>&lt;button&gt;</code></td><td><code>button</code></td><td>Redundant (<code>role="button"</code> adds nothing)</td></tr>
+            <tr><td><code>&lt;a href&gt;</code></td><td><code>link</code></td><td>Redundant</td></tr>
+            <tr><td><code>&lt;nav&gt;</code></td><td><code>navigation</code></td><td>Redundant</td></tr>
+            <tr><td><code>&lt;main&gt;</code></td><td><code>main</code></td><td>Redundant</td></tr>
+            <tr><td><code>&lt;h1&gt;</code>&ndash;<code>&lt;h6&gt;</code></td><td><code>heading</code> (level 1&ndash;6)</td><td>Redundant</td></tr>
+            <tr><td><code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code></td><td><code>list</code></td><td>Redundant</td></tr>
+            <tr><td><code>&lt;li&gt;</code></td><td><code>listitem</code></td><td>Redundant</td></tr>
+            <tr><td><code>&lt;input type="checkbox"&gt;</code></td><td><code>checkbox</code></td><td>Redundant (and risky if you also set <code>aria-checked</code>)</td></tr>
+            <tr><td><code>&lt;input type="text"&gt;</code></td><td><code>textbox</code></td><td>Redundant</td></tr>
+            <tr><td><code>&lt;dialog&gt;</code></td><td><code>dialog</code></td><td><code>aria-modal="true"</code> is still useful when shown modally</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Where ARIA genuinely adds value</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Need</th><th>Native option</th><th>ARIA option</th></tr></thead>
+          <tbody>
+            <tr><td>Name an icon-only control</td><td>Visually hidden text</td><td><code>aria-label="Close"</code></td></tr>
+            <tr><td>Toggle button state</td><td>&mdash;</td><td><code>aria-pressed="true"</code></td></tr>
+            <tr><td>Disclosure (expand/collapse)</td><td><code>&lt;details&gt;</code> / <code>&lt;summary&gt;</code></td><td><code>aria-expanded</code> + <code>aria-controls</code></td></tr>
+            <tr><td>Tabs, menus, trees, grids, comboboxes</td><td>&mdash;</td><td>Composite widget roles</td></tr>
+            <tr><td>Announce dynamic messages</td><td>&mdash;</td><td><code>role="status"</code> / <code>aria-live</code></td></tr>
+            <tr><td>Mark the current page in navigation</td><td>&mdash;</td><td><code>aria-current="page"</code></td></tr>
+            <tr><td>Modal dialog isolation</td><td><code>&lt;dialog&gt;</code> + <code>showModal()</code></td><td><code>role="dialog" aria-modal="true"</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The five rules of ARIA</h3>
+      <ol>
+        <li><strong>Use native HTML first.</strong> If a native element or attribute already provides the semantics and behaviour, use it instead of repurposing an element with a role.</li>
+        <li><strong>Do not change native semantics unless you truly must.</strong> Avoid <code class="inline">&lt;button role="link"&gt;</code> and <code class="inline">&lt;h2 role="button"&gt;</code>.</li>
+        <li><strong>All interactive ARIA widgets must be keyboard operable.</strong> A role without keyboard support is unusable by keyboard and screen reader users.</li>
+        <li><strong>Never use <code class="inline">role="presentation"</code> or <code class="inline">aria-hidden="true"</code> on a focusable element.</strong> It creates content that receives focus but cannot be perceived.</li>
+        <li><strong>Every interactive element must have an accessible name.</strong> An unnamed button is announced as just "button".</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="title">Landmarks come almost free</span>
+        Using <code class="inline">&lt;header&gt;</code>, <code class="inline">&lt;nav&gt;</code>, <code class="inline">&lt;main&gt;</code>, <code class="inline">&lt;aside&gt;</code>, and <code class="inline">&lt;footer&gt;</code> gives screen reader users landmark navigation with no ARIA at all. Reserve <code class="inline">role="region"</code> for named <code class="inline">&lt;section&gt;</code> elements that are worth jumping to.
+      </div>
+    </section>
+
+    <!-- 4. ROLES -->
+    <section class="doc" id="roles" data-searchable>
+      <h2><span class="num">04</span>Role Reference</h2>
+      <p>A role tells assistive technology what an element is. Roles are grouped into categories; the category determines what <code class="inline">aria-*</code> attributes are legal and what keyboard behaviour users will expect. Common roles are listed first.</p>
+
+      <h3>Landmark roles</h3>
+      <p>Major page regions. Most map to an HTML5 element &mdash; prefer the element.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Equivalent element</th><th>Purpose</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>banner</code></td><td><code>&lt;header&gt;</code></td><td>Site-oriented header region</td><td>Only when not nested inside another landmark</td></tr>
+            <tr><td><code>navigation</code></td><td><code>&lt;nav&gt;</code></td><td>Group of navigation links</td><td>Label each one when several exist</td></tr>
+            <tr><td><code>main</code></td><td><code>&lt;main&gt;</code></td><td>Primary content</td><td>Use once per page</td></tr>
+            <tr><td><code>complementary</code></td><td><code>&lt;aside&gt;</code></td><td>Supporting content</td><td>Must be a sibling of main to be exposed</td></tr>
+            <tr><td><code>contentinfo</code></td><td><code>&lt;footer&gt;</code></td><td>Footer information</td><td>Only when not nested inside another landmark</td></tr>
+            <tr><td><code>region</code></td><td><code>&lt;section&gt;</code> with a name</td><td>Generic named region</td><td>Requires an accessible name to be exposed</td></tr>
+            <tr><td><code>search</code></td><td><code>&lt;search&gt;</code> (newer)</td><td>Search facility</td><td>Fallback to <code>role="search"</code> on a <code>&lt;form&gt;</code> for older browsers</td></tr>
+            <tr><td><code>form</code></td><td><code>&lt;form&gt;</code> with a name</td><td>Form landmark</td><td>Only exposed when it has an accessible name</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Widget roles</h3>
+      <p>Standalone interactive controls. Reach for these only when no native element exists.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Purpose</th><th>Key states</th><th>Keyboard</th></tr></thead>
+          <tbody>
+            <tr><td><code>button</code></td><td>Clickable action &mdash; use <code>&lt;button&gt;</code></td><td><code>aria-pressed</code>, <code>aria-expanded</code></td><td>Enter / Space</td></tr>
+            <tr><td><code>link</code></td><td>Navigates &mdash; use <code>&lt;a href&gt;</code></td><td>&mdash;</td><td>Enter</td></tr>
+            <tr><td><code>checkbox</code></td><td>Two- or three-state check</td><td><code>aria-checked</code></td><td>Space</td></tr>
+            <tr><td><code>radio</code></td><td>One choice in a group</td><td><code>aria-checked</code></td><td>Arrows within <code>radiogroup</code></td></tr>
+            <tr><td><code>switch</code></td><td>On/off toggle</td><td><code>aria-checked</code></td><td>Space</td></tr>
+            <tr><td><code>textbox</code></td><td>Free text entry</td><td><code>aria-multiline</code>, <code>aria-required</code></td><td>Typing</td></tr>
+            <tr><td><code>searchbox</code></td><td>Search text entry</td><td><code>aria-autocomplete</code></td><td>Typing</td></tr>
+            <tr><td><code>slider</code></td><td>Choose a value in a range</td><td><code>aria-valuenow/min/max/text</code></td><td>Arrows, Home, End</td></tr>
+            <tr><td><code>spinbutton</code></td><td>Number with step controls</td><td><code>aria-valuenow/min/max</code></td><td>Arrows, Page Up/Down</td></tr>
+            <tr><td><code>progressbar</code></td><td>Read-only progress display</td><td><code>aria-valuenow</code> (omit when indeterminate)</td><td>None (not focusable)</td></tr>
+            <tr><td><code>option</code></td><td>Item in a listbox</td><td><code>aria-selected</code></td><td>Arrows</td></tr>
+            <tr><td><code>tab</code></td><td>Tab in a tablist</td><td><code>aria-selected</code></td><td>Arrows, Home, End</td></tr>
+            <tr><td><code>menuitem</code></td><td>Item in a menu</td><td><code>aria-haspopup</code></td><td>Arrows, Enter</td></tr>
+            <tr><td><code>treeitem</code></td><td>Node in a tree</td><td><code>aria-expanded</code>, <code>aria-selected</code></td><td>Arrows, Left/Right</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Composite widget roles</h3>
+      <p>Containers that manage focus between children and must implement the matching keyboard pattern.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Contains</th><th>Focus pattern</th></tr></thead>
+          <tbody>
+            <tr><td><code>tablist</code></td><td><code>tab</code></td><td>Roving <code>tabindex</code>; arrows move selection</td></tr>
+            <tr><td><code>menu</code> / <code>menubar</code></td><td><code>menuitem</code>, <code>menuitemcheckbox</code>, <code>menuitemradio</code></td><td>Arrows, Esc closes</td></tr>
+            <tr><td><code>listbox</code></td><td><code>option</code></td><td>Arrows; <code>aria-multiselectable</code> for multi-select</td></tr>
+            <tr><td><code>tree</code></td><td><code>treeitem</code></td><td>Up/Down to move, Left/Right to collapse/expand</td></tr>
+            <tr><td><code>grid</code> / <code>treegrid</code></td><td><code>row</code> &rarr; <code>gridcell</code></td><td>Arrow-key cell navigation</td></tr>
+            <tr><td><code>radiogroup</code></td><td><code>radio</code></td><td>Arrows move selection; single tab stop</td></tr>
+            <tr><td><code>combobox</code></td><td><code>listbox</code> or <code>tree</code> popup</td><td>Down arrow opens; arrows browse options</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Document structure roles</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Element</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>article</code></td><td><code>&lt;article&gt;</code></td><td>Self-contained composition</td></tr>
+            <tr><td><code>heading</code></td><td><code>&lt;h1&gt;</code>&ndash;<code>&lt;h6&gt;</code></td><td>Section heading; requires <code>aria-level</code> when used on a div</td></tr>
+            <tr><td><code>list</code> / <code>listitem</code></td><td><code>&lt;ul&gt;</code> / <code>&lt;li&gt;</code></td><td>Grouped items</td></tr>
+            <tr><td><code>table</code> / <code>row</code> / <code>cell</code></td><td><code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code>, <code>&lt;td&gt;</code></td><td>Tabular data</td></tr>
+            <tr><td><code>img</code></td><td><code>&lt;img alt&gt;</code>, <code>&lt;svg&gt;</code></td><td>A single image; needs a name</td></tr>
+            <tr><td><code>figure</code></td><td><code>&lt;figure&gt;</code></td><td>Illustration, code, or diagram with optional caption</td></tr>
+            <tr><td><code>group</code></td><td><code>&lt;fieldset&gt;</code></td><td>Related form controls</td></tr>
+            <tr><td><code>note</code></td><td>&mdash;</td><td>Parenthetical or ancillary content</td></tr>
+            <tr><td><code>tooltip</code></td><td>&mdash;</td><td>Contextual popup text</td></tr>
+            <tr><td><code>toolbar</code></td><td>&mdash;</td><td>Grouped controls, single tab stop</td></tr>
+            <tr><td><code>separator</code></td><td><code>&lt;hr&gt;</code></td><td>Divider; becomes focusable when used in a composite widget</td></tr>
+            <tr><td><code>none</code> / <code>presentation</code></td><td>&mdash;</td><td>Removes the element's semantics</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Live region &amp; window roles</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Equivalent behaviour</th><th>Use for</th></tr></thead>
+          <tbody>
+            <tr><td><code>status</code></td><td><code>aria-live="polite"</code> + <code>aria-atomic="true"</code></td><td>Non-urgent status messages</td></tr>
+            <tr><td><code>alert</code></td><td><code>aria-live="assertive"</code> + <code>aria-atomic="true"</code></td><td>Urgent, time-sensitive errors</td></tr>
+            <tr><td><code>log</code></td><td><code>aria-live="polite"</code></td><td>Append-only log of activity</td></tr>
+            <tr><td><code>timer</code></td><td><code>aria-live="off"</code></td><td>Elapsed or remaining time</td></tr>
+            <tr><td><code>marquee</code></td><td><code>aria-live="off"</code></td><td>Non-essential scrolling text</td></tr>
+            <tr><td><code>dialog</code></td><td>&mdash;</td><td>Modal or non-modal window; pair with <code>aria-modal</code></td></tr>
+            <tr><td><code>alertdialog</code></td><td>&mdash;</td><td>Dialog that requires an immediate response</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="title">Deprecated roles and attributes</span>
+        Do not use <code class="inline">role="directory"</code>, <code class="inline">aria-dropeffect</code>, or <code class="inline">aria-grabbed</code>. They were deprecated in ARIA 1.1 and no current browser implements them usefully.
+      </div>
+    </section>
+
+    <!-- 5. ATTRIBUTES -->
+    <section class="doc" id="attributes" data-searchable>
+      <h2><span class="num">05</span>Attribute Reference</h2>
+      <p>States and properties describe the role's current condition. The tables below list the attributes you will actually use, grouped by purpose, with their allowed values.</p>
+
+      <h3>Naming &amp; description</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribute</th><th>Purpose</th><th>Values</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>aria-label</code></td><td>Accessible name as a plain string</td><td>String</td><td><code>aria-label="Close"</code></td></tr>
+            <tr><td><code>aria-labelledby</code></td><td>Name taken from other elements</td><td>ID reference list</td><td><code>aria-labelledby="dlg-title"</code></td></tr>
+            <tr><td><code>aria-describedby</code></td><td>Supplementary description</td><td>ID reference list</td><td><code>aria-describedby="hint"</code></td></tr>
+            <tr><td><code>aria-details</code></td><td>ID of a region with extended detail</td><td>ID reference</td><td><code>aria-details="footnote-1"</code></td></tr>
+            <tr><td><code>aria-roledescription</code></td><td>Replaces the role's spoken name</td><td>String</td><td><code>aria-roledescription="slide"</code></td></tr>
+            <tr><td><code>aria-keyshortcuts</code></td><td>Announces a keyboard shortcut</td><td>Keystroke string</td><td><code>aria-keyshortcuts="Control+S"</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Visibility &amp; reference</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribute</th><th>Purpose</th><th>Values</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>aria-hidden</code></td><td>Hide from the accessibility tree (still visible)</td><td><code>true</code> | <code>false</code></td><td><code>aria-hidden="true"</code> on a decorative icon</td></tr>
+            <tr><td><code>aria-controls</code></td><td>ID of the element this one controls</td><td>ID reference list</td><td><code>aria-controls="menu-1"</code></td></tr>
+            <tr><td><code>aria-owns</code></td><td>Establishes a parent/child relation across the DOM</td><td>ID reference list</td><td><code>aria-owns="opt-3"</code></td></tr>
+            <tr><td><code>aria-activedescendant</code></td><td>Which child is "focused" inside a composite widget</td><td>ID reference</td><td><code>aria-activedescendant="opt-2"</code></td></tr>
+            <tr><td><code>aria-flowto</code></td><td>Alternative reading order</td><td>ID reference list</td><td><code>aria-flowto="step-2"</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>State attributes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribute</th><th>Meaning</th><th>Values</th><th>Typical roles</th></tr></thead>
+          <tbody>
+            <tr><td><code>aria-expanded</code></td><td>Controlled content is shown or hidden</td><td><code>true</code> | <code>false</code></td><td>button, combobox, link, treeitem</td></tr>
+            <tr><td><code>aria-pressed</code></td><td>Toggle button pressed state</td><td><code>true</code> | <code>false</code> | <code>mixed</code></td><td>button</td></tr>
+            <tr><td><code>aria-checked</code></td><td>Checkbox / radio / switch state</td><td><code>true</code> | <code>false</code> | <code>mixed</code></td><td>checkbox, radio, switch, menuitemcheckbox</td></tr>
+            <tr><td><code>aria-selected</code></td><td>Item is selected</td><td><code>true</code> | <code>false</code></td><td>option, tab, gridcell, row, treeitem</td></tr>
+            <tr><td><code>aria-current</code></td><td>Item represents the current item in a set</td><td><code>page</code> | <code>step</code> | <code>location</code> | <code>date</code> | <code>time</code> | <code>true</code> | <code>false</code></td><td>link, any</td></tr>
+            <tr><td><code>aria-disabled</code></td><td>Operable but currently unavailable</td><td><code>true</code> | <code>false</code></td><td>All interactive roles</td></tr>
+            <tr><td><code>aria-required</code></td><td>Input must be completed</td><td><code>true</code> | <code>false</code></td><td>textbox, combobox, listbox</td></tr>
+            <tr><td><code>aria-invalid</code></td><td>Value failed validation</td><td><code>true</code> | <code>false</code> | <code>grammar</code> | <code>spelling</code></td><td>textbox, combobox</td></tr>
+            <tr><td><code>aria-readonly</code></td><td>Value cannot be changed</td><td><code>true</code> | <code>false</code></td><td>textbox, slider, spinbutton</td></tr>
+            <tr><td><code>aria-busy</code></td><td>Region is being updated</td><td><code>true</code> | <code>false</code></td><td>Any (often with live regions)</td></tr>
+            <tr><td><code>aria-modal</code></td><td>Dialog blocks interaction with the rest of the page</td><td><code>true</code> | <code>false</code></td><td>dialog, alertdialog</td></tr>
+            <tr><td><code>aria-haspopup</code></td><td>Element opens a popup of the given type</td><td><code>false</code> | <code>true</code> | <code>menu</code> | <code>listbox</code> | <code>tree</code> | <code>grid</code> | <code>dialog</code></td><td>button, menuitem, combobox</td></tr>
+            <tr><td><code>aria-sort</code></td><td>Sort direction of a column or row header</td><td><code>ascending</code> | <code>descending</code> | <code>none</code> | <code>other</code></td><td>columnheader, rowheader</td></tr>
+            <tr><td><code>aria-multiselectable</code></td><td>More than one item may be selected</td><td><code>true</code> | <code>false</code></td><td>listbox, grid, tree</td></tr>
+            <tr><td><code>aria-orientation</code></td><td>Orientation of a composite widget</td><td><code>horizontal</code> | <code>vertical</code></td><td>slider, tablist, toolbar</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Value, position &amp; level</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribute</th><th>Meaning</th><th>Values</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>aria-valuenow</code></td><td>Current value of a range widget</td><td>Number</td><td><code>aria-valuenow="42"</code></td></tr>
+            <tr><td><code>aria-valuemin</code></td><td>Minimum value (default 0)</td><td>Number</td><td><code>aria-valuemin="0"</code></td></tr>
+            <tr><td><code>aria-valuemax</code></td><td>Maximum value (default 100)</td><td>Number</td><td><code>aria-valuemax="100"</code></td></tr>
+            <tr><td><code>aria-valuetext</code></td><td>Human-readable value when the number is meaningless</td><td>String</td><td><code>aria-valuetext="Medium"</code></td></tr>
+            <tr><td><code>aria-level</code></td><td>Depth of a heading or treeitem</td><td>Integer &ge; 1</td><td><code>aria-level="2"</code></td></tr>
+            <tr><td><code>aria-posinset</code></td><td>Position within a set</td><td>Integer</td><td><code>aria-posinset="3"</code></td></tr>
+            <tr><td><code>aria-setsize</code></td><td>Total number of items in the set</td><td>Integer</td><td><code>aria-setsize="12"</code></td></tr>
+            <tr><td><code>aria-autocomplete</code></td><td>Autocomplete suggestion behaviour</td><td><code>none</code> | <code>inline</code> | <code>list</code> | <code>both</code></td><td><code>aria-autocomplete="list"</code></td></tr>
+            <tr><td><code>aria-multiline</code></td><td>Textbox accepts multiple lines</td><td><code>true</code> | <code>false</code></td><td><code>aria-multiline="true"</code></td></tr>
+            <tr><td><code>aria-placeholder</code></td><td>Hint text for an empty textbox</td><td>String</td><td><code>aria-placeholder="Search"</code></td></tr>
+            <tr><td><code>aria-errormessage</code></td><td>ID of the element describing the error</td><td>ID reference</td><td><code>aria-errormessage="err-1"</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Live region attributes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribute</th><th>Meaning</th><th>Values</th></tr></thead>
+          <tbody>
+            <tr><td><code>aria-live</code></td><td>How urgently to announce updates</td><td><code>off</code> (default) | <code>polite</code> | <code>assertive</code></td></tr>
+            <tr><td><code>aria-atomic</code></td><td>Announce the whole region or only the change</td><td><code>true</code> | <code>false</code> (default)</td></tr>
+            <tr><td><code>aria-relevant</code></td><td>Which changes are announced</td><td><code>additions</code> (default) | <code>removals</code> | <code>text</code> | <code>all</code></td></tr>
+            <tr><td><code>aria-busy</code></td><td>Hold announcements until the update finishes</td><td><code>true</code> | <code>false</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <span class="title">Only valid combinations are honoured</span>
+        Browsers ignore an <code class="inline">aria-*</code> attribute that is not allowed on the element's computed role. For example, <code class="inline">aria-checked</code> on a plain <code class="inline">&lt;div&gt;</code> with no role does nothing. Automated tools such as axe and Lighthouse flag these invalid combinations.
+      </div>
+    </section>
+
+    <!-- 6. ACCESSIBLE NAMES -->
+    <section class="doc" id="names" data-searchable>
+      <h2><span class="num">06</span>Accessible Names &amp; Descriptions</h2>
+      <p>An <strong>accessible name</strong> is the label a screen reader speaks for a control. The name computation algorithm follows a fixed precedence, and ARIA attributes sit near the top of it.</p>
+
+      <h3>Name precedence (highest first)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Priority</th><th>Source</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><code>aria-labelledby</code> &mdash; text of the referenced element(s)</td><td><code>aria-labelledby="nav-heading"</code></td></tr>
+            <tr><td>2</td><td><code>aria-label</code> &mdash; a literal string</td><td><code>aria-label="Close"</code></td></tr>
+            <tr><td>3</td><td>Native labelling: <code>&lt;label&gt;</code>, <code>&lt;legend&gt;</code>, <code>&lt;caption&gt;</code>, <code>alt</code>, or the element's own text content</td><td><code>&lt;label for="email"&gt;Email&lt;/label&gt;</code></td></tr>
+            <tr><td>4</td><td><code>title</code> attribute (weak fallback)</td><td><code>title="Close"</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="title">Higher priority silently wins</span>
+        If you set both <code class="inline">aria-label="Save"</code> and <code class="inline">aria-labelledby="save-heading"</code>, the referenced heading wins &mdash; the <code class="inline">aria-label</code> is ignored, not merged. Likewise an empty <code class="inline">aria-label=""</code> can erase a perfectly good native name.
+      </div>
+
+      <h3>Names vs descriptions</h3>
+      <ul>
+        <li><strong>Name</strong> &mdash; a short identifier spoken when focus lands. Sources: <code class="inline">aria-labelledby</code>, <code class="inline">aria-label</code>, native labels, <code class="inline">title</code>.</li>
+        <li><strong>Description</strong> &mdash; extra guidance spoken after a short pause, or on demand. Sources: <code class="inline">aria-describedby</code>, then <code class="inline">title</code>.</li>
+      </ul>
+
+      <div class="code"><pre><code>&lt;button aria-label="Close dialog"&gt;
+  &lt;svg aria-hidden="true"&gt;...&lt;/svg&gt;
+&lt;/button&gt;
+
+&lt;label for="pwd"&gt;Password&lt;/label&gt;
+&lt;input id="pwd" type="password" aria-describedby="pwd-hint" aria-required="true" /&gt;
+&lt;p id="pwd-hint"&gt;At least 12 characters.&lt;/p&gt;
+
+&lt;nav aria-labelledby="primary-nav"&gt;
+  &lt;h2 id="primary-nav"&gt;Primary&lt;/h2&gt;
+  &lt;ul&gt;...&lt;/ul&gt;
+&lt;/nav&gt;</code></pre></div>
+
+      <div class="callout tip">
+        <span class="title">Referenced elements may be visually hidden</span>
+        An element referenced by <code class="inline">aria-labelledby</code> or <code class="inline">aria-describedby</code> still contributes its text even when hidden with <code class="inline">display:none</code> or <code class="inline">aria-hidden="true"</code>. That is useful for reusable hidden headings &mdash; and a common source of accidental duplication when you forget a reference is still live.
+      </div>
+    </section>
+
+    <!-- 7. LIVE REGIONS -->
+    <section class="doc" id="live" data-searchable>
+      <h2><span class="num">07</span>Live Regions</h2>
+      <p>A live region is a part of the page that announces its own changes. Because screen reader users cannot see a toast or an inline error appear, a live region tells them that new content exists without moving focus.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribute</th><th>Values</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td><code>aria-live</code></td><td><code>off</code></td><td>Announcements disabled (default).</td></tr>
+            <tr><td><code>aria-live</code></td><td><code>polite</code></td><td>Announced when the user is idle &mdash; use for statuses and results.</td></tr>
+            <tr><td><code>aria-live</code></td><td><code>assertive</code></td><td>Interrupts immediately &mdash; reserve for urgent errors.</td></tr>
+            <tr><td><code>aria-atomic</code></td><td><code>true</code></td><td>Announce the entire region, not just the changed node.</td></tr>
+            <tr><td><code>aria-relevant</code></td><td><code>additions</code>, <code>removals</code>, <code>text</code>, <code>all</code></td><td>Which mutations trigger an announcement.</td></tr>
+            <tr><td><code>aria-busy</code></td><td><code>true</code></td><td>Batch changes; announce once the region is marked not busy.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Role shortcuts</h3>
+      <ul>
+        <li><code class="inline">role="status"</code> &mdash; <code class="inline">polite</code>, atomic. Ideal for "Saved", "3 results found".</li>
+        <li><code class="inline">role="alert"</code> &mdash; <code class="inline">assertive</code>, atomic. Ideal for blocking errors.</li>
+        <li><code class="inline">role="log"</code> &mdash; <code class="inline">polite</code>, non-atomic. Ideal for a chat or activity feed.</li>
+      </ul>
+
+      <div class="code"><pre><code>&lt;!-- The region must exist in the DOM before you change it --&gt;
+&lt;p id="status" role="status" aria-live="polite"&gt;&lt;/p&gt;
+
+&lt;script&gt;
+  document.getElementById('status').textContent = '3 results found.';
+&lt;/script&gt;</code></pre></div>
+
+      <div class="callout warn">
+        <span class="title">The classic mistake</span>
+        Creating an element <em>and</em> filling it in the same tick often produces no announcement, because the live region did not exist when its content changed. Insert an empty region first, then update its text in a separate step.
+      </div>
+    </section>
+
+    <!-- 8. DETAILED REFERENCE -->
+    <section class="doc" id="details" data-searchable>
+      <h2><span class="num">08</span>Detailed Reference</h2>
+      <p>The entries below cover the roles and attributes you will reach for most often, with syntax, values, examples, and the pitfalls that trip people up. Expand an entry to read it.</p>
+
+      <div class="controls">
+        <button type="button" id="expandAll">Expand all</button>
+        <button type="button" id="collapseAll">Collapse all</button>
+      </div>
+
+      <h3>Roles</h3>
+
+      <details class="fn">
+        <summary>role="button"</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Declares an element as a clickable action, so assistive technology announces "button" instead of anonymous text.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;div role="button" tabindex="0"&gt;Save&lt;/div&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>No parameters. Pair with a name (<code class="inline">aria-label</code> or text content), <code class="inline">tabindex="0"</code> for focusability, and optional <code class="inline">aria-pressed</code> or <code class="inline">aria-expanded</code>.</dd>
+            <dt>Return / Result</dt>
+            <dd>Exposes the element in the accessibility tree with the <code class="inline">button</code> role and its computed name.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;div role="button" tabindex="0" id="save" aria-pressed="false"&gt;Save&lt;/div&gt;
+
+&lt;script&gt;
+  const save = document.getElementById('save');
+  save.addEventListener('click', toggle);
+  save.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggle();
+    }
+  });
+  function toggle() {
+    const pressed = save.getAttribute('aria-pressed') === 'true';
+    save.setAttribute('aria-pressed', String(!pressed));
+  }
+&lt;/script&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The element is focusable with Tab, activated by Enter or Space, and announced as "Save, button, not pressed".</dd>
+            <dt>Common Usage</dt>
+            <dd>Only in frameworks or design systems that must render custom markup. In plain HTML, use <code class="inline">&lt;button&gt;</code>, which is focusable, keyboard-operable, and styled already.</dd>
+            <dt>Important Notes</dt>
+            <dd>ARIA gives you no keyboard behaviour: without the <code class="inline">keydown</code> handler, Enter and Space do nothing. A <code class="inline">&lt;button&gt;</code> handles all of this for free, so it is the correct choice in almost every case.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>role="dialog" &amp; aria-modal</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Marks an overlay window, so screen readers announce the dialog and read its contents.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;div role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc"&gt;...&lt;/div&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">aria-modal="true"</code> tells assistive technology the rest of the page is inert. <code class="inline">aria-labelledby</code> supplies the name; <code class="inline">aria-describedby</code> supplies an optional description.</dd>
+            <dt>Return / Result</dt>
+            <dd>Traps reading context inside the dialog and exposes its name and description.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;dialog id="confirm" aria-labelledby="confirm-title"&gt;
+  &lt;h2 id="confirm-title"&gt;Delete this file?&lt;/h2&gt;
+  &lt;p&gt;This action cannot be undone.&lt;/p&gt;
+  &lt;button data-action="cancel"&gt;Cancel&lt;/button&gt;
+  &lt;button data-action="delete"&gt;Delete&lt;/button&gt;
+&lt;/dialog&gt;
+
+&lt;script&gt;
+  document.getElementById('confirm').showModal();
+&lt;/script&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The dialog receives focus, the rest of the page is hidden from assistive technology, and Esc closes the native <code class="inline">&lt;dialog&gt;</code>.</dd>
+            <dt>Common Usage</dt>
+            <dd>Confirmation prompts, settings panels, command palettes, and any overlay that should hold attention.</dd>
+            <dt>Important Notes</dt>
+            <dd><code class="inline">aria-modal="true"</code> does <em>not</em> make the dialog modal &mdash; it only reports that it is. You or the native <code class="inline">&lt;dialog&gt;</code> element must actually trap focus, block background interaction, and restore focus on close.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>role="tablist" / role="tab" / role="tabpanel"</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Builds a tabbed interface: a list of tabs, one selected at a time, each controlling a panel.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;div role="tablist" aria-label="Sections"&gt;
+  &lt;button role="tab" aria-selected="true"  aria-controls="p1" id="t1"&gt;One&lt;/button&gt;
+  &lt;button role="tab" aria-selected="false" aria-controls="p2" id="t2" tabindex="-1"&gt;Two&lt;/button&gt;
+&lt;/div&gt;
+&lt;div role="tabpanel" id="p1" aria-labelledby="t1" tabindex="0"&gt;Panel one&lt;/div&gt;
+&lt;div role="tabpanel" id="p2" aria-labelledby="t2" tabindex="0" hidden&gt;Panel two&lt;/div&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">aria-selected</code> on the active tab; <code class="inline">aria-controls</code> links a tab to its panel; <code class="inline">aria-labelledby</code> on the panel points back at its tab.</dd>
+            <dt>Return / Result</dt>
+            <dd>Announces "One, tab, 1 of 2, selected" and lets users move between tabs with the arrow keys.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>tablist.addEventListener('keydown', function (e) {
+  const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+  const i = tabs.indexOf(document.activeElement);
+  if (i === -1) return;
+  let next = null;
+  if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+  if (e.key === 'ArrowLeft')  next = tabs[(i - 1 + tabs.length) % tabs.length];
+  if (e.key === 'Home')       next = tabs[0];
+  if (e.key === 'End')        next = tabs[tabs.length - 1];
+  if (next) { e.preventDefault(); next.focus(); next.click(); }
+});</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>Arrow keys cycle through tabs, Home and End jump to the ends, and the selected tab's panel is shown.</dd>
+            <dt>Common Usage</dt>
+            <dd>Multi-section settings pages, dashboards, and any "one panel at a time" pattern.</dd>
+            <dt>Important Notes</dt>
+            <dd>The tablist uses <strong>roving tabindex</strong> &mdash; only the selected tab is in the tab order (<code class="inline">tabindex="0"</code>); the rest are <code class="inline">tabindex="-1"</code>. Give the tabpanel <code class="inline">tabindex="0"</code> only when it has no focusable content of its own.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>role="checkbox" / role="switch"</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Represents a boolean control. A switch is announced as "on/off"; a checkbox as "checked/unchecked" and supports the third mixed state.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;div role="checkbox" aria-checked="false" tabindex="0"&gt;Subscribe&lt;/div&gt;
+&lt;button role="switch" aria-checked="true"&gt;Dark mode&lt;/button&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">aria-checked</code> is required and takes <code class="inline">true</code>, <code class="inline">false</code>, or (checkbox only) <code class="inline">mixed</code>.</dd>
+            <dt>Return / Result</dt>
+            <dd>The control is announced with its checked state, and the state changes when the user toggles it.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;div role="checkbox" aria-checked="false" tabindex="0" id="subscribe"&gt;Subscribe&lt;/div&gt;
+&lt;script&gt;
+  const box = document.getElementById('subscribe');
+  function toggle() {
+    const on = box.getAttribute('aria-checked') === 'true';
+    box.setAttribute('aria-checked', String(!on));
+  }
+  box.addEventListener('click', toggle);
+  box.addEventListener('keydown', function (e) {
+    if (e.key === ' ') { e.preventDefault(); toggle(); }
+  });
+&lt;/script&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>Space toggles the state and the screen reader announces "checked" or "not checked".</dd>
+            <dt>Common Usage</dt>
+            <dd>Custom toggles in design systems, and tri-state parent checkboxes in trees.</dd>
+            <dt>Important Notes</dt>
+            <dd>Prefer <code class="inline">&lt;input type="checkbox"&gt;</code>: it is focusable, toggleable, and participates in forms. On a native checkbox, adding <code class="inline">aria-checked</code> is redundant and easily desynchronises from the real <code class="inline">checked</code> property. <code class="inline">mixed</code> is invalid on <code class="inline">role="switch"</code>.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>role="alert" &amp; role="status"</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Live regions that announce content changes without moving focus. <code class="inline">alert</code> is assertive; <code class="inline">status</code> is polite.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;div role="alert"&gt;&lt;/div&gt;
+&lt;div role="status"&gt;&lt;/div&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>None required. <code class="inline">role="alert"</code> implies <code class="inline">aria-live="assertive"</code> and <code class="inline">aria-atomic="true"</code>; <code class="inline">role="status"</code> implies <code class="inline">polite</code> and atomic.</dd>
+            <dt>Return / Result</dt>
+            <dd>Any text added to the region is announced by the screen reader.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;div id="toast" role="status"&gt;&lt;/div&gt;
+&lt;script&gt;
+  document.getElementById('toast').textContent = 'Profile saved.';
+&lt;/script&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The message is spoken politely, without interrupting the user, and without stealing focus.</dd>
+            <dt>Common Usage</dt>
+            <dd>Form success messages, "N results found" counters, inline validation errors, chat activity.</dd>
+            <dt>Important Notes</dt>
+            <dd>The live region must be in the DOM <em>before</em> its content changes, or nothing is announced. Use <code class="inline">assertive</code> sparingly &mdash; overusing it makes a page interrupt constantly and is a serious usability problem.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>role="presentation" / role="none"</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Removes an element's implicit semantics, so it is exposed as generic content.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;table role="presentation"&gt;...&lt;/table&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>No values &mdash; <code class="inline">presentation</code> and <code class="inline">none</code> are synonyms since ARIA 1.1.</dd>
+            <dt>Return / Result</dt>
+            <dd>The element no longer appears as a table, list, image, or similar in the accessibility tree.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;!-- Layout table used purely for positioning --&gt;
+&lt;table role="presentation"&gt;
+  &lt;tr&gt;&lt;td&gt;Logo&lt;/td&gt;&lt;td&gt;Navigation&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>Screen readers skip the table semantics and read the content in document order.</dd>
+            <dt>Common Usage</dt>
+            <dd>Layout tables, decorative images that cannot be expressed as CSS backgrounds, and removing semantics from wrapper elements.</dd>
+            <dt>Important Notes</dt>
+            <dd>Never use it on a focusable or interactive element. Presentation is inherited by an element's <em>required owned</em> children (a presentational <code class="inline">&lt;ul&gt;</code> makes its <code class="inline">&lt;li&gt;</code>s presentational too), but not by generic descendants. If the element has any global ARIA attribute or is focusable, the role is ignored.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <h3>Attributes</h3>
+
+      <details class="fn">
+        <summary>aria-label</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Provides an accessible name as a literal string when no visible text label exists.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;button aria-label="Close"&gt;&lt;svg aria-hidden="true"&gt;...&lt;/svg&gt;&lt;/button&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>A non-empty string. Use it on roles that support naming: buttons, links, landmarks, form controls, tables, images.</dd>
+            <dt>Return / Result</dt>
+            <dd>Sets the element's accessible name, taking precedence over native labels but losing to <code class="inline">aria-labelledby</code>.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;nav aria-label="Breadcrumb"&gt;
+  &lt;ol&gt;...&lt;/ol&gt;
+&lt;/nav&gt;
+
+&lt;button aria-label="Increase quantity"&gt;+&lt;/button&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The control is announced as "Close, button" or "Breadcrumb, navigation" instead of an unlabelled widget.</dd>
+            <dt>Common Usage</dt>
+            <dd>Icon-only buttons, repeated landmarks, "+"/"&minus;" steppers, and search inputs without a visible label.</dd>
+            <dt>Important Notes</dt>
+            <dd>The string should match the visible label when one exists &mdash; otherwise voice-control users cannot activate it by saying what they see. Do not put a name on a plain <code class="inline">&lt;div&gt;</code> or <code class="inline">&lt;span&gt;</code> with no role; it is ignored. An empty value removes an existing name.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-labelledby</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Builds the accessible name from the text of one or more existing elements.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;section aria-labelledby="s-title"&gt;
+  &lt;h2 id="s-title"&gt;Recent activity&lt;/h2&gt;
+&lt;/section&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>A space-separated list of element <code class="inline">id</code>s. Multiple ids are concatenated in order.</dd>
+            <dt>Return / Result</dt>
+            <dd>Sets the accessible name to the referenced text; takes precedence over <code class="inline">aria-label</code> and native labelling.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;h3 id="q3"&gt;Shipping address&lt;/h3&gt;
+&lt;input id="street" aria-labelledby="q3 street-label" /&gt;
+&lt;span id="street-label"&gt;Street&lt;/span&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The input is announced as "Shipping address Street".</dd>
+            <dt>Common Usage</dt>
+            <dd>Tying a dialog or section to its visible heading, naming form controls by adjacent text, and reusing an existing visible label.</dd>
+            <dt>Important Notes</dt>
+            <dd>Referenced elements still contribute text even if hidden, so a stale reference can silently duplicate a name. Broken ids simply fall through to the next naming source, which can mask a bug. Prefer this over <code class="inline">aria-label</code> when the label is already visible on screen.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-describedby</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Attaches supplementary description text to an element, without affecting its name.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;input id="pin" aria-describedby="pin-hint pin-error" /&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>A space-separated list of element ids whose text becomes the description.</dd>
+            <dt>Return / Result</dt>
+            <dd>Sets the accessible <em>description</em> (not the name), announced after a pause or on demand.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;label for="pin"&gt;PIN&lt;/label&gt;
+&lt;input id="pin" type="password" aria-describedby="pin-hint" /&gt;
+&lt;p id="pin-hint"&gt;Four digits, sent by post.&lt;/p&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The field is announced as "PIN, edit, Four digits, sent by post".</dd>
+            <dt>Common Usage</dt>
+            <dd>Format hints, character limits, help text, and inline error messages alongside the field.</dd>
+            <dt>Important Notes</dt>
+            <dd>Keep descriptions short &mdash; screen readers read them in full on every focus. For error text, pair it with <code class="inline">aria-invalid="true"</code> and consider <code class="inline">aria-errormessage</code> so the message is only surfaced while invalid.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-hidden</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Removes an element and its subtree from the accessibility tree while leaving it visible on screen.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;svg aria-hidden="true" focusable="false"&gt;...&lt;/svg&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">true</code> hides it; <code class="inline">false</code> (or absent) leaves it exposed.</dd>
+            <dt>Return / Result</dt>
+            <dd>The subtree is not announced and cannot be reached by screen reader navigation.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;button&gt;
+  &lt;svg aria-hidden="true" focusable="false" width="16" height="16"&gt;...&lt;/svg&gt;
+  Save
+&lt;/button&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The button is read as "Save, button" with no mention of the decorative icon.</dd>
+            <dt>Common Usage</dt>
+            <dd>Decorative icons and images, duplicate text, off-screen overlay scaffolding, and hiding collapsed panels' contents from the tree.</dd>
+            <dt>Important Notes</dt>
+            <dd>It does <strong>not</strong> remove the element from the tab order. Hiding a focusable element produces "ghost" focus &mdash; a blank stop the user cannot identify. Use the <code class="inline">inert</code> attribute or <code class="inline">display:none</code> for that. Values other than <code class="inline">"true"</code> and <code class="inline">"false"</code> (for example <code class="inline">"aria-hidden"</code> with no value) are ignored.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-expanded</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Reports whether the content an element controls is currently shown or hidden.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;button aria-expanded="false" aria-controls="menu-1"&gt;Menu&lt;/button&gt;
+&lt;ul id="menu-1" hidden&gt;...&lt;/ul&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">true</code> (expanded) or <code class="inline">false</code> (collapsed, the default). Omit the attribute entirely when the element does not own expandable content.</dd>
+            <dt>Return / Result</dt>
+            <dd>Adds "expanded" or "collapsed" to the announced state.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;button id="toggle" aria-expanded="false" aria-controls="panel"&gt;Details&lt;/button&gt;
+&lt;div id="panel" hidden&gt;Hidden content&lt;/div&gt;
+&lt;script&gt;
+  const btn = document.getElementById('toggle');
+  const panel = document.getElementById('panel');
+  btn.addEventListener('click', function () {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    panel.hidden = open;
+  });
+&lt;/script&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>Each click toggles the panel and the announcement switches between "collapsed" and "expanded".</dd>
+            <dt>Common Usage</dt>
+            <dd>Disclosure widgets, accordions, hamburger menus, comboboxes, and tree items.</dd>
+            <dt>Important Notes</dt>
+            <dd>Never leave it static: an <code class="inline">aria-expanded="true"</code> that never changes misreports the interface. On a native <code class="inline">&lt;details&gt;</code> the browser manages this state for you, which is why the native element needs no ARIA at all.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-controls</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Identifies the element whose content or presence this element controls.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;button aria-controls="panel-1" aria-expanded="false"&gt;Show&lt;/button&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>A space-separated list of element ids.</dd>
+            <dt>Return / Result</dt>
+            <dd>Records a relationship between the control and the region it affects.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;button aria-expanded="false" aria-controls="filters"&gt;Filters&lt;/button&gt;
+&lt;aside id="filters" hidden&gt;...&lt;/aside&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>Assistive technology can offer a shortcut to jump from the control to the region it affects.</dd>
+            <dt>Common Usage</dt>
+            <dd>Disclosure/accordion headers, tabs pointing at panels, and buttons that reveal menus.</dd>
+            <dt>Important Notes</dt>
+            <dd>Support is inconsistent: some screen readers ignore <code class="inline">aria-controls</code> entirely, so never make the relationship depend on it. Use it as an enhancement alongside visible state changes, and always pair it with <code class="inline">aria-expanded</code> for expandable content.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-current</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Marks the item within a set that represents the current position &mdash; most often the current page in navigation.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;a href="/reports" aria-current="page"&gt;Reports&lt;/a&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">page</code>, <code class="inline">step</code>, <code class="inline">location</code>, <code class="inline">date</code>, <code class="inline">time</code>, <code class="inline">true</code>, or <code class="inline">false</code> (the default).</dd>
+            <dt>Return / Result</dt>
+            <dd>Announces the item as "current page" (or the chosen token) rather than only showing it visually.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;nav aria-label="Steps"&gt;
+  &lt;ol&gt;
+    &lt;li&gt;&lt;a href="#" aria-current="step"&gt;Address&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Payment&lt;/a&gt;&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/nav&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The active link is announced as "Address, current step, link".</dd>
+            <dt>Common Usage</dt>
+            <dd>Site navigation, breadcrumbs, carousels, pagination, and multi-step wizards.</dd>
+            <dt>Important Notes</dt>
+            <dd>It conveys semantics only &mdash; you must still style the current item visually (for example with <code class="inline">[aria-current]</code> in CSS). Remember that <code class="inline">href="#"</code> in the example is a placeholder for a real URL in production.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-disabled</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Reports that an element is currently unavailable while keeping it discoverable and focusable.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;button aria-disabled="true"&gt;Delete&lt;/button&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">true</code> or <code class="inline">false</code> (the default).</dd>
+            <dt>Return / Result</dt>
+            <dd>The element is announced as "dimmed" or "unavailable" but is not removed from the tab order.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;button id="delete" aria-disabled="true"&gt;Delete&lt;/button&gt;
+&lt;script&gt;
+  document.getElementById('delete').addEventListener('click', function (e) {
+    if (e.currentTarget.getAttribute('aria-disabled') === 'true') {
+      e.preventDefault();
+      return;
+    }
+    // perform the action
+  });
+&lt;/script&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The button stays focusable so keyboard users can discover why it is unavailable, and clicks are ignored.</dd>
+            <dt>Common Usage</dt>
+            <dd>Toolbar actions that are contextually unavailable, form submit buttons before validation passes, and composite widget items.</dd>
+            <dt>Important Notes</dt>
+            <dd>It enforces nothing: unlike the native <code class="inline">disabled</code> attribute, the click handler still fires, so you must guard the action yourself. Keeping controls focusable is generally better for discoverability than the native <code class="inline">disabled</code>, which removes them from the tab order entirely.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-invalid &amp; aria-errormessage</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Report that a field's value failed validation, and point at the message explaining why.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;input id="email" aria-invalid="true" aria-errormessage="email-error" /&gt;
+&lt;p id="email-error"&gt;Enter a valid email address.&lt;/p&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">aria-invalid</code>: <code class="inline">true</code>, <code class="inline">false</code> (default), <code class="inline">grammar</code>, or <code class="inline">spelling</code>. <code class="inline">aria-errormessage</code>: the id of the error element.</dd>
+            <dt>Return / Result</dt>
+            <dd>The field is announced as invalid, and the referenced message is exposed as its error text.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>email.addEventListener('blur', function () {
+  const bad = !email.validity.valid;
+  email.setAttribute('aria-invalid', String(bad));
+  error.hidden = !bad;
+});</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>On invalid input the message appears visually and is announced with the field.</dd>
+            <dt>Common Usage</dt>
+            <dd>Form validation on blur or submit, in conjunction with a status/alert live region for the summary.</dd>
+            <dt>Important Notes</dt>
+            <dd><code class="inline">aria-errormessage</code> is only honoured while <code class="inline">aria-invalid="true"</code>; support is still limited, so pair it with <code class="inline">aria-describedby</code> for the widest coverage. Do not remove the error styling when JavaScript fails &mdash; native constraint validation is the more robust baseline.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-live</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Declares a region whose dynamic changes should be announced to assistive technology.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;div id="results" aria-live="polite" aria-atomic="true"&gt;&lt;/div&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">off</code> (default), <code class="inline">polite</code> (wait for a pause), or <code class="inline">assertive</code> (interrupt). Combine with <code class="inline">aria-atomic</code> and <code class="inline">aria-relevant</code>.</dd>
+            <dt>Return / Result</dt>
+            <dd>Content changes inside the region are spoken automatically, without moving focus.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;p id="status" aria-live="polite"&gt;&lt;/p&gt;
+&lt;script&gt;
+  document.getElementById('status').textContent = 'Draft saved at 14:02.';
+&lt;/script&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The message is announced when the user pauses, and focus stays where it was.</dd>
+            <dt>Common Usage</dt>
+            <dd>Search result counts, autosave confirmations, chat transcripts, and validation summaries.</dd>
+            <dt>Important Notes</dt>
+            <dd>The region must exist before it is updated. Announcements are queued, so rapid updates can stack up &mdash; use <code class="inline">aria-busy="true"</code> to batch while a long update is in flight. Reserve <code class="inline">assertive</code> for genuinely urgent messages.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>aria-roledescription</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Replaces the spoken name of an element's role with a more domain-specific word.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>&lt;div role="group" aria-roledescription="slide" aria-label="1 of 8"&gt;...&lt;/div&gt;</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>A short, lower-case, plain-text string. The element must have a valid, non-abstract role.</dd>
+            <dt>Return / Result</dt>
+            <dd>The screen reader announces the custom term instead of the standard role name.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;section role="group" aria-roledescription="slide" aria-label="3 of 8: Pricing"&gt;
+  &lt;h2&gt;Pricing&lt;/h2&gt;
+&lt;/section&gt;</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>Users hear "slide" rather than "group", matching the product's own vocabulary.</dd>
+            <dt>Common Usage</dt>
+            <dd>Carousels, calendars, and specialised editors where the domain term is clearer than a generic ARIA role.</dd>
+            <dt>Important Notes</dt>
+            <dd>Use with restraint: it overrides a standard, globally understood term with a term only your product knows, which can confuse users. It does not remove the role &mdash; screen readers may still announce both. Avoid translated or invented words, and always give the element an accessible name too.</dd>
+          </dl>
+        </div>
+      </details>
+    </section>
+
+    <!-- 9. EXAMPLES -->
+    <section class="doc" id="examples" data-searchable>
+      <h2><span class="num">09</span>Practical Examples</h2>
+      <p>Five worked examples, from the simplest possible use to a realistic component.</p>
+
+      <h3>Example 1 &mdash; Basic Usage</h3>
+      <p>Name an icon-only button so it is not announced as an unnamed control.</p>
+      <div class="code"><pre><code>&lt;button aria-label="Close"&gt;
+  &lt;svg aria-hidden="true" focusable="false" width="16" height="16"&gt;
+    &lt;path d="M2 2 L14 14 M14 2 L2 14" /&gt;
+  &lt;/svg&gt;
+&lt;/button&gt;</code></pre></div>
+      <p>The visual icon carries no text, so <code class="inline">aria-label</code> supplies the name. The <code class="inline">aria-hidden</code> on the SVG prevents the decorative markup from polluting the announcement, and <code class="inline">focusable="false"</code> stops older Edge/IE from putting the SVG in the tab order.</p>
+
+      <h3>Example 2 &mdash; Real-World Usage: a disclosure panel</h3>
+      <p>A "Filters" button that reveals a panel, with the expanded state kept in sync.</p>
+      <div class="code"><pre><code>&lt;button id="filter-btn" aria-expanded="false" aria-controls="filter-panel"&gt;
+  Filters
+&lt;/button&gt;
+
+&lt;section id="filter-panel" hidden&gt;
+  &lt;h2&gt;Refine results&lt;/h2&gt;
+  &lt;label for="min"&gt;Minimum price&lt;/label&gt;
+  &lt;input id="min" type="number" /&gt;
+&lt;/section&gt;
+
+&lt;script&gt;
+  const btn = document.getElementById('filter-btn');
+  const panel = document.getElementById('filter-panel');
+
+  btn.addEventListener('click', function () {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!expanded));
+    panel.hidden = expanded;
+  });
+&lt;/script&gt;</code></pre></div>
+      <p>Announced as "Filters, button, collapsed" and, after a click, "Filters, button, expanded". Using the native <code class="inline">hidden</code> attribute also removes the panel from the accessibility tree and the tab order while it is closed.</p>
+
+      <h3>Example 3 &mdash; Multiple Functions: live search status</h3>
+      <p>Combine a landmark, a searchbox, a live region, and <code class="inline">aria-busy</code>.</p>
+      <div class="code"><pre><code>&lt;search&gt;
+  &lt;form role="search" aria-label="Product search"&gt;
+    &lt;label for="q"&gt;Search products&lt;/label&gt;
+    &lt;input id="q" type="search" aria-describedby="q-hint" /&gt;
+    &lt;p id="q-hint"&gt;Results update as you type.&lt;/p&gt;
+  &lt;/form&gt;
+&lt;/search&gt;
+
+&lt;p id="status" role="status" aria-live="polite" aria-atomic="true"&gt;&lt;/p&gt;
+
+&lt;script&gt;
+  const input = document.getElementById('q');
+  const status = document.getElementById('status');
+
+  input.addEventListener('input', async function () {
+    status.setAttribute('aria-busy', 'true');
+    const results = await search(input.value);
+    status.setAttribute('aria-busy', 'false');
+    status.textContent = results.length + ' results found for "' + input.value + '"';
+  });
+&lt;/script&gt;</code></pre></div>
+      <p>While the search runs, <code class="inline">aria-busy</code> holds announcements; when it finishes, the single status message is spoken politely without stealing focus from the input.</p>
+
+      <h3>Example 4 &mdash; Negative Scenario: an unreachable custom checkbox</h3>
+      <p>What <em>not</em> to do, and why it fails.</p>
+      <div class="code"><pre><code>&lt;!-- Broken: no role, no name, no keyboard support --&gt;
+&lt;div class="checkbox" onclick="toggle()"&gt;&lt;/div&gt;
+
+&lt;!-- Also broken: role added, but still not focusable or operable --&gt;
+&lt;div role="checkbox" aria-checked="false" onclick="toggle()"&gt;Subscribe&lt;/div&gt;</code></pre></div>
+      <p>Neither version is reachable with the keyboard, so a keyboard-only or screen reader user cannot interact with it at all. Adding <code class="inline">role="checkbox"</code> changes only what is <em>announced</em>. The correct fix is the native element:</p>
+      <div class="code"><pre><code>&lt;label&gt;
+  &lt;input type="checkbox" /&gt;
+  Subscribe
+&lt;/label&gt;</code></pre></div>
+
+      <h3>Example 5 &mdash; Advanced Usage: accessible tabs</h3>
+      <p>A full tab widget with roving tabindex, arrow-key navigation, and linked panels.</p>
+      <div class="code"><pre><code>&lt;div class="tabs"&gt;
+  &lt;div role="tablist" aria-label="Account settings" id="tablist"&gt;
+    &lt;button role="tab" id="tab-profile" aria-selected="true"  aria-controls="panel-profile"&gt;Profile&lt;/button&gt;
+    &lt;button role="tab" id="tab-billing" aria-selected="false" aria-controls="panel-billing" tabindex="-1"&gt;Billing&lt;/button&gt;
+    &lt;button role="tab" id="tab-team"    aria-selected="false" aria-controls="panel-team"    tabindex="-1"&gt;Team&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div role="tabpanel" id="panel-profile" aria-labelledby="tab-profile" tabindex="0"&gt;Profile settings&lt;/div&gt;
+  &lt;div role="tabpanel" id="panel-billing" aria-labelledby="tab-billing" tabindex="0" hidden&gt;Billing settings&lt;/div&gt;
+  &lt;div role="tabpanel" id="panel-team"    aria-labelledby="tab-team"    tabindex="0" hidden&gt;Team members&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+  const tablist = document.getElementById('tablist');
+  const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+
+  function selectTab(tab) {
+    tabs.forEach(function (t) {
+      const selected = t === tab;
+      t.setAttribute('aria-selected', String(selected));
+      t.tabIndex = selected ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !selected;
+    });
+    tab.focus();
+  }
+
+  tablist.addEventListener('click', function (e) {
+    const tab = e.target.closest('[role="tab"]');
+    if (tab) selectTab(tab);
+  });
+
+  tablist.addEventListener('keydown', function (e) {
+    const i = tabs.indexOf(document.activeElement);
+    if (i === -1) return;
+    let next = null;
+    if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+    if (e.key === 'ArrowLeft')  next = tabs[(i - 1 + tabs.length) % tabs.length];
+    if (e.key === 'Home')       next = tabs[0];
+    if (e.key === 'End')        next = tabs[tabs.length - 1];
+    if (next) { e.preventDefault(); selectTab(next); }
+  });
+&lt;/script&gt;</code></pre></div>
+      <p>Only the selected tab is in the Tab sequence; Left/Right arrows move between tabs and update selection, while Tab moves out of the tablist into the visible panel. <code class="inline">aria-selected</code> and <code class="inline">hidden</code> stay synchronised with what the user sees.</p>
+
+      <div class="callout tip">
+        <span class="title">Testing ARIA from Playwright</span>
+        Because the accessibility tree is exactly what ARIA feeds, Playwright can assert on it: <code class="inline">page.getByRole('tab', { name: 'Billing' })</code>, <code class="inline">expect(tab).toHaveAttribute('aria-selected', 'true')</code>, <code class="inline">expect(button).toHaveAccessibleName('Close')</code>, and <code class="inline">toHaveRole()</code>. Automated tools catch roughly a third of accessibility issues &mdash; always confirm with a keyboard and a screen reader.
+      </div>
+    </section>
+
+    <!-- 10. BEFORE VS AFTER -->
+    <section class="doc" id="beforeafter" data-searchable>
+      <h2><span class="num">10</span>Before vs After</h2>
+      <p>The most common real-world trade-off is ARIA-patched markup versus a native element. The comparison below is the one that matters most.</p>
+
+      <h3>Without ARIA (and without native semantics)</h3>
+      <div class="code"><pre><code>&lt;div class="btn" onclick="save()"&gt;Save&lt;/div&gt;
+
+&lt;span class="toggle" onclick="toggle()"&gt;Dark mode&lt;/span&gt;
+
+&lt;div class="nav"&gt;
+  &lt;div class="nav-item" onclick="go('/home')"&gt;Home&lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+      <ul>
+        <li>Screen readers announce anonymous text &mdash; "Save", not "Save, button".</li>
+        <li>Nothing is focusable, so keyboard users cannot reach any of it.</li>
+        <li>No <kbd>Enter</kbd>/<kbd>Space</kbd> activation, no focus ring, no toggle state.</li>
+        <li>Automated tests cannot target these by role.</li>
+      </ul>
+
+      <h3>With the feature (native HTML)</h3>
+      <div class="code"><pre><code>&lt;button type="button" onclick="save()"&gt;Save&lt;/button&gt;
+
+&lt;label&gt;
+  &lt;input type="checkbox" checked /&gt;
+  Dark mode
+&lt;/label&gt;
+
+&lt;nav&gt;
+  &lt;a href="/home"&gt;Home&lt;/a&gt;
+&lt;/nav&gt;</code></pre></div>
+      <ul>
+        <li>Correct roles, names, and states, with no ARIA attributes at all.</li>
+        <li>Focus, keyboard activation, and form participation are built in.</li>
+        <li>Focus indicators and state styling come from the platform.</li>
+        <li>Tests can select by role, name, and label.</li>
+      </ul>
+
+      <div class="callout note">
+        <span class="title">The ARIA middle ground</span>
+        The equivalent with ARIA would be <code class="inline">&lt;div role="button" tabindex="0"&gt;</code>, <code class="inline">&lt;div role="switch" aria-checked="true" tabindex="0"&gt;</code>, and a <code class="inline">role="navigation"</code> container &mdash; plus JavaScript for keyboard handling and state. That is strictly more code, more bugs, and no benefit over the native elements. This is why the first rule of ARIA is to avoid ARIA.
+      </div>
+    </section>
+
+    <!-- 11. MISTAKES -->
+    <section class="doc" id="mistakes" data-searchable>
+      <h2><span class="num">11</span>Common Mistakes</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mistake</th><th>Why it happens</th><th>Incorrect</th><th>Correct</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Using ARIA instead of native HTML</td>
+              <td>Habit from component libraries and the belief that ARIA "adds accessibility"</td>
+              <td><code>&lt;div role="button" tabindex="0"&gt;Save&lt;/div&gt;</code></td>
+              <td><code>&lt;button&gt;Save&lt;/button&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>aria-hidden="true"</code> on a focusable element</td>
+              <td>Hiding a modal or menu without also removing it from the tab order</td>
+              <td><code>&lt;button aria-hidden="true"&gt;Close&lt;/button&gt;</code></td>
+              <td><code>&lt;button hidden&gt;</code> or the <code>inert</code> attribute</td>
+            </tr>
+            <tr>
+              <td><code>role="presentation"</code> on interactive content</td>
+              <td>Thinking it "cleans up" markup</td>
+              <td><code>&lt;a href="/home" role="presentation"&gt;Home&lt;/a&gt;</code></td>
+              <td>Remove the role; style with CSS instead</td>
+            </tr>
+            <tr>
+              <td>Redundant roles</td>
+              <td>Not knowing the element already has an implicit role</td>
+              <td><code>&lt;button role="button"&gt;</code>, <code>&lt;nav role="navigation"&gt;</code></td>
+              <td><code>&lt;button&gt;</code>, <code>&lt;nav&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>aria-label</code> overriding visible text</td>
+              <td>Trying to be more descriptive than the screen</td>
+              <td><code>&lt;button aria-label="Submit the form"&gt;Send&lt;/button&gt;</code></td>
+              <td><code>&lt;button&gt;Send&lt;/button&gt;</code> (or match the visible word)</td>
+            </tr>
+            <tr>
+              <td>Empty or missing reference ids</td>
+              <td>Typo in an id, or the target removed during refactor</td>
+              <td><code>aria-labelledby="titel"</code></td>
+              <td><code>aria-labelledby="title"</code> pointing at a real element</td>
+            </tr>
+            <tr>
+              <td>Both <code>aria-label</code> and <code>aria-labelledby</code></td>
+              <td>Adding a second name as a "backup"</td>
+              <td><code>aria-label="Save" aria-labelledby="h1"</code></td>
+              <td>Pick one &mdash; <code>aria-labelledby</code> wins silently</td>
+            </tr>
+            <tr>
+              <td><code>aria-checked</code> on a native checkbox</td>
+              <td>Copying a custom-widget pattern onto a real input</td>
+              <td><code>&lt;input type="checkbox" aria-checked="true"&gt;</code></td>
+              <td><code>&lt;input type="checkbox" checked&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Static <code>aria-expanded</code></td>
+              <td>Setting it once and forgetting the toggle handler</td>
+              <td><code>aria-expanded="true"</code> that never changes</td>
+              <td>Update it in the same handler that shows/hides content</td>
+            </tr>
+            <tr>
+              <td><code>role="menu"</code> for site navigation</td>
+              <td>Confusing a nav bar with an application menu</td>
+              <td><code>&lt;ul role="menu"&gt;&lt;li role="menuitem"&gt;</code></td>
+              <td><code>&lt;nav&gt;&lt;ul&gt;&lt;li&gt;&lt;a&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Live region created and filled at once</td>
+              <td>Rendering the toast element and its text in one operation</td>
+              <td>Insert <code>&lt;div role="alert"&gt;Saved&lt;/div&gt;</code> in one step</td>
+              <td>Insert the empty region first, then set its text</td>
+            </tr>
+            <tr>
+              <td>ARIA attributes on a role that forbids them</td>
+              <td>Assuming any <code>aria-*</code> works anywhere</td>
+              <td><code>&lt;div aria-checked="true"&gt;</code> with no role</td>
+              <td>Add a valid role, or use a native element</td>
+            </tr>
+            <tr>
+              <td>Placeholder used as the label</td>
+              <td>Placeholder text disappears on input and is not a name</td>
+              <td><code>&lt;input placeholder="Email"&gt;</code> with no label</td>
+              <td><code>&lt;label for="e"&gt;Email&lt;/label&gt;&lt;input id="e"&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Positive <code>tabindex</code> everywhere</td>
+              <td>Trying to control tab order manually</td>
+              <td><code>tabindex="1"</code>, <code>tabindex="2"</code>, &hellip;</td>
+              <td><code>tabindex="0"</code> / <code>"-1"</code>, and fix DOM order</td>
+            </tr>
+            <tr>
+              <td><code>aria-roledescription</code> on an unnamed element</td>
+              <td>Overriding the role without checking the name</td>
+              <td><code>&lt;div role="group" aria-roledescription="slide"&gt;</code></td>
+              <td>Add <code>aria-label</code> so the custom role is meaningful</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 12. BEST PRACTICES -->
+    <section class="doc" id="bestpractices" data-searchable>
+      <h2><span class="num">12</span>Best Practices</h2>
+      <ol>
+        <li><strong>Exhaust native HTML first.</strong> If an element already provides the role, state, and behaviour, use it and add no ARIA. This single rule prevents most accessibility defects.</li>
+        <li><strong>Never change native semantics.</strong> Do not turn a <code class="inline">&lt;button&gt;</code> into a heading or a heading into a button; replace the element instead.</li>
+        <li><strong>Give every interactive element an accessible name.</strong> An unnamed control is announced as a bare role and is effectively unusable by voice control.</li>
+        <li><strong>Prefer a visible label over <code class="inline">aria-label</code>.</strong> When both exist, make the strings match so sighted, screen reader, and voice-control users all refer to the same word.</li>
+        <li><strong>Keep ARIA state in sync with the UI.</strong> Update <code class="inline">aria-expanded</code>, <code class="inline">aria-selected</code>, and <code class="inline">aria-checked</code> in the same code path that changes what the user sees.</li>
+        <li><strong>Make every ARIA widget keyboard operable.</strong> A role without the matching keyboard pattern is a trap; follow the ARIA Authoring Practices patterns.</li>
+        <li><strong>Reach for <code class="inline">aria-hidden</code> only on decorative or duplicated content</strong>, and only when it contains nothing focusable.</li>
+        <li><strong>Use live regions sparingly and politely.</strong> Default to <code class="inline">role="status"</code>; reserve <code class="inline">assertive</code> and <code class="inline">role="alert"</code> for urgent, actionable messages.</li>
+        <li><strong>Choose the least powerful mechanism.</strong> Native element &gt; native attribute &gt; ARIA role &gt; ARIA role plus JavaScript. Fewer moving parts means fewer ways to break.</li>
+        <li><strong>Use landmarks to make the page skimmable.</strong> One <code class="inline">&lt;main&gt;</code>, a labelled <code class="inline">&lt;nav&gt;</code>, and headings in a logical order let non-visual users navigate as efficiently as sighted ones.</li>
+        <li><strong>Test with a keyboard and a screen reader.</strong> Tab through every flow with the mouse untouched, then confirm with NVDA, JAWS, or VoiceOver. Automated tools catch only a fraction of issues.</li>
+        <li><strong>Treat axe/Lighthouse warnings as findings, not noise.</strong> "ARIA attribute is not allowed on this role" almost always indicates a real semantic bug.</li>
+      </ol>
+    </section>
+
+    <!-- 13. INTERVIEW -->
+    <section class="doc" id="interview" data-searchable>
+      <h2><span class="num">13</span>Interview Questions</h2>
+
+      <h3>Beginner Questions</h3>
+
+      <div class="qa">
+        <div class="q">1. What does ARIA stand for, and what are its three building blocks?</div>
+        <div class="a">Accessible Rich Internet Applications (WAI-ARIA). Its three building blocks are <strong>roles</strong> (what an element is), <strong>states and properties</strong> (its current condition, written as <code class="inline">aria-*</code> attributes), and <strong>keyboard/interaction expectations</strong> that the developer must implement.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">2. Does adding <code>role="button"</code> to a div make it a button?</div>
+        <div class="a">Only for assistive technology. It changes what is announced, not what it does. The div is still not focusable, has no <kbd>Enter</kbd>/<kbd>Space</kbd> activation, and does not render as a button. You must add <code class="inline">tabindex</code> and keyboard handlers &mdash; or simply use <code class="inline">&lt;button&gt;</code>.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">3. What is the first rule of ARIA?</div>
+        <div class="a">If a native HTML element or attribute already provides the semantics and behaviour you need, use it instead of repurposing an element and adding ARIA. In practice: "No ARIA is better than bad ARIA."</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">4. Which element already has the <code>navigation</code> role, and can you name some other implicit roles?</div>
+        <div class="a"><code class="inline">&lt;nav&gt;</code> maps to <code class="inline">navigation</code>. Others include <code class="inline">&lt;main&gt;</code> &rarr; <code class="inline">main</code>, <code class="inline">&lt;h1&gt;</code> &rarr; <code class="inline">heading</code>, <code class="inline">&lt;ul&gt;</code> &rarr; <code class="inline">list</code>, <code class="inline">&lt;li&gt;</code> &rarr; <code class="inline">listitem</code>, <code class="inline">&lt;button&gt;</code> &rarr; <code class="inline">button</code>, and <code class="inline">&lt;a href&gt;</code> &rarr; <code class="inline">link</code>.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">5. What is the difference between <code>aria-label</code> and <code>aria-describedby</code>?</div>
+        <div class="a"><code class="inline">aria-label</code> sets the element's <strong>name</strong> &mdash; the short identifier spoken when focus lands. <code class="inline">aria-describedby</code> sets the <strong>description</strong> &mdash; extra help text referenced by id, read after a pause or on demand. A field has one name and may have a description.</div>
+      </div>
+
+      <h3>Intermediate Questions</h3>
+
+      <div class="qa">
+        <div class="q">6. If an element has both <code>aria-label</code> and <code>aria-labelledby</code>, which wins?</div>
+        <div class="a"><code class="inline">aria-labelledby</code>. The accessible name computation checks <code class="inline">aria-labelledby</code> first, then <code class="inline">aria-label</code>, then native labelling (a <code class="inline">&lt;label&gt;</code>, the element's own text, <code class="inline">alt</code>, and so on), then the <code class="inline">title</code> attribute.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">7. Why is <code>aria-hidden="true"</code> on a focusable element a bug?</div>
+        <div class="a">It removes the element from the accessibility tree but leaves it in the tab order. Keyboard users reach a focus stop that a screen reader cannot describe &mdash; "ghost focus" on an invisible control. Remove it from the tab order too (with <code class="inline">hidden</code>, <code class="inline">display:none</code>, or the <code class="inline">inert</code> attribute) or do not hide it at all.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">8. What does <code>aria-live="polite"</code> do, and how does it differ from <code>assertive</code>?</div>
+        <div class="a">Both mark a region whose changes are announced without moving focus. <code class="inline">polite</code> waits for the user to be idle before speaking; <code class="inline">assertive</code> interrupts immediately. Use polite for statuses and results, assertive only for urgent errors, because interruptions are disruptive.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">9. What is roving tabindex, and why do composite widgets use it?</div>
+        <div class="a">Roving tabindex keeps exactly one item in the tab sequence (<code class="inline">tabindex="0"</code>) and sets the siblings to <code class="inline">tabindex="-1"</code>. Arrow keys move focus and the <code class="inline">0</code> follows the active item. This gives the widget a single tab stop, so users can Tab past it quickly while still navigating inside it &mdash; the pattern for tablists, menu bars, and toolbars.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">10. Why does <code>role="presentation"</code> on a <code>&lt;ul&gt;</code> also affect its <code>&lt;li&gt;</code> children?</div>
+        <div class="a">Presentation is inherited by an element's <em>required owned elements</em>. A <code class="inline">&lt;ul&gt;</code> requires <code class="inline">&lt;li&gt;</code> children, so removing the list semantics removes the listitem semantics with it. Presentation is not inherited by arbitrary descendants &mdash; a <code class="inline">&lt;div&gt;</code> inside a presentational element keeps its own semantics.</div>
+      </div>
+
+      <h3>Advanced Questions</h3>
+
+      <div class="qa">
+        <div class="q">11. Describe the accessible name computation order and where each source comes from.</div>
+        <div class="a">In priority order: (1) <code class="inline">aria-labelledby</code>, whose referenced elements' text is concatenated; (2) <code class="inline">aria-label</code>; (3) host-language labelling &mdash; <code class="inline">&lt;label&gt;</code> for form controls, <code class="inline">&lt;legend&gt;</code>, <code class="inline">&lt;caption&gt;</code>, <code class="inline">alt</code>, or the element's text content; (4) the <code class="inline">title</code> attribute as a last resort. Descriptions follow the same idea via <code class="inline">aria-describedby</code> and <code class="inline">title</code>.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">12. When would you use <code>aria-activedescendant</code> instead of roving tabindex?</div>
+        <div class="a">When the items are not focusable and focus must stay on the container &mdash; for example a combobox whose text input keeps focus while the highlighted option changes. The container sets <code class="inline">aria-activedescendant</code> to the id of the active option, so assistive technology reports it as focused. It needs a stable, unique id per option and constant updates as the highlight moves.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">13. Your SPAs toasts never get announced. What are the likely causes?</div>
+        <div class="a">Most often the region is created and populated in the same render, so no change is observed on an existing live region; alternatively the region is inside a container with <code class="inline">aria-hidden</code>, or it is removed from the DOM before the announcement queues. Insert an empty live region on load, flag it <code class="inline">aria-busy="true"</code> while updating, then write the text &mdash; and leave the region in the DOM after the visual message fades.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">14. Why can <code>role="menu"</code> be harmful for site navigation?</div>
+        <div class="a">It promises application-menu behaviour: arrow-key navigation, Escape to close, focus management, and a specific expected structure of <code class="inline">menuitem</code> children. A nav bar of links does not behave that way, so screen reader users are told to expect interactions that do not exist. Use <code class="inline">&lt;nav&gt;</code> with a list of links instead.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">15. A validator reports "ARIA attribute is not allowed on this role." How do you fix it?</div>
+        <div class="a">The attribute is not permitted on the element's computed role, so browsers ignore it. Either (a) move the attribute to an element whose role supports it, (b) add the correct role to the element, or (c) &mdash; usually best &mdash; replace the element with the native HTML element that already carries the semantics and behaviour. Check the role's definition in the WAI-ARIA specification for its allowed states and properties.</div>
+      </div>
+    </section>
+
+    <!-- 14. CHEAT SHEET -->
+    <section class="doc" id="cheatsheet" data-searchable>
+      <h2><span class="num">14</span>Quick Reference / Cheat Sheet</h2>
+
+      <h3>I need to&hellip;</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Role / Attribute</th></tr></thead>
+          <tbody>
+            <tr><td>Label an icon-only button</td><td><code>aria-label="Close"</code></td></tr>
+            <tr><td>Name a section from its heading</td><td><code>aria-labelledby="h2-id"</code></td></tr>
+            <tr><td>Attach help text to a field</td><td><code>aria-describedby="hint-id"</code></td></tr>
+            <tr><td>Hide a decorative icon</td><td><code>aria-hidden="true"</code></td></tr>
+            <tr><td>Mark the current page</td><td><code>aria-current="page"</code></td></tr>
+            <tr><td>Show a control is expanded</td><td><code>aria-expanded="true"</code></td></tr>
+            <tr><td>Report a toggle is on</td><td><code>aria-pressed="true"</code> (button) / <code>aria-checked="true"</code> (switch)</td></tr>
+            <tr><td>Mark a field invalid</td><td><code>aria-invalid="true"</code></td></tr>
+            <tr><td>Announce a polite update</td><td><code>role="status"</code> or <code>aria-live="polite"</code></td></tr>
+            <tr><td>Announce an urgent error</td><td><code>role="alert"</code> or <code>aria-live="assertive"</code></td></tr>
+            <tr><td>Build a tab interface</td><td><code>role="tablist"</code> + <code>role="tab"</code> + <code>role="tabpanel"</code></td></tr>
+            <tr><td>Build a modal</td><td><code>role="dialog" aria-modal="true"</code> (or native <code>&lt;dialog&gt;</code>)</td></tr>
+            <tr><td>Remove an element's semantics</td><td><code>role="presentation"</code> / <code>role="none"</code></td></tr>
+            <tr><td>Mark a busy region</td><td><code>aria-busy="true"</code></td></tr>
+            <tr><td>Name a landmark</td><td><code>aria-label="Primary"</code> on <code>&lt;nav&gt;</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Roles to reach for first</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Values that matter</th><th>Remember</th></tr></thead>
+          <tbody>
+            <tr><td><code>button</code></td><td><code>aria-pressed</code>, <code>aria-expanded</code></td><td>Prefer <code>&lt;button&gt;</code></td></tr>
+            <tr><td><code>checkbox</code> / <code>switch</code></td><td><code>aria-checked</code> (<code>mixed</code> for checkbox only)</td><td>Prefer <code>&lt;input type="checkbox"&gt;</code></td></tr>
+            <tr><td><code>dialog</code></td><td><code>aria-modal</code>, <code>aria-labelledby</code></td><td>Must trap and restore focus yourself</td></tr>
+            <tr><td><code>tablist</code> / <code>tab</code> / <code>tabpanel</code></td><td><code>aria-selected</code>, <code>aria-controls</code></td><td>Roving tabindex + arrow keys</td></tr>
+            <tr><td><code>status</code> / <code>alert</code></td><td>Implicit <code>aria-live</code></td><td>Region must pre-exist</td></tr>
+            <tr><td><code>navigation</code> / <code>main</code> / <code>region</code></td><td><code>aria-label</code></td><td>Prefer the matching HTML element</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Value tokens</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribute</th><th>Legal values</th><th>Default</th></tr></thead>
+          <tbody>
+            <tr><td><code>aria-live</code></td><td><code>off</code> | <code>polite</code> | <code>assertive</code></td><td><code>off</code></td></tr>
+            <tr><td><code>aria-checked</code></td><td><code>true</code> | <code>false</code> | <code>mixed</code></td><td>none (required)</td></tr>
+            <tr><td><code>aria-pressed</code></td><td><code>true</code> | <code>false</code> | <code>mixed</code></td><td>undefined (not a toggle)</td></tr>
+            <tr><td><code>aria-current</code></td><td><code>page</code> | <code>step</code> | <code>location</code> | <code>date</code> | <code>time</code> | <code>true</code> | <code>false</code></td><td><code>false</code></td></tr>
+            <tr><td><code>aria-haspopup</code></td><td><code>false</code> | <code>true</code> | <code>menu</code> | <code>listbox</code> | <code>tree</code> | <code>grid</code> | <code>dialog</code></td><td><code>false</code></td></tr>
+            <tr><td><code>aria-invalid</code></td><td><code>true</code> | <code>false</code> | <code>grammar</code> | <code>spelling</code></td><td><code>false</code></td></tr>
+            <tr><td><code>aria-relevant</code></td><td><code>additions</code> | <code>removals</code> | <code>text</code> | <code>all</code></td><td><code>additions</code></td></tr>
+            <tr><td><code>aria-sort</code></td><td><code>ascending</code> | <code>descending</code> | <code>none</code> | <code>other</code></td><td><code>none</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <span class="title">One-line decision rule</span>
+        Ask: <em>"Is there an HTML element or attribute that already does this?"</em> If yes, use it. If no, add the smallest amount of ARIA that describes the widget &mdash; and implement the keyboard behaviour in JavaScript.
+      </div>
+    </section>
+
+    <!-- 15. RELATED -->
+    <section class="doc" id="related" data-searchable>
+      <h2><span class="num">15</span>Related Topics</h2>
+      <ul>
+        <li><strong>HTML semantics</strong> &mdash; the elements and attributes that already carry the roles ARIA can only imitate.</li>
+        <li><strong>The accessibility tree</strong> &mdash; how the browser turns DOM plus ARIA into what assistive technology reads.</li>
+        <li><strong>Accessible name and description computation</strong> &mdash; the exact algorithm behind <code class="inline">aria-label</code>, <code class="inline">aria-labelledby</code>, and <code class="inline">title</code>.</li>
+        <li><strong>Keyboard accessibility and focus management</strong> &mdash; tab order, roving tabindex, <code class="inline">aria-activedescendant</code>, and focus trapping.</li>
+        <li><strong>ARIA Authoring Practices Guide (APG)</strong> &mdash; W3C patterns for every composite widget, with working examples.</li>
+        <li><strong>WCAG 2.2</strong> &mdash; the success criteria (notably 1.3.1, 2.1.1, 4.1.2) that ARIA helps you satisfy.</li>
+        <li><strong>Live regions</strong> &mdash; announcing dynamic content without moving focus.</li>
+        <li><strong>Playwright accessibility testing</strong> &mdash; <code class="inline">getByRole()</code>, <code class="inline">toHaveAccessibleName()</code>, <code class="inline">toHaveRole()</code>, and axe integration, which assert on exactly these semantics.</li>
+        <li><strong>Landmarks and landmarks navigation</strong> &mdash; using regions so screen reader users can jump around a page.</li>
+      </ul>
+    </section>
+
+    <!-- 16. TAKEAWAYS -->
+    <section class="doc" id="takeaways" data-searchable>
+      <h2><span class="num">16</span>Key Takeaways</h2>
+      <ul>
+        <li>ARIA adds <em>semantics only</em>: it tells assistive technology what an element is and what condition it is in, but adds no focus, keyboard, or visual behaviour.</li>
+        <li>The first rule is to use native HTML first &mdash; "No ARIA is better than bad ARIA."</li>
+        <li><code class="inline">role</code> states what an element is; <code class="inline">aria-*</code> attributes describe its current state and are only honoured on roles that allow them.</li>
+        <li>Every interactive element needs an accessible name. Never change native semantics with a contradictory role.</li>
+        <li>Accessible name precedence is <code class="inline">aria-labelledby</code> &rarr; <code class="inline">aria-label</code> &rarr; native label &rarr; <code class="inline">title</code>; a higher-priority source silently overrides the rest.</li>
+        <li>Keep ARIA state synchronised with the visible UI &mdash; a stale <code class="inline">aria-expanded</code> or <code class="inline">aria-checked</code> misleads users more than no attribute at all.</li>
+        <li>Never apply <code class="inline">aria-hidden="true"</code> or <code class="inline">role="presentation"</code> to focusable content; it creates controls that are reachable but invisible.</li>
+        <li>Live regions must exist before they are updated, and <code class="inline">assertive</code> should be rare &mdash; default to <code class="inline">role="status"</code>.</li>
+        <li>Automated tools catch only part of the problem: verify every flow with a keyboard and a real screen reader.</li>
+      </ul>
+    </section>
+
+    <footer class="doc-footer">
+      ARIA in HTML &middot; WAI-ARIA 1.2 &middot; Self-contained help page &middot; Verify behaviour against the W3C WAI-ARIA specification and HTML-AAM for your target browsers.
+    </footer>
+  </main>
+</div>
+
+<button id="toTop" aria-label="Back to top">&#8593;</button>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Copy-to-clipboard buttons ---------- */
+  document.querySelectorAll('.code').forEach(function (block) {
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var text = pre.innerText;
+      var done = function () {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+    block.appendChild(btn);
+  });
+
+  function fallbackCopy(text, done) {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'absolute';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+    document.body.removeChild(area);
+    done();
+  }
+
+  /* ---------- Expand / collapse all function entries ---------- */
+  var allDetails = document.querySelectorAll('details.fn');
+  var expandAll = document.getElementById('expandAll');
+  var collapseAll = document.getElementById('collapseAll');
+  if (expandAll) {
+    expandAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = true; });
+    });
+  }
+  if (collapseAll) {
+    collapseAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = false; });
+    });
+  }
+
+  /* ---------- Client-side search ---------- */
+  var search = document.getElementById('search');
+  var counter = document.getElementById('resultCount');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('[data-searchable]'));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+
+  var noResults = document.createElement('div');
+  noResults.className = 'no-results';
+  noResults.hidden = true;
+  noResults.textContent = 'No matching sections found. Try a different keyword.';
+  var firstSection = sections[0];
+  if (firstSection && firstSection.parentNode) {
+    firstSection.parentNode.insertBefore(noResults, firstSection);
+  }
+
+  function runSearch(rawQuery) {
+    var query = rawQuery.trim().toLowerCase();
+    var matches = 0;
+
+    sections.forEach(function (section) {
+      var haystack = (section.textContent || '').toLowerCase();
+      var hit = query === '' || haystack.indexOf(query) !== -1;
+      section.classList.toggle('search-hidden', !hit);
+      if (hit) { matches++; }
+    });
+
+    navLinks.forEach(function (link) {
+      var target = document.querySelector(link.getAttribute('href'));
+      var hidden = target && target.classList.contains('search-hidden');
+      link.classList.toggle('nav-dim', !!hidden);
+    });
+
+    if (query === '') {
+      counter.textContent = '';
+      noResults.hidden = true;
+    } else {
+      counter.textContent = matches + (matches === 1 ? ' section matches' : ' sections match');
+      noResults.hidden = matches !== 0;
+    }
+  }
+
+  if (search) {
+    search.addEventListener('input', function () { runSearch(search.value); });
+    search.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        search.value = '';
+        runSearch('');
+      }
+    });
+  }
+
+  /* ---------- Back-to-top button ---------- */
+  var toTop = document.getElementById('toTop');
+  function onScroll() {
+    if (window.scrollY > 400) {
+      toTop.classList.add('show');
+    } else {
+      toTop.classList.remove('show');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ---------- Mobile menu toggle ---------- */
+  var menuToggle = document.getElementById('menuToggle');
+  var sidebar = document.getElementById('sidebar');
+  if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', function () {
+      var open = sidebar.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', String(open));
+    });
+    sidebar.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && window.innerWidth <= 980) {
+        sidebar.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>getByRole in Playwright — Help Reference</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface-alt: #eef2f7;
+    --border: #d9e0ea;
+    --text: #1c2533;
+    --text-muted: #5b6779;
+    --primary: #0b6bcb;
+    --primary-dark: #084f96;
+    --accent: #7c3aed;
+    --code-bg: #101826;
+    --code-text: #e6edf6;
+    --tip-bg: #e8f6ee;
+    --tip-border: #34a853;
+    --warn-bg: #fdf3e3;
+    --warn-border: #e08a00;
+    --note-bg: #e8f1fd;
+    --note-border: #0b6bcb;
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 6px 18px rgba(16, 24, 40, 0.06);
+    --radius: 10px;
+    --sidebar-w: 280px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+
+  code, pre, kbd {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+  }
+
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    max-width: 1500px;
+    margin: 0 auto;
+    gap: 0;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 22px 18px 40px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.02rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .brand .logo {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 0.8rem;
+  }
+  .brand small {
+    display: block;
+    font-weight: 500;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+  }
+
+  .search-wrap { margin: 16px 0 8px; }
+  .search-wrap label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  #search {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--surface-alt);
+    color: var(--text);
+  }
+  #search:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(11, 107, 203, 0.15);
+  }
+  #resultCount {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-height: 16px;
+    margin-top: 6px;
+  }
+
+  .nav ul { list-style: none; margin: 10px 0 0; padding: 0; }
+  .nav li { margin: 1px 0; }
+  .nav a {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 7px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .nav a:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav a.nav-dim { opacity: 0.32; }
+  .nav .group {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #8b96a8;
+    margin: 16px 0 4px 12px;
+    font-weight: 700;
+  }
+
+  /* ---------- Main ---------- */
+  main { padding: 30px 40px 100px; min-width: 0; }
+
+  .page-header {
+    background: linear-gradient(135deg, #0b6bcb, #7c3aed);
+    color: #fff;
+    border-radius: 14px;
+    padding: 30px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+  }
+  .page-header .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.72rem;
+    opacity: 0.9;
+    font-weight: 600;
+  }
+  .page-header h1 { margin: 8px 0 10px; font-size: 2rem; line-height: 1.2; }
+  .page-header p { margin: 0; opacity: 0.94; max-width: 70ch; }
+  .badges { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  section.doc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 26px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+    scroll-margin-top: 16px;
+  }
+  section.doc.search-hidden { display: none; }
+
+  h2 {
+    font-size: 1.4rem;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--surface-alt);
+    color: var(--text);
+  }
+  h2 .num {
+    display: inline-block;
+    background: var(--surface-alt);
+    color: var(--primary);
+    font-size: 0.8rem;
+    padding: 2px 9px;
+    border-radius: 6px;
+    margin-right: 10px;
+    vertical-align: middle;
+    font-weight: 700;
+  }
+  h3 { font-size: 1.12rem; margin: 22px 0 10px; color: var(--primary-dark); }
+  h4 { font-size: 0.98rem; margin: 16px 0 6px; color: var(--text); }
+  p { margin: 10px 0; }
+  ul, ol { margin: 10px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+
+  .lead { font-size: 1.02rem; color: var(--text-muted); }
+
+  /* ---------- Code ---------- */
+  .code { position: relative; margin: 14px 0; }
+  .code pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 18px;
+    border-radius: 9px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    margin: 0;
+    tab-size: 2;
+  }
+  .code code { color: inherit; }
+  .copy-btn {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    background: rgba(255,255,255,0.12);
+    color: #dce6f5;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.24); }
+  .copy-btn.copied { background: #34a853; border-color: #34a853; color: #fff; }
+
+  code.inline {
+    background: var(--surface-alt);
+    color: #b4245a;
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Tables ---------- */
+  .table-wrap { overflow-x: auto; margin: 14px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+    min-width: 640px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--surface-alt);
+    font-weight: 700;
+    color: var(--text);
+    position: sticky;
+    top: 0;
+  }
+  tbody tr:nth-child(even) { background: #fafbfd; }
+  td code, th code {
+    background: #eef2f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #b4245a;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Callouts ---------- */
+  .callout {
+    border-left: 4px solid;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  .callout .title { font-weight: 700; display: block; margin-bottom: 3px; }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.note { background: var(--note-bg); border-color: var(--note-border); }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .card {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px 16px;
+  }
+  .card h4 { margin: 0 0 6px; color: var(--primary-dark); }
+  .card p { margin: 0; font-size: 0.88rem; color: var(--text-muted); }
+
+  /* ---------- Function details ---------- */
+  details.fn {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    margin: 10px 0;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  details.fn > summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 0.94rem;
+    background: var(--surface-alt);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  details.fn > summary::-webkit-details-marker { display: none; }
+  details.fn > summary::after {
+    content: "+";
+    font-size: 1.15rem;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  details.fn[open] > summary::after { content: "\2013"; }
+  details.fn[open] > summary { border-bottom: 1px solid var(--border); }
+  .fn-body { padding: 6px 18px 18px; }
+  .fn-body dl { margin: 0; }
+  .fn-body dt {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-top: 14px;
+  }
+  .fn-body dd { margin: 4px 0 0; }
+
+  .controls { display: flex; gap: 8px; margin: 6px 0 14px; flex-wrap: wrap; }
+  .controls button {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 6px 13px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .controls button:hover { background: #e2e9f3; }
+
+  /* ---------- Q&A ---------- */
+  .qa { border-left: 3px solid var(--accent); padding: 2px 0 2px 16px; margin: 16px 0; }
+  .qa .q { font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .qa .a { color: var(--text-muted); font-size: 0.93rem; }
+
+  /* ---------- Misc ---------- */
+  .no-results {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: #7a4a00;
+    padding: 14px 18px;
+    border-radius: 9px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  [hidden] { display: none !important; }
+
+  #toTop {
+    position: fixed;
+    bottom: 26px;
+    right: 26px;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 50;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; }
+  #toTop:hover { transform: translateY(-3px); background: var(--primary-dark); }
+
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 60;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 13px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  footer.doc-footer {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    text-align: center;
+    padding: 10px 0 40px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 82%;
+      max-width: 320px;
+      height: 100vh;
+      z-index: 55;
+      transform: translateX(-102%);
+      transition: transform .25s ease;
+      box-shadow: var(--shadow);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: block; }
+    main { padding: 70px 18px 90px; }
+    .page-header { padding: 22px 20px; }
+    .page-header h1 { font-size: 1.5rem; }
+    section.doc { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">&#9776; Menu</button>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="logo">gR</span>
+      <span>Help Portal<small>Playwright &middot; JavaScript</small></span>
+    </div>
+
+    <div class="search-wrap">
+      <label for="search">Search this page</label>
+      <input id="search" type="search" placeholder="e.g. getByRole, exact, level, strict mode" autocomplete="off" />
+      <div id="resultCount" role="status" aria-live="polite"></div>
+    </div>
+
+    <nav class="nav" aria-label="Page sections">
+      <div class="group">Overview</div>
+      <ul>
+        <li><a href="#what">What Is It?</a></li>
+        <li><a href="#syntax">Syntax</a></li>
+        <li><a href="#roles">Supported Roles</a></li>
+      </ul>
+      <div class="group">Reference</div>
+      <ul>
+        <li><a href="#reference">Method &amp; Option Reference</a></li>
+        <li><a href="#details">Detailed Reference</a></li>
+      </ul>
+      <div class="group">Practice</div>
+      <ul>
+        <li><a href="#examples">Practical Examples</a></li>
+        <li><a href="#beforeafter">Before vs After</a></li>
+        <li><a href="#mistakes">Common Mistakes</a></li>
+        <li><a href="#bestpractices">Best Practices</a></li>
+      </ul>
+      <div class="group">Learn</div>
+      <ul>
+        <li><a href="#interview">Interview Questions</a></li>
+        <li><a href="#cheatsheet">Cheat Sheet</a></li>
+        <li><a href="#related">Related Topics</a></li>
+        <li><a href="#takeaways">Key Takeaways</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="page-header">
+      <div class="eyebrow">Playwright Locators</div>
+      <h1><code>getByRole()</code> in Playwright</h1>
+      <p>Playwright's recommended user-facing locator &mdash; find elements by their ARIA role, accessible name, and state instead of by CSS structure or XPath.</p>
+      <div class="badges">
+        <span class="badge">@playwright/test v1.27+</span>
+        <span class="badge">page / locator / frameLocator</span>
+        <span class="badge">ARIA role + accessible name</span>
+        <span class="badge">Returns a Locator</span>
+        <span class="badge">Beginner &rarr; Advanced</span>
+      </div>
+    </header>
+
+    <!-- 1. WHAT IS IT -->
+    <section class="doc" id="what" data-searchable>
+      <h2><span class="num">01</span>What Is It?</h2>
+      <p class="lead"><strong><code class="inline">getByRole()</code></strong> is a Playwright locator method that finds elements by their <strong>ARIA role</strong> &mdash; and optionally by their <strong>accessible name</strong> and state attributes such as <code class="inline">checked</code>, <code class="inline">disabled</code>, <code class="inline">expanded</code>, <code class="inline">pressed</code>, and <code class="inline">selected</code>. It is the first choice in Playwright's recommended locator strategy because it mirrors how assistive technology and users perceive the page, not how the DOM happens to be structured.</p>
+
+      <div class="code"><pre><code>await page.getByRole('button', { name: 'Submit' }).click();</code></pre></div>
+
+      <p>It was introduced in <strong>Playwright v1.27</strong> as part of the "user-facing locators" family, alongside <code class="inline">getByLabel()</code>, <code class="inline">getByText()</code>, <code class="inline">getByPlaceholder()</code>, <code class="inline">getByAltText()</code>, <code class="inline">getByTitle()</code>, and <code class="inline">getByTestId()</code>.</p>
+
+      <h3>Why it exists</h3>
+      <p>CSS and XPath selectors describe <em>implementation</em>: a class name, a tag hierarchy, a DOM position. Tests written that way break whenever a developer refactors markup, even when the page's meaning and behaviour are unchanged. Role-based locators describe <em>intent</em> &mdash; "the Submit button" &mdash; so they survive those refactors.</p>
+      <p>Playwright does not invent roles: it matches the ARIA role from the W3C ARIA specification, plus the implicit roles that HTML elements already have under HTML-AAM. That means a plain <code class="inline">&lt;button&gt;Submit&lt;/button&gt;</code> is matched by <code class="inline">getByRole('button', { name: 'Submit' })</code> with no attributes added.</p>
+
+      <h3>What problem it solves</h3>
+      <ul>
+        <li><strong>Non-brittle tests</strong> &mdash; renaming a CSS class or wrapping an element in a new <code class="inline">&lt;div&gt;</code> does not break a role locator.</li>
+        <li><strong>Readable tests</strong> &mdash; the code states which user-facing control it interacts with.</li>
+        <li><strong>Accessibility feedback</strong> &mdash; if you cannot locate a control by role and name, a screen reader user may not be able to reach or identify it either.</li>
+        <li><strong>Consistency</strong> &mdash; the same locator works across browsers, because the role mapping is standardised.</li>
+      </ul>
+
+      <h3>Where it is commonly used</h3>
+      <ul>
+        <li>Clicking buttons, links, tabs, menu items, and checkboxes.</li>
+        <li>Filling form fields where the role is <code class="inline">textbox</code>, <code class="inline">combobox</code>, or <code class="inline">searchbox</code>.</li>
+        <li>Asserting on headings and their levels.</li>
+        <li>Scoping work inside a table, row, list, or dialog.</li>
+        <li>Anywhere a test needs to interact with the page as a user would.</li>
+      </ul>
+
+      <h3>When to use it</h3>
+      <p>Reach for <code class="inline">getByRole()</code> <strong>first</strong>. Fall back to <code class="inline">getByLabel()</code> or <code class="inline">getByPlaceholder()</code> for unlabelled form fields, <code class="inline">getByText()</code> for static content, and <code class="inline">getByTestId()</code> when no meaningful role or text exists or when the element is deliberately anonymous to assistive technology.</p>
+
+      <div class="callout note">
+        <span class="title">Not an accessibility audit</span>
+        Playwright's own documentation is explicit: the role locator <strong>does not replace</strong> accessibility audits and conformance tests. It gives early feedback about ARIA usage, but tools such as axe and manual screen reader testing are still required for real coverage.
+      </div>
+
+      <div class="callout warn">
+        <span class="title">It returns a Locator, not a Promise</span>
+        <code class="inline">getByRole()</code> is synchronous &mdash; do <strong>not</strong> <code class="inline">await</code> the call itself. Await the action or assertion: <code class="inline">await page.getByRole('button').click()</code>. The returned locator re-queries the DOM on every use, so it always reflects the current page.
+      </div>
+    </section>
+
+    <!-- 2. SYNTAX -->
+    <section class="doc" id="syntax" data-searchable>
+      <h2><span class="num">02</span>Syntax</h2>
+
+      <h3>Basic form</h3>
+      <div class="code"><pre><code>page.getByRole(role, options)</code></pre></div>
+
+      <h3>The three entry points</h3>
+      <div class="code"><pre><code>// Whole page
+await page.getByRole('button', { name: 'Submit' }).click();
+
+// Scoped to another locator - searches only inside that element
+await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click();
+
+// Inside an iframe
+await page.frameLocator('#checkout').getByRole('button', { name: 'Pay' }).click();</code></pre></div>
+
+      <h3>Breaking down the parts</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Part</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>role</code></td><td>Required. One of the ARIA roles Playwright supports, e.g. <code>button</code>, <code>link</code>, <code>textbox</code>, <code>heading</code>, <code>checkbox</code>, <code>dialog</code>. The TypeScript type restricts it to that union, so a typo fails to compile; at runtime an unrecognised role is not an error &mdash; it matches nothing and the next action times out.</td></tr>
+            <tr><td><code>options</code></td><td>Optional object. The most-used key is <code>name</code>; the rest filter by state (<code>checked</code>, <code>disabled</code>, <code>expanded</code>, <code>level</code>, <code>pressed</code>, <code>selected</code>) or change matching (<code>exact</code>, <code>includeHidden</code>, <code>description</code>).</td></tr>
+            <tr><td>return value</td><td>A <code>Locator</code>. It is lazy: nothing is queried until you act on it or assert against it.</td></tr>
+            <tr><td>auto-waiting</td><td>Inherited from locators. Actions wait for the element to be attached, visible, stable, enabled, and receiving events &mdash; no manual sleeps.</td></tr>
+            <tr><td>strict mode</td><td>If the locator matches more than one element, actions and assertions throw a strict-mode violation. Narrow the locator instead of relying on "first match".</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>How <code>name</code> is matched</h3>
+      <p>The <code class="inline">name</code> option is compared against the element's <strong>accessible name</strong> &mdash; the same value computed from <code class="inline">aria-label</code>, <code class="inline">aria-labelledby</code>, an associated <code class="inline">&lt;label&gt;</code>, the element's text content, or <code class="inline">alt</code> text.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Input</th><th>Behaviour</th></tr></thead>
+          <tbody>
+            <tr><td><code>name: 'Submit'</code></td><td>Case-insensitive <strong>substring</strong> match; surrounding whitespace is trimmed.</td></tr>
+            <tr><td><code>name: 'Submit', exact: true</code></td><td>Case-sensitive, whole-string match (still trims whitespace).</td></tr>
+            <tr><td><code>name: /submit/i</code></td><td>Regular expression; <code>exact</code> is ignored when a RegExp is used.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code"><pre><code>&lt;button&gt;Submit order&lt;/button&gt;
+
+page.getByRole('button', { name: 'Submit' });          // matches (substring)
+page.getByRole('button', { name: 'Submit', exact: true }); // no match
+page.getByRole('button', { name: /^submit order$/i }); // matches</code></pre></div>
+
+      <div class="callout warn">
+        <span class="title">Substring matching surprises</span>
+        Because the default is a substring match, <code class="inline">name: 'Save'</code> also matches "Save as draft" and "Auto-save". When several similar controls exist, prefer a regex or <code class="inline">exact: true</code> rather than reaching for <code class="inline">.first()</code>.
+      </div>
+
+      <h3>The underlying role selector</h3>
+      <p><code class="inline">getByRole()</code> wraps Playwright's <code class="inline">role=</code> selector engine. The two forms below are equivalent; the API form is preferred for readability and type safety.</p>
+      <div class="code"><pre><code>page.getByRole('button', { name: 'Submit' });
+page.locator('role=button[name="Submit"]');</code></pre></div>
+    </section>
+
+    <!-- 3. ROLES -->
+    <section class="doc" id="roles" data-searchable>
+      <h2><span class="num">03</span>Supported Roles</h2>
+      <p>Playwright accepts the ARIA roles defined by the W3C specification &mdash; the TypeScript types restrict <code class="inline">role</code> to exactly this union. An unrecognised role does not raise a runtime error; it simply matches no elements, so a role typo usually surfaces as a timeout. Grouped below by category, with the most common roles first.</p>
+
+      <h3>Widget &amp; interactive roles</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Typical element</th><th>Commonly paired options</th></tr></thead>
+          <tbody>
+            <tr><td><code>button</code></td><td><code>&lt;button&gt;</code>, <code>&lt;input type="button"&gt;</code>, <code>&lt;input type="submit"&gt;</code></td><td><code>name</code>, <code>disabled</code>, <code>expanded</code>, <code>pressed</code></td></tr>
+            <tr><td><code>link</code></td><td><code>&lt;a href&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>checkbox</code></td><td><code>&lt;input type="checkbox"&gt;</code></td><td><code>name</code>, <code>checked</code>, <code>disabled</code></td></tr>
+            <tr><td><code>radio</code></td><td><code>&lt;input type="radio"&gt;</code></td><td><code>name</code>, <code>checked</code></td></tr>
+            <tr><td><code>switch</code></td><td><code>[role="switch"]</code></td><td><code>name</code>, <code>checked</code></td></tr>
+            <tr><td><code>textbox</code></td><td><code>&lt;input type="text"&gt;</code>, <code>&lt;textarea&gt;</code></td><td><code>name</code>, <code>disabled</code></td></tr>
+            <tr><td><code>searchbox</code></td><td><code>&lt;input type="search"&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>combobox</code></td><td><code>&lt;select&gt;</code>, <code>[role="combobox"]</code></td><td><code>name</code>, <code>expanded</code></td></tr>
+            <tr><td><code>listbox</code></td><td><code>&lt;select multiple&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>option</code></td><td><code>&lt;option&gt;</code>, <code>[role="option"]</code></td><td><code>name</code>, <code>selected</code></td></tr>
+            <tr><td><code>slider</code></td><td><code>&lt;input type="range"&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>spinbutton</code></td><td><code>&lt;input type="number"&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>progressbar</code></td><td><code>&lt;progress&gt;</code></td><td>&mdash;</td></tr>
+            <tr><td><code>meter</code></td><td><code>&lt;meter&gt;</code></td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Composite &amp; menu roles</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Used for</th><th>Commonly paired options</th></tr></thead>
+          <tbody>
+            <tr><td><code>tablist</code> / <code>tab</code> / <code>tabpanel</code></td><td>Tabbed interfaces</td><td><code>name</code>, <code>selected</code></td></tr>
+            <tr><td><code>menu</code> / <code>menubar</code></td><td>Application menus</td><td>&mdash;</td></tr>
+            <tr><td><code>menuitem</code></td><td>Menu commands</td><td><code>name</code>, <code>disabled</code></td></tr>
+            <tr><td><code>menuitemcheckbox</code> / <code>menuitemradio</code></td><td>Checkable menu items</td><td><code>name</code>, <code>checked</code></td></tr>
+            <tr><td><code>tree</code> / <code>treeitem</code></td><td>Hierarchical lists</td><td><code>name</code>, <code>expanded</code>, <code>selected</code>, <code>level</code></td></tr>
+            <tr><td><code>grid</code> / <code>treegrid</code></td><td>Editable/complex tables</td><td>&mdash;</td></tr>
+            <tr><td><code>radiogroup</code></td><td>Grouped radios</td><td><code>name</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Landmark, structure &amp; text roles</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Typical element</th><th>Commonly paired options</th></tr></thead>
+          <tbody>
+            <tr><td><code>heading</code></td><td><code>&lt;h1&gt;</code>&ndash;<code>&lt;h6&gt;</code></td><td><code>name</code>, <code>level</code></td></tr>
+            <tr><td><code>img</code></td><td><code>&lt;img alt&gt;</code>, <code>&lt;svg&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>list</code> / <code>listitem</code></td><td><code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code> / <code>&lt;li&gt;</code></td><td><code>level</code> (listitem)</td></tr>
+            <tr><td><code>table</code> / <code>row</code> / <code>cell</code></td><td><code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code>, <code>&lt;td&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>columnheader</code> / <code>rowheader</code></td><td><code>&lt;th&gt;</code> (scope)</td><td><code>name</code></td></tr>
+            <tr><td><code>navigation</code></td><td><code>&lt;nav&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>main</code>, <code>banner</code>, <code>contentinfo</code>, <code>complementary</code></td><td><code>&lt;main&gt;</code>, <code>&lt;header&gt;</code>, <code>&lt;footer&gt;</code>, <code>&lt;aside&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>region</code></td><td><code>&lt;section&gt;</code> with a name</td><td><code>name</code></td></tr>
+            <tr><td><code>form</code> / <code>search</code></td><td><code>&lt;form&gt;</code> with a name / <code>&lt;search&gt;</code></td><td><code>name</code></td></tr>
+            <tr><td><code>dialog</code> / <code>alertdialog</code></td><td><code>&lt;dialog&gt;</code>, <code>[role="dialog"]</code></td><td><code>name</code></td></tr>
+            <tr><td><code>article</code>, <code>figure</code>, <code>group</code>, <code>note</code>, <code>separator</code>, <code>toolbar</code>, <code>tooltip</code>, <code>term</code>, <code>definition</code>, <code>feed</code>, <code>math</code>, <code>document</code></td><td>Various</td><td><code>name</code></td></tr>
+            <tr><td><code>paragraph</code>, <code>blockquote</code>, <code>code</code>, <code>emphasis</code>, <code>strong</code>, <code>deletion</code>, <code>insertion</code>, <code>subscript</code>, <code>superscript</code>, <code>time</code></td><td>Text-level semantics</td><td><code>name</code></td></tr>
+            <tr><td><code>status</code>, <code>alert</code>, <code>log</code>, <code>timer</code>, <code>marquee</code></td><td>Live regions</td><td><code>name</code></td></tr>
+            <tr><td><code>generic</code>, <code>presentation</code>, <code>none</code>, <code>application</code>, <code>caption</code>, <code>cell</code>, <code>rowgroup</code>, <code>scrollbar</code>, <code>directory</code></td><td>Structural / special</td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <span class="title">Roles come from two places</span>
+        An explicit <code class="inline">role="..."</code> attribute always wins. Otherwise HTML supplies an implicit role: <code class="inline">&lt;button&gt;</code> &rarr; <code class="inline">button</code>, <code class="inline">&lt;h2&gt;</code> &rarr; <code class="inline">heading</code> level 2, <code class="inline">&lt;nav&gt;</code> &rarr; <code class="inline">navigation</code>, <code class="inline">&lt;input type="checkbox"&gt;</code> &rarr; <code class="inline">checkbox</code>, and so on. You rarely need to write ARIA at all to use role locators &mdash; correct HTML is enough.
+      </div>
+    </section>
+
+    <!-- 4. REFERENCE -->
+    <section class="doc" id="reference" data-searchable>
+      <h2><span class="num">04</span>Method &amp; Option Reference</h2>
+
+      <h3>The method</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Purpose</th><th>Syntax</th><th>Returns</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>page.getByRole()</code></td><td>Locate anywhere on the page</td><td><code>page.getByRole(role, options?)</code></td><td>Locator</td><td><code>page.getByRole('button', { name: 'Save' })</code></td></tr>
+            <tr><td><code>locator.getByRole()</code></td><td>Locate inside another locator</td><td><code>locator.getByRole(role, options?)</code></td><td>Locator</td><td><code>row.getByRole('button', { name: 'Delete' })</code></td></tr>
+            <tr><td><code>frameLocator.getByRole()</code></td><td>Locate inside an iframe</td><td><code>frame.getByRole(role, options?)</code></td><td>Locator</td><td><code>page.frameLocator('#f').getByRole('link')</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>getByRole()</code> options</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Option</th><th>Type</th><th>Purpose</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>string | RegExp</td><td>Match the accessible name (case-insensitive substring by default)</td><td><code>{ name: 'Submit' }</code></td></tr>
+            <tr><td><code>exact</code></td><td>boolean</td><td>Match <code>name</code>/<code>description</code> case-sensitively and in full (v1.28+)</td><td><code>{ name: 'Save', exact: true }</code></td></tr>
+            <tr><td><code>checked</code></td><td>boolean</td><td>Match checked / unchecked state (<code>checked</code>, <code>radio</code>, <code>switch</code>)</td><td><code>{ role: 'checkbox', checked: true }</code></td></tr>
+            <tr><td><code>disabled</code></td><td>boolean</td><td>Match enabled / disabled state (inherited through the DOM)</td><td><code>{ disabled: true }</code></td></tr>
+            <tr><td><code>expanded</code></td><td>boolean</td><td>Match expanded / collapsed state</td><td><code>{ name: 'Menu', expanded: true }</code></td></tr>
+            <tr><td><code>level</code></td><td>number</td><td>Match <code>aria-level</code> for <code>heading</code>, <code>listitem</code>, <code>row</code>, <code>treeitem</code></td><td><code>{ role: 'heading', level: 2 }</code></td></tr>
+            <tr><td><code>pressed</code></td><td>boolean</td><td>Match <code>aria-pressed</code> on toggle buttons</td><td><code>{ name: 'Bold', pressed: true }</code></td></tr>
+            <tr><td><code>selected</code></td><td>boolean</td><td>Match <code>aria-selected</code> (<code>option</code>, <code>tab</code>, <code>treeitem</code>)</td><td><code>{ role: 'tab', selected: true }</code></td></tr>
+            <tr><td><code>includeHidden</code></td><td>boolean</td><td>Also match elements hidden from assistive technology (default <code>false</code>)</td><td><code>{ includeHidden: true }</code></td></tr>
+            <tr><td><code>description</code></td><td>string | RegExp</td><td>Match the accessible description (v1.60+)</td><td><code>{ description: 'Required' }</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Narrowing &amp; composing</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Purpose</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>.filter()</code></td><td>Narrow by text or by a contained/absent locator</td><td><code>page.getByRole('listitem').filter({ hasText: 'Product 2' })</code></td></tr>
+            <tr><td><code>.first()</code> / <code>.last()</code> / <code>.nth(i)</code></td><td>Pick a specific match when a list is intended</td><td><code>page.getByRole('listitem').nth(2)</code></td></tr>
+            <tr><td><code>.and()</code></td><td>Match both locators (v1.34+)</td><td><code>page.getByRole('button').and(page.getByTitle('Save'))</code></td></tr>
+            <tr><td><code>.or()</code></td><td>Match either locator</td><td><code>page.getByRole('button', { name: 'OK' }).or(page.getByRole('link', { name: 'OK' }))</code></td></tr>
+            <tr><td><code>.count()</code> / <code>.all()</code></td><td>Number of matches / array of locators</td><td><code>await page.getByRole('row').count()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Assertions that fit role locators</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Assertion</th><th>Verifies</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>toHaveRole()</code></td><td>The element's ARIA role</td><td><code>await expect(el).toHaveRole('button')</code></td></tr>
+            <tr><td><code>toHaveAccessibleName()</code></td><td>The computed accessible name</td><td><code>await expect(btn).toHaveAccessibleName('Save')</code></td></tr>
+            <tr><td><code>toHaveAccessibleDescription()</code></td><td>The computed accessible description</td><td><code>await expect(f).toHaveAccessibleDescription('Required')</code></td></tr>
+            <tr><td><code>toBeVisible()</code> / <code>toBeEnabled()</code> / <code>toBeChecked()</code></td><td>Visual and state assertions</td><td><code>await expect(cb).toBeChecked()</code></td></tr>
+            <tr><td><code>toHaveText()</code> / <code>toHaveCount()</code></td><td>Text content / number of matches</td><td><code>await expect(page.getByRole('row')).toHaveCount(10)</code></td></tr>
+            <tr><td><code>toMatchAriaSnapshot()</code></td><td>Whole accessibility tree (v1.49+)</td><td><code>await expect(nav).toMatchAriaSnapshot(/* yaml */)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <span class="title">Companion user-facing locators</span>
+        <code class="inline">getByLabel()</code> (form fields by <code class="inline">&lt;label&gt;</code>/<code class="inline">aria-label</code>), <code class="inline">getByText()</code> (visible text), <code class="inline">getByPlaceholder()</code>, <code class="inline">getByAltText()</code>, <code class="inline">getByTitle()</code>, and <code class="inline">getByTestId()</code> (the <code class="inline">data-testid</code> attribute by default) &mdash; all also added in v1.27.
+      </div>
+    </section>
+
+    <!-- 5. DETAILED REFERENCE -->
+    <section class="doc" id="details" data-searchable>
+      <h2><span class="num">05</span>Detailed Reference</h2>
+      <p>Expand an entry for its purpose, parameters, a runnable example, and the pitfalls worth knowing.</p>
+
+      <div class="controls">
+        <button type="button" id="expandAll">Expand all</button>
+        <button type="button" id="collapseAll">Collapse all</button>
+      </div>
+
+      <details class="fn">
+        <summary>getByRole()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Creates a locator that finds elements by ARIA role, optionally filtered by accessible name and state.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole(role, options)</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><strong>role</strong> (required) &mdash; a supported ARIA role, e.g. <code class="inline">'button'</code>, <code class="inline">'link'</code>, <code class="inline">'heading'</code>. <strong>options</strong> (optional) &mdash; <code class="inline">name</code>, <code class="inline">exact</code>, <code class="inline">checked</code>, <code class="inline">disabled</code>, <code class="inline">expanded</code>, <code class="inline">level</code>, <code class="inline">pressed</code>, <code class="inline">selected</code>, <code class="inline">includeHidden</code>, <code class="inline">description</code>.</dd>
+            <dt>Return / Result</dt>
+            <dd>A <code class="inline">Locator</code> &mdash; lazy, auto-waiting, and re-evaluated on each use. It is not a Promise.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;h1&gt;Sign up&lt;/h1&gt;
+&lt;label&gt;&lt;input type="checkbox" /&gt; Subscribe&lt;/label&gt;
+&lt;button&gt;Submit&lt;/button&gt;
+
+// test
+await expect(page.getByRole('heading', { name: 'Sign up' })).toBeVisible();
+await page.getByRole('checkbox', { name: 'Subscribe' }).check();
+await page.getByRole('button', { name: /submit/i }).click();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The heading assertion passes, the checkbox becomes checked, and the click hits the Submit button &mdash; all without any test ids or CSS classes.</dd>
+            <dt>Common Usage</dt>
+            <dd>The default locator for buttons, links, inputs, headings, and landmarks throughout a test suite.</dd>
+            <dt>Important Notes</dt>
+            <dd>Strict mode applies: matching several elements makes actions throw. An unknown role does not throw &mdash; it matches nothing and the action times out, so check the role name first when debugging. Elements hidden from the accessibility tree are skipped unless <code class="inline">includeHidden: true</code> is set.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>The name option</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Disambiguates by the element's accessible name, so every locator reads like a user instruction.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('button', { name: 'Submit order' })
+page.getByRole('button', { name: /submit/i })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>A string (case-insensitive substring by default, whitespace-trimmed) or a RegExp (tested against the name; <code class="inline">exact</code> is ignored).</dd>
+            <dt>Return / Result</dt>
+            <dd>Narrows the role match to elements whose computed accessible name matches.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;button aria-label="Close dialog"&gt;&times;&lt;/button&gt;
+
+await page.getByRole('button', { name: 'Close dialog' }).click();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The icon-only button is found via its <code class="inline">aria-label</code>, even though it has no visible text.</dd>
+            <dt>Common Usage</dt>
+            <dd>Almost every role locator &mdash; passing a name is what makes strict mode workable.</dd>
+            <dt>Important Notes</dt>
+            <dd>The name must come from somewhere accessible: text content, <code class="inline">aria-label</code>, <code class="inline">aria-labelledby</code>, a <code class="inline">&lt;label&gt;</code>, or <code class="inline">alt</code>. A <code class="inline">title</code> tooltip is a weak fallback and should not be relied on. Watch out for substring matches such as <code class="inline">'Save'</code> also matching "Save as".</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>exact</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Switches <code class="inline">name</code> and <code class="inline">description</code> matching from "case-insensitive substring" to whole-string and case-sensitive.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('link', { name: 'Docs', exact: true })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>Boolean. Defaults to <code class="inline">false</code> (added in v1.28).</dd>
+            <dt>Return / Result</dt>
+            <dd>Only elements whose name equals the string exactly (whitespace trimmed) match.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;a href="/docs"&gt;Docs&lt;/a&gt;
+&lt;a href="/docs/api"&gt;Docs API&lt;/a&gt;
+
+await page.getByRole('link', { name: 'Docs', exact: true }).click(); // first only</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>Only the "Docs" link matches; "Docs API" is excluded, so no strict-mode violation occurs.</dd>
+            <dt>Common Usage</dt>
+            <dd>Whenever short names overlap with longer ones, such as "Save" / "Save as" or "Login" / "Login help".</dd>
+            <dt>Important Notes</dt>
+            <dd>It is ignored when <code class="inline">name</code> is a RegExp &mdash; use anchors there instead (<code class="inline">/^Docs$/</code>). Exact matching still trims leading and trailing whitespace, so line breaks in markup will not break it.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>level</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Matches the heading (or list item / row / tree item) depth, so tests can assert document structure.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('heading', { level: 2 })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>A number, matched against <code class="inline">aria-level</code>. For <code class="inline">&lt;h1&gt;</code>&ndash;<code class="inline">&lt;h6&gt;</code> the level defaults to the tag's number.</dd>
+            <dt>Return / Result</dt>
+            <dd>Only headings at that level match &mdash; both native <code class="inline">&lt;h2&gt;</code> and <code class="inline">&lt;div role="heading" aria-level="2"&gt;</code>.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+await expect(page.getByRole('heading', { name: 'Billing', level: 2 })).toBeVisible();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The assertions confirm exactly one <code class="inline">h1</code> exists and that the Billing section heading is an <code class="inline">h2</code>.</dd>
+            <dt>Common Usage</dt>
+            <dd>Structural smoke tests, SEO/outline checks, and disambiguating repeated headings.</dd>
+            <dt>Important Notes</dt>
+            <dd>Without <code class="inline">level</code>, <code class="inline">getByRole('heading')</code> matches headings at every level. Level is valid for <code class="inline">heading</code>, <code class="inline">listitem</code>, <code class="inline">row</code>, and <code class="inline">treeitem</code>.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>checked</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Filters checkboxes, radios, and switches by their checked state.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('checkbox', { name: 'Terms', checked: true })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>Boolean &mdash; <code class="inline">true</code> for checked, <code class="inline">false</code> for unchecked. It reads <code class="inline">aria-checked</code> or the native <code class="inline">&lt;input type=checkbox|radio&gt;</code> state.</dd>
+            <dt>Return / Result</dt>
+            <dd>Only controls in the requested state match.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>await expect(page.getByRole('checkbox', { name: 'Terms', checked: true })).toBeVisible();
+await expect(page.getByRole('checkbox', { name: 'Terms', checked: false })).toBeHidden();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The first assertion passes only if Terms is already ticked; the second confirms the unchecked variant is gone.</dd>
+            <dt>Common Usage</dt>
+            <dd>Asserting persisted form state, filter panels, and toggle switches.</dd>
+            <dt>Important Notes</dt>
+            <dd><code class="inline">checked</code> takes a boolean only &mdash; there is no <code class="inline">"mixed"</code> value for the indeterminate state. For assertions prefer <code class="inline">toBeChecked()</code>, which retries; a bare locator with <code class="inline">checked: true</code> matched against nothing fails immediately.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>disabled</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Distinguishes enabled from disabled controls &mdash; useful for asserting that a form blocks submission until valid.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('button', { name: 'Pay', disabled: true })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>Boolean. Reads <code class="inline">aria-disabled</code> or the native <code class="inline">disabled</code> attribute.</dd>
+            <dt>Return / Result</dt>
+            <dd>Only controls in the requested enabled/disabled state match.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>await expect(page.getByRole('button', { name: 'Pay', disabled: true })).toBeVisible();
+await page.getByRole('textbox', { name: 'Card number' }).fill('4242 4242 4242 4242');
+await expect(page.getByRole('button', { name: 'Pay', disabled: false })).toBeEnabled();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The Pay button starts disabled and becomes enabled once the card field is filled.</dd>
+            <dt>Common Usage</dt>
+            <dd>Validation flows, wizard gating, and permission-based UI.</dd>
+            <dt>Important Notes</dt>
+            <dd>Uniquely, <code class="inline">disabled</code> is <strong>inherited through the DOM hierarchy</strong> &mdash; a control inside a disabled <code class="inline">&lt;fieldset&gt;</code> is treated as disabled. Prefer <code class="inline">toBeEnabled()</code>/<code class="inline">toBeDisabled()</code> for assertions so they retry.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>expanded</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Matches disclosure controls and comboboxes by their open/closed state.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('button', { name: 'Filters', expanded: false })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>Boolean, matched against <code class="inline">aria-expanded</code>.</dd>
+            <dt>Return / Result</dt>
+            <dd>Only elements whose expanded state matches are returned.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>const toggle = page.getByRole('button', { name: 'Filters' });
+await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+await toggle.click();
+await expect(page.getByRole('button', { name: 'Filters', expanded: true })).toBeVisible();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The button starts collapsed and is matched as expanded after the click.</dd>
+            <dt>Common Usage</dt>
+            <dd>Accordions, hamburger menus, filter drawers, and comboboxes.</dd>
+            <dt>Important Notes</dt>
+            <dd>Only matches elements that actually expose an expanded state; if the widget never sets <code class="inline">aria-expanded</code>, neither <code class="inline">true</code> nor <code class="inline">false</code> will match. Asserting the attribute with <code class="inline">toHaveAttribute</code> is often clearer than swapping locators.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>pressed</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Matches toggle buttons by their <code class="inline">aria-pressed</code> state.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('button', { name: 'Bold', pressed: true })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>Boolean, matched against <code class="inline">aria-pressed</code>.</dd>
+            <dt>Return / Result</dt>
+            <dd>Only toggle buttons in the requested state match.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>const bold = page.getByRole('button', { name: 'Bold' });
+await bold.click();
+await expect(bold).toHaveAttribute('aria-pressed', 'true');</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The formatting button reports itself as pressed after being clicked.</dd>
+            <dt>Common Usage</dt>
+            <dd>Rich-text editor toolbars and any button that stays "on".</dd>
+            <dt>Important Notes</dt>
+            <dd>Applies to toggle buttons, not to checkboxes or switches &mdash; use <code class="inline">checked</code> for those. A button that reports <code class="inline">aria-pressed</code> must change it on activation; a static value misleads assistive technology.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>selected</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Matches the active item in a set &mdash; the chosen tab, option, row, or tree item.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('tab', { selected: true })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>Boolean, matched against <code class="inline">aria-selected</code>.</dd>
+            <dt>Return / Result</dt>
+            <dd>Only items in the requested selection state match.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>await expect(page.getByRole('tab', { selected: true })).toHaveText('Overview');
+await page.getByRole('tab', { name: 'Billing' }).click();
+await expect(page.getByRole('tab', { selected: true })).toHaveText('Billing');</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>Exactly one tab is selected at a time, and selecting Billing moves the selection.</dd>
+            <dt>Common Usage</dt>
+            <dd>Tab widgets, single-select listboxes, and selected grid rows.</dd>
+            <dt>Important Notes</dt>
+            <dd>If the widget marks the active tab with a class instead of <code class="inline">aria-selected</code>, this option finds nothing &mdash; which is itself a useful accessibility signal. Native <code class="inline">&lt;select&gt;</code> options use the <code class="inline">selected</code> property/attribute rather than <code class="inline">aria-selected</code>.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>includeHidden</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Opts in to elements that are excluded from the accessibility tree, such as visually hidden or <code class="inline">aria-hidden</code> content.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('button', { name: 'Skip', includeHidden: true })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>Boolean. Defaults to <code class="inline">false</code>: only non-hidden elements, as defined by ARIA tree exclusion, are matched.</dd>
+            <dt>Return / Result</dt>
+            <dd>Hidden elements become eligible to match.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;button style="display:none"&gt;Skip navigation&lt;/button&gt;
+
+await expect(page.getByRole('button', { name: 'Skip navigation' })).toBeHidden();          // not matched
+await expect(page.getByRole('button', { name: 'Skip navigation', includeHidden: true })).toBeAttached();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The hidden button is invisible to the default locator but found when hidden elements are included.</dd>
+            <dt>Common Usage</dt>
+            <dd>Testing collapsed content, off-screen templates, and elements revealed only by CSS.</dd>
+            <dt>Important Notes</dt>
+            <dd>This is a debugging and edge-case tool. A control that is genuinely unreachable for assistive technology is usually a bug, not something to work around &mdash; prefer fixing the markup, or <code class="inline">getByTestId()</code> when the element is intentionally anonymous.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>description</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Matches on the accessible <em>description</em> &mdash; supplementary help text rather than the name.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>page.getByRole('textbox', { description: 'At least 12 characters' })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>A string (case-insensitive substring by default, honouring <code class="inline">exact</code>) or a RegExp. Added in <strong>v1.60</strong>.</dd>
+            <dt>Return / Result</dt>
+            <dd>Narrows the match by the description computed from <code class="inline">aria-describedby</code>, <code class="inline">aria-description</code>, or <code class="inline">title</code>.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>&lt;input aria-label="Password" aria-describedby="pwd-hint" /&gt;
+&lt;p id="pwd-hint"&gt;At least 12 characters.&lt;/p&gt;
+
+await page.getByRole('textbox', { description: 'At least 12 characters' }).fill('correct horse battery staple');</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The password field is located by its hint text rather than its label.</dd>
+            <dt>Common Usage</dt>
+            <dd>Targeting fields with identical labels but different help text, and asserting hints are wired up.</dd>
+            <dt>Important Notes</dt>
+            <dd>Requires Playwright v1.60 or newer. For most cases <code class="inline">name</code> is the better discriminator; reach for <code class="inline">description</code> when the name alone is genuinely ambiguous.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>.filter()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Narrows an existing locator by text or by a contained/absent element &mdash; the standard way to pick one row, card, or list item.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>locator.filter({ hasText, hasNotText, has, hasNot, visible })</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">hasText</code> / <code class="inline">hasNotText</code> (string = case-insensitive substring, or RegExp) and <code class="inline">has</code> / <code class="inline">hasNot</code> (a relative locator, which must point inside the outer element).</dd>
+            <dt>Return / Result</dt>
+            <dd>A narrower Locator; filters can be chained.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>await page
+  .getByRole('listitem')
+  .filter({ hasText: 'Product 2' })
+  .getByRole('button', { name: 'Add to cart' })
+  .click();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The Add to cart button is clicked only inside the list item containing "Product 2".</dd>
+            <dt>Common Usage</dt>
+            <dd>Tables and lists &mdash; "the button in the row that has this text".</dd>
+            <dt>Important Notes</dt>
+            <dd>The inner locator must be relative to the outer one and belong to the same frame; an absolute locator or a FrameLocator inside <code class="inline">has</code> will not work. Chaining <code class="inline">getByRole()</code> after <code class="inline">filter()</code> is usually cleaner than passing a complex filter.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>.first() / .nth() / .last() / .and() / .or()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Resolve and combine multiple matches without weakening the locator's meaning.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>locator.first()        locator.nth(2)       locator.last()
+locator.and(otherLocator)                  locator.or(otherLocator)</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd><code class="inline">nth()</code> takes a zero-based index. <code class="inline">and()</code>/<code class="inline">or()</code> take another locator.</dd>
+            <dt>Return / Result</dt>
+            <dd>A Locator that resolves to one element (<code class="inline">first</code>/<code class="inline">nth</code>/<code class="inline">last</code>) or to locators satisfying both/ either condition.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>await expect(page.getByRole('listitem')).toHaveCount(5);
+await page.getByRole('listitem').nth(2).click();
+
+const save = page.getByRole('button', { name: 'Save' }).or(page.getByRole('button', { name: 'Update' }));
+await save.click();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The third list item is clicked, and Save-or-Update resolves whichever button the UI presents.</dd>
+            <dt>Common Usage</dt>
+            <dd>Lists where an index is meaningful, and UIs whose button label varies by state.</dd>
+            <dt>Important Notes</dt>
+            <dd><code class="inline">.first()</code> is a smell when it is only there to silence a strict-mode violation &mdash; that usually means the locator is not specific enough. <code class="inline">and()</code> requires v1.34+. Prefer an explicit <code class="inline">toHaveCount()</code> assertion before indexing so failures are diagnosable.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>toHaveRole() &amp; toHaveAccessibleName()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Assert the same semantics that <code class="inline">getByRole()</code> locates by, turning an accessibility check into a test assertion.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>await expect(locator).toHaveRole(role);
+await expect(locator).toHaveAccessibleName(name);</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>The expected role string, or the expected name (string or RegExp). Both auto-retry until the assertion passes or the timeout expires.</dd>
+            <dt>Return / Result</dt>
+            <dd>Passes or fails with a diff showing the actual role/name.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>await expect(page.getByTestId('save')).toHaveRole('button');
+await expect(page.getByTestId('close')).toHaveAccessibleName('Close dialog');
+await expect(page.getByTestId('hint')).toHaveAccessibleDescription(/12 characters/);</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd>The custom elements are proven to expose the intended semantics, even though they are located by test id.</dd>
+            <dt>Common Usage</dt>
+            <dd>Guarding custom components against ARIA regressions, and documenting intent in a readable way.</dd>
+            <dt>Important Notes</dt>
+            <dd>These are assertions, not locators &mdash; they need an existing element to check. They are a complement to <code class="inline">getByRole()</code>, not a replacement for an accessibility audit.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <details class="fn">
+        <summary>Debugging: highlight(), count(), ariaSnapshot()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Work out what a role locator actually matches before committing to it.</dd>
+            <dt>Syntax</dt>
+            <dd><div class="code"><pre><code>await locator.highlight();
+await locator.count();
+console.log(await page.locator('body').ariaSnapshot());</code></pre></div></dd>
+            <dt>Parameters</dt>
+            <dd>None required. <code class="inline">highlight()</code> draws an overlay (added v1.20); <code class="inline">ariaSnapshot()</code> accepts optional <code class="inline">depth</code>/<code class="inline">mode</code> (added v1.49).</dd>
+            <dt>Return / Result</dt>
+            <dd><code class="inline">count()</code> returns a number, <code class="inline">ariaSnapshot()</code> returns a YAML string of the accessibility tree.</dd>
+            <dt>Example</dt>
+            <dd><div class="code"><pre><code>// How many matches? (diagnose strict-mode failures)
+console.log(await page.getByRole('button').count());
+
+// What roles and names does the page expose?
+console.log(await page.locator('main').ariaSnapshot());
+
+// Visually confirm the match in headed mode
+await page.getByRole('button', { name: 'Submit' }).highlight();</code></pre></div></dd>
+            <dt>Expected Result</dt>
+            <dd><code class="inline">count()</code> prints the number of matches, the snapshot lists roles and accessible names, and the highlight outlines the element on screen.</dd>
+            <dt>Common Usage</dt>
+            <dd>Writing new locators, diagnosing timeouts, and reviewing a page's accessibility structure.</dd>
+            <dt>Important Notes</dt>
+            <dd>Remove <code class="inline">highlight()</code> before committing. The Playwright Inspector (<code class="inline">PWDEBUG=1</code>) and <code class="inline">npx playwright codegen</code> can also pick locators interactively.</dd>
+          </dl>
+        </div>
+      </details>
+    </section>
+
+    <!-- 6. EXAMPLES -->
+    <section class="doc" id="examples" data-searchable>
+      <h2><span class="num">06</span>Practical Examples</h2>
+
+      <h3>Example 1 &mdash; Basic Usage</h3>
+      <p>The simplest possible role locator: click a button by its visible text.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('basic role locator', async ({ page }) =&gt; {
+  await page.goto('https://example.com/login');
+
+  await page.getByRole('button', { name: 'Log in' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Welcome' })).toBeVisible();
+});</code></pre></div>
+      <p>No CSS class, no test id, no XPath. The button is found because the browser exposes it with the <code class="inline">button</code> role and the accessible name "Log in".</p>
+
+      <h3>Example 2 &mdash; Real-World Usage: a login form</h3>
+      <div class="code"><pre><code>&lt;form&gt;
+  &lt;label for="email"&gt;Email&lt;/label&gt;
+  &lt;input id="email" type="email" required /&gt;
+
+  &lt;label for="password"&gt;Password&lt;/label&gt;
+  &lt;input id="password" type="password" required /&gt;
+
+  &lt;label&gt;&lt;input type="checkbox" /&gt; Remember me&lt;/label&gt;
+
+  &lt;button type="submit"&gt;Sign in&lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+      <div class="code"><pre><code>test('user can sign in', async ({ page }) =&gt; {
+  await page.goto('/login');
+
+  await page.getByRole('textbox', { name: 'Email' }).fill('ada@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('s3cret');
+  await page.getByRole('checkbox', { name: 'Remember me' }).check();
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+});</code></pre></div>
+      <p>Every line describes what a user does. The password field is a <code class="inline">textbox</code> even though its <code class="inline">type</code> is <code class="inline">password</code>, because that is the role browsers expose.</p>
+
+      <h3>Example 3 &mdash; Multiple Functions: a table with row scoping</h3>
+      <p>Combining <code class="inline">getByRole()</code> with <code class="inline">filter()</code>, <code class="inline">count()</code>, and assertions.</p>
+      <div class="code"><pre><code>&lt;table&gt;
+  &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Product&lt;/th&gt;&lt;th&gt;Price&lt;/th&gt;&lt;th&gt;&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;&lt;td&gt;Product 1&lt;/td&gt;&lt;td&gt;$10&lt;/td&gt;&lt;td&gt;&lt;button&gt;Add to cart&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Product 2&lt;/td&gt;&lt;td&gt;$20&lt;/td&gt;&lt;td&gt;&lt;button&gt;Add to cart&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</code></pre></div>
+      <div class="code"><pre><code>test('add a specific product to the cart', async ({ page }) =&gt; {
+  await page.goto('/shop');
+
+  const rows = page.getByRole('row');
+  await expect(rows).toHaveCount(3);            // 1 header + 2 body rows
+
+  const product2 = rows.filter({ hasText: 'Product 2' });
+  await product2.getByRole('button', { name: 'Add to cart' }).click();
+
+  await expect(page.getByRole('status')).toHaveText('1 item in cart');
+  await expect(page.getByRole('link', { name: /cart/i, exact: false })).toHaveText(/1 item/);
+});</code></pre></div>
+      <p><code class="inline">filter()</code> narrows to one row, and the nested <code class="inline">getByRole()</code> scopes the button search to that row &mdash; so "Add to cart" being duplicated no longer causes a strict-mode violation.</p>
+
+      <h3>Example 4 &mdash; Negative Scenario: strict mode violation</h3>
+      <p>A locator that matches several elements fails loudly. Here, three buttons share the substring "Save".</p>
+      <div class="code"><pre><code>&lt;button&gt;Save&lt;/button&gt;
+&lt;button&gt;Save as draft&lt;/button&gt;
+&lt;button&gt;Save and publish&lt;/button&gt;</code></pre></div>
+      <div class="code"><pre><code>await page.getByRole('button', { name: 'Save' }).click();
+// Error: strict mode violation: getByRole('button', { name: 'Save' }) resolved to 3 elements</code></pre></div>
+      <p>Why it fails: <code class="inline">name</code> is a case-insensitive <em>substring</em> match by default, so all three buttons qualify. The fix is to make the locator specific rather than hiding the ambiguity:</p>
+      <div class="code"><pre><code>await page.getByRole('button', { name: 'Save', exact: true }).click();
+// or target a distinct name
+await page.getByRole('button', { name: 'Save and publish' }).click();</code></pre></div>
+      <div class="callout warn">
+        <span class="title">Do not "fix" it with .first()</span>
+        <code class="inline">.first()</code> silences the error but makes the test depend on DOM order, which is exactly the brittleness role locators exist to remove. If the ambiguity is real &mdash; three identical "Delete" buttons in a table &mdash; scope with <code class="inline">filter()</code> instead.
+      </div>
+
+      <h3>Example 5 &mdash; Advanced Usage: options, regex, and state</h3>
+      <div class="code"><pre><code>&lt;button aria-expanded="false" aria-controls="menu"&gt;Account&lt;/button&gt;
+&lt;ul id="menu" hidden&gt;&lt;li&gt;&lt;a href="/profile"&gt;Profile&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+
+&lt;h1&gt;Dashboard&lt;/h1&gt;
+&lt;h2&gt;Billing&lt;/h2&gt;
+
+&lt;button aria-pressed="false"&gt;Bold&lt;/button&gt;
+
+&lt;div role="tablist"&gt;
+  &lt;button role="tab" aria-selected="true"&gt;Overview&lt;/button&gt;
+  &lt;button role="tab" aria-selected="false"&gt;Billing&lt;/button&gt;
+&lt;/div&gt;</code></pre></div>
+      <div class="code"><pre><code>test('advanced role locators', async ({ page }) =&gt; {
+  await page.goto('/dashboard');
+
+  // Collapsed disclosure -> open it, then assert the state flipped
+  const account = page.getByRole('button', { name: 'Account' });
+  await expect(account).toHaveAttribute('aria-expanded', 'false');
+  await account.click();
+  await expect(page.getByRole('button', { name: 'Account', expanded: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Profile' }).click();
+
+  // Structural assertions with level
+  await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Billing', level: 2 })).toBeVisible();
+
+  // Toggle button state
+  const bold = page.getByRole('button', { name: 'Bold' });
+  await bold.click();
+  await expect(page.getByRole('button', { name: 'Bold', pressed: true })).toBeVisible();
+
+  // Exactly one selected tab, matched by regex
+  await expect(page.getByRole('tab', { selected: true })).toHaveText(/overview/i);
+  await page.getByRole('tab', { name: /^billing$/i }).click();
+  await expect(page.getByRole('tab', { selected: true })).toHaveText(/billing/i);
+});</code></pre></div>
+      <p>State options (<code class="inline">expanded</code>, <code class="inline">pressed</code>, <code class="inline">selected</code>) let assertions read as plain English, and <code class="inline">level</code> turns heading structure into a testable contract. Where the state flips, asserting the accessible name with a regex keeps the locator stable across both states.</p>
+    </section>
+
+    <!-- 7. BEFORE VS AFTER -->
+    <section class="doc" id="beforeafter" data-searchable>
+      <h2><span class="num">07</span>Before vs After</h2>
+      <p>Same interaction, two philosophies. Both snippets below work today; only one survives a refactor.</p>
+
+      <h3>Without role locators (CSS / XPath)</h3>
+      <div class="code"><pre><code>await page.locator('.btn.btn-primary.submit-btn').click();
+await page.locator('#login-form &gt; div:nth-child(3) &gt; button').click();
+await page.locator('xpath=//*[@id="app"]/div[2]/form/button[1]').click();</code></pre></div>
+      <ul>
+        <li>Depends on class names, DOM structure, and element order.</li>
+        <li>Breaks when a wrapper <code class="inline">&lt;div&gt;</code> is added or styles are renamed.</li>
+        <li>Reveals nothing about what the element means to a user.</li>
+        <li>Passes even if the control is unreachable for assistive technology.</li>
+      </ul>
+
+      <h3>With <code>getByRole()</code></h3>
+      <div class="code"><pre><code>await page.getByRole('button', { name: 'Submit' }).click();</code></pre></div>
+      <ul>
+        <li>Depends only on the role and accessible name.</li>
+        <li>Survives markup, class, and ordering refactors.</li>
+        <li>Reads as the action a user takes.</li>
+        <li>Fails if the control has no role or no accessible name &mdash; surfacing an accessibility problem early.</li>
+      </ul>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Concern</th><th>CSS / XPath</th><th>getByRole()</th></tr></thead>
+          <tbody>
+            <tr><td>Resilience to refactor</td><td>Low</td><td>High</td></tr>
+            <tr><td>Readability</td><td>Implementation detail</td><td>User intent</td></tr>
+            <tr><td>Shadow DOM</td><td>CSS pierces open roots; XPath does not</td><td>Works across open shadow roots</td></tr>
+            <tr><td>Accessibility signal</td><td>None</td><td>Built in</td></tr>
+            <tr><td>When to prefer it</td><td>No meaningful role/name exists</td><td>Default choice</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 8. MISTAKES -->
+    <section class="doc" id="mistakes" data-searchable>
+      <h2><span class="num">08</span>Common Mistakes</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mistake</th><th>Why it happens</th><th>Incorrect</th><th>Correct</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Awaiting the locator call</td>
+              <td>Assuming every Playwright call returns a Promise</td>
+              <td><code>await page.getByRole('button')</code></td>
+              <td><code>await page.getByRole('button').click()</code></td>
+            </tr>
+            <tr>
+              <td>Forgetting <code>name</code></td>
+              <td>Reaching for the shortest possible locator</td>
+              <td><code>page.getByRole('button')</code></td>
+              <td><code>page.getByRole('button', { name: 'Save' })</code></td>
+            </tr>
+            <tr>
+              <td>Expecting an exact name match</td>
+              <td>Not knowing the default is a substring match</td>
+              <td><code>{ name: 'Save' }</code> for "Save as draft"</td>
+              <td><code>{ name: 'Save', exact: true }</code></td>
+            </tr>
+            <tr>
+              <td>Silencing strict mode with <code>.first()</code></td>
+              <td>Faster than understanding the ambiguity</td>
+              <td><code>page.getByRole('row').first()</code></td>
+              <td><code>page.getByRole('row').filter({ hasText: 'Product 2' })</code></td>
+            </tr>
+            <tr>
+              <td>Using a role the element does not have</td>
+              <td>Assuming a clickable <code>&lt;div&gt;</code> is a button</td>
+              <td><code>getByRole('button')</code> on <code>&lt;div onclick&gt;</code></td>
+              <td>Add <code>role="button"</code>, or use <code>&lt;button&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Passing an invalid role</td>
+              <td>Inventing names like <code>'input'</code> or <code>'field'</code>; no error is raised, so it shows up as a timeout</td>
+              <td><code>getByRole('input', ...)</code></td>
+              <td><code>getByRole('textbox', ...)</code></td>
+            </tr>
+            <tr>
+              <td>Expecting <code>type="password"</code> to be its own role</td>
+              <td>Guessing from the HTML attribute</td>
+              <td><code>getByRole('password')</code></td>
+              <td><code>getByRole('textbox', { name: 'Password' })</code></td>
+            </tr>
+            <tr>
+              <td>Using <code>checked</code> on a switch</td>
+              <td>Treating every toggle the same</td>
+              <td><code>getByRole('switch', { pressed: true })</code></td>
+              <td><code>getByRole('switch', { checked: true })</code></td>
+            </tr>
+            <tr>
+              <td>Self-closing parentheses / broken chaining</td>
+              <td>Chaining from the <code>page</code> instead of the scoped locator</td>
+              <td><code>page.getByRole('button')</code> for a row's button</td>
+              <td><code>row.getByRole('button')</code></td>
+            </tr>
+            <tr>
+              <td>Expecting hidden elements to match</td>
+              <td>Not realising ARIA tree exclusion applies</td>
+              <td><code>getByRole('button', ...)</code> on a <code>display:none</code> control</td>
+              <td><code>getByRole('button', { includeHidden: true })</code> if truly needed</td>
+            </tr>
+            <tr>
+              <td>Asserting state with a locator instead of an assertion</td>
+              <td>Swapping locators instead of checking the attribute</td>
+              <td><code>expect(await page.getByRole('checkbox', { checked: true }).count()).toBe(1)</code></td>
+              <td><code>await expect(box).toBeChecked()</code></td>
+            </tr>
+            <tr>
+              <td>Using <code>getByRole('generic')</code> as an escape hatch</td>
+              <td>"It matched, so it works"</td>
+              <td><code>getByRole('generic')</code> for a plain <code>&lt;div&gt;</code></td>
+              <td><code>getByTestId()</code> or a semantic element</td>
+            </tr>
+            <tr>
+              <td>Relying on <code>title</code> for the name</td>
+              <td>Tooltips look like labels</td>
+              <td><code>&lt;button title="Close"&gt;</code></td>
+              <td><code>&lt;button aria-label="Close"&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Leaving <code>highlight()</code> in committed code</td>
+              <td>Debug leftover</td>
+              <td><code>await locator.highlight();</code> in a spec</td>
+              <td>Remove it, or guard behind a debug flag</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9. BEST PRACTICES -->
+    <section class="doc" id="bestpractices" data-searchable>
+      <h2><span class="num">09</span>Best Practices</h2>
+      <ol>
+        <li><strong>Reach for <code class="inline">getByRole()</code> first.</strong> Playwright's documented order is role &rarr; label/placeholder/text &rarr; test id. Only move down when the higher option genuinely does not exist.</li>
+        <li><strong>Always pass a <code class="inline">name</code> when the role alone is ambiguous.</strong> Role plus name is what makes strict mode useful rather than annoying.</li>
+        <li><strong>Fix the page, not the locator.</strong> If a control cannot be located by role and name, assistive technology probably cannot identify it either. Prefer correcting the markup over adding a test id.</li>
+        <li><strong>Scope instead of indexing.</strong> Chain from a container (<code class="inline">dialog.getByRole(...)</code>) and use <code class="inline">filter()</code> for rows and cards; a bare <code class="inline">.nth()</code> couples the test to DOM order.</li>
+        <li><strong>Use <code class="inline">exact: true</code> or a regex when names overlap.</strong> "Save", "Save as", and "Save and publish" should not rely on substring luck.</li>
+        <li><strong>Assert state with assertions, not locators.</strong> <code class="inline">toBeChecked()</code>, <code class="inline">toBeEnabled()</code>, <code class="inline">toHaveAttribute('aria-expanded', 'true')</code> retry and produce clear diffs; state-filtered locators fail instantly.</li>
+        <li><strong>Assert counts before indexing.</strong> <code class="inline">await expect(rows).toHaveCount(5)</code> turns an index error into a readable failure.</li>
+        <li><strong>Keep locators lazy.</strong> Store a locator in a variable and reuse it &mdash; do not resolve values with <code class="inline">count()</code> or <code class="inline">textContent()</code> and then assert on the plain value, which loses retry-ability.</li>
+        <li><strong>Never hard-code waits.</strong> Role locators auto-wait and retry, so <code class="inline">waitForTimeout</code> only makes the suite slower and flakier.</li>
+        <li><strong>Prefer one locator per concept.</strong> Extract repeated ones into small helpers or page objects, and give them a <code class="inline">.describe()</code> so traces and reports are readable.</li>
+        <li><strong>Use <code class="inline">count()</code>, <code class="inline">highlight()</code>, <code class="inline">ariaSnapshot()</code>, and the Inspector to develop locators.</strong> Diagnose strict-mode violations rather than suppressing them.</li>
+        <li><strong>Complement roles with real accessibility testing.</strong> Role locators give early feedback, but axe, keyboard-only runs, and screen reader checks are still required.</li>
+      </ol>
+    </section>
+
+    <!-- 10. INTERVIEW -->
+    <section class="doc" id="interview" data-searchable>
+      <h2><span class="num">10</span>Interview Questions</h2>
+
+      <h3>Beginner Questions</h3>
+
+      <div class="qa">
+        <div class="q">1. What does <code>getByRole()</code> do?</div>
+        <div class="a">It creates a locator that finds elements by their ARIA role, optionally narrowed by the accessible name and by state attributes such as <code class="inline">checked</code>, <code class="inline">disabled</code>, <code class="inline">expanded</code>, <code class="inline">pressed</code>, and <code class="inline">selected</code>. It is Playwright's recommended first-choice locator.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">2. Does <code>&lt;button&gt;Submit&lt;/button&gt;</code> need a <code>role</code> attribute for <code>getByRole('button')</code> to find it?</div>
+        <div class="a">No. HTML elements have implicit ARIA roles mapped by HTML-AAM, so <code class="inline">&lt;button&gt;</code> already has the <code class="inline">button</code> role. Adding <code class="inline">role="button"</code> would be redundant, and ARIA guidance advises against duplicating implicit roles.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">3. Why is <code>getByRole()</code> preferred over a CSS selector?</div>
+        <div class="a">It describes user intent rather than implementation. CSS selectors break when classes or DOM structure change, while role locators keep working as long as the element's semantics stay the same. They also surface accessibility problems: if a control has no role or no accessible name, the locator fails.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">4. What does the <code>name</code> option match against?</div>
+        <div class="a">The element's <strong>accessible name</strong> &mdash; computed from <code class="inline">aria-label</code>, <code class="inline">aria-labelledby</code>, an associated <code class="inline">&lt;label&gt;</code>, the element's own text content, or <code class="inline">alt</code> text. By default it is a case-insensitive substring match with whitespace trimmed.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">5. Should you <code>await page.getByRole('button')</code>?</div>
+        <div class="a">No. <code class="inline">getByRole()</code> returns a <code class="inline">Locator</code> synchronously &mdash; it is lazy and does not query the DOM until used. Await the action or assertion instead: <code class="inline">await page.getByRole('button').click()</code>.</div>
+      </div>
+
+      <h3>Intermediate Questions</h3>
+
+      <div class="qa">
+        <div class="q">6. What happens when a role locator matches more than one element?</div>
+        <div class="a">Strict mode raises an error listing the matches. Playwright deliberately refuses to guess. The fix is to make the locator more specific &mdash; add <code class="inline">name</code>, use <code class="inline">exact: true</code> or a regex, or scope with a chained locator and <code class="inline">filter()</code> &mdash; not to bolt on <code class="inline">.first()</code>.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">7. How do you locate a level-2 heading, including one built from a div?</div>
+        <div class="a"><code class="inline">page.getByRole('heading', { level: 2 })</code>. It matches native <code class="inline">&lt;h2&gt;</code> and <code class="inline">&lt;div role="heading" aria-level="2"&gt;</code>, because <code class="inline">level</code> is compared against the computed <code class="inline">aria-level</code>.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">8. How would you click the Delete button in the row containing "Ada"?</div>
+        <div class="a">Scope by row and filter by text, then chain: <code class="inline">page.getByRole('row').filter({ hasText: 'Ada' }).getByRole('button', { name: 'Delete' }).click()</code>. The inner locator is relative to the filtered row, so it avoids both DOM-order dependence and strict-mode violations.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">9. Why might <code>getByRole('button', { name: 'Save' })</code> throw even though only one button visibly says "Save"?</div>
+        <div class="a">Because <code class="inline">name</code> is a substring match by default, so "Save as draft" and "Auto-save" also match. Use <code class="inline">exact: true</code> or a regex such as <code class="inline">/^Save$/</code>.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">10. When would you use <code>includeHidden: true</code>, and why is it usually a last resort?</div>
+        <div class="a">When you must interact with elements excluded from the accessibility tree &mdash; collapsed content, off-screen templates, or elements hidden with <code class="inline">aria-hidden</code>. It is a last resort because such elements are typically unreachable for assistive technology; if a real control is hidden, the markup is usually at fault, and <code class="inline">getByTestId()</code> is the better way to target intentionally anonymous elements.</div>
+      </div>
+
+      <h3>Advanced Questions</h3>
+
+      <div class="qa">
+        <div class="q">11. How does <code>getByRole()</code> relate to the <code>role=</code> selector engine, and what does that imply?</div>
+        <div class="a"><code class="inline">getByRole()</code> is a typed wrapper over the <code class="inline">role=</code> selector: <code class="inline">page.getByRole('button', { name: 'Submit' })</code> is equivalent to <code class="inline">page.locator('role=button[name="Submit"]')</code>. Playwright implements the ARIA role, attribute, and accessible-name specifications itself rather than asking the browser, which is why behaviour is consistent across browsers &mdash; and why it can differ in edge cases from a specific screen reader's interpretation.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">12. Distinguish <code>name</code>, <code>description</code>, and <code>exact</code>.</div>
+        <div class="a"><code class="inline">name</code> matches the accessible name &mdash; the label spoken when focus lands. <code class="inline">description</code> (v1.60+) matches the accessible description, i.e. supplementary help from <code class="inline">aria-describedby</code> or similar. <code class="inline">exact</code> (v1.28+) switches both from case-insensitive substring to whole-string, case-sensitive matching, and is ignored when a RegExp is supplied.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">13. Why is <code>disabled</code> special among the state options?</div>
+        <div class="a">It is inherited through the DOM hierarchy &mdash; a control inside a disabled <code class="inline">&lt;fieldset&gt;</code> is treated as disabled even if the control itself has no <code class="inline">disabled</code> attribute or <code class="inline">aria-disabled</code>. The other state options are evaluated on the element itself.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">14. Your role locator times out. How do you diagnose it systematically?</div>
+        <div class="a">First check <code class="inline">await page.getByRole(role).count()</code> to see whether the role matches anything at all. Then dump the tree with <code class="inline">await page.locator('body').ariaSnapshot()</code> to read the actual roles and accessible names. Use <code class="inline">highlight()</code> in headed mode to confirm visually, and <code class="inline">PWDEBUG=1</code> or <code class="inline">codegen</code> to pick locators interactively. Common root causes: a mistyped role (which matches nothing instead of erroring), a name that does not exist (no label/aria-label), an implicit role you assumed wrongly, an element hidden from the accessibility tree, or content inside an iframe that needs <code class="inline">frameLocator()</code>.</div>
+      </div>
+
+      <div class="qa">
+        <div class="q">15. Does a passing role-locator suite prove the app is accessible?</div>
+        <div class="a">No. Role locators verify that the elements your tests touch have roles, names, and states &mdash; a narrow slice of accessibility. They say nothing about colour contrast, focus order, keyboard operability, zoom, motion, or reading order. Use them for early feedback, then add axe-based checks and manual keyboard plus screen reader testing for genuine coverage.</div>
+      </div>
+    </section>
+
+    <!-- 11. CHEAT SHEET -->
+    <section class="doc" id="cheatsheet" data-searchable>
+      <h2><span class="num">11</span>Quick Reference / Cheat Sheet</h2>
+
+      <h3>I need to locate&hellip;</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Syntax</th></tr></thead>
+          <tbody>
+            <tr><td>A button by label</td><td><code>page.getByRole('button', { name: 'Save' })</code></td></tr>
+            <tr><td>An exact button name</td><td><code>page.getByRole('button', { name: 'Save', exact: true })</code></td></tr>
+            <tr><td>A link, ignoring case</td><td><code>page.getByRole('link', { name: /docs/i })</code></td></tr>
+            <tr><td>A heading at a specific level</td><td><code>page.getByRole('heading', { level: 2 })</code></td></tr>
+            <tr><td>An input field</td><td><code>page.getByRole('textbox', { name: 'Email' })</code></td></tr>
+            <tr><td>A dropdown</td><td><code>page.getByRole('combobox', { name: 'Country' })</code></td></tr>
+            <tr><td>A checked box</td><td><code>page.getByRole('checkbox', { name: 'Remember me', checked: true })</code></td></tr>
+            <tr><td>A disabled control</td><td><code>page.getByRole('button', { name: 'Pay', disabled: true })</code></td></tr>
+            <tr><td>An expanded disclosure</td><td><code>page.getByRole('button', { name: 'Menu', expanded: true })</code></td></tr>
+            <tr><td>A pressed toggle</td><td><code>page.getByRole('button', { name: 'Bold', pressed: true })</code></td></tr>
+            <tr><td>The selected tab</td><td><code>page.getByRole('tab', { selected: true })</code></td></tr>
+            <tr><td>A button inside one row</td><td><code>row.filter({ hasText: 'Ada' }).getByRole('button', { name: 'Delete' })</code></td></tr>
+            <tr><td>A button inside a dialog</td><td><code>page.getByRole('dialog').getByRole('button', { name: 'Cancel' })</code></td></tr>
+            <tr><td>Something inside an iframe</td><td><code>page.frameLocator('#f').getByRole('button')</code></td></tr>
+            <tr><td>A hidden element</td><td><code>page.getByRole('button', { name: 'Skip', includeHidden: true })</code></td></tr>
+            <tr><td>By description (v1.60+)</td><td><code>page.getByRole('textbox', { description: 'Required' })</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Options at a glance</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Option</th><th>Type</th><th>Matches</th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>string | RegExp</td><td>Accessible name</td></tr>
+            <tr><td><code>exact</code></td><td>boolean</td><td>Whole-string, case-sensitive name/description (v1.28+)</td></tr>
+            <tr><td><code>checked</code></td><td>boolean</td><td>checkbox / radio / switch state</td></tr>
+            <tr><td><code>disabled</code></td><td>boolean</td><td>Enabled / disabled (inherited)</td></tr>
+            <tr><td><code>expanded</code></td><td>boolean</td><td>Expanded / collapsed</td></tr>
+            <tr><td><code>level</code></td><td>number</td><td>heading / listitem / row / treeitem depth</td></tr>
+            <tr><td><code>pressed</code></td><td>boolean</td><td>Toggle button</td></tr>
+            <tr><td><code>selected</code></td><td>boolean</td><td>tab / option / treeitem selection</td></tr>
+            <tr><td><code>includeHidden</code></td><td>boolean</td><td>Also match ARIA-hidden elements</td></tr>
+            <tr><td><code>description</code></td><td>string | RegExp</td><td>Accessible description (v1.60+)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>HTML &rarr; implicit role</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Element</th><th>Role</th><th>Element</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>&lt;button&gt;</code></td><td><code>button</code></td><td><code>&lt;a href&gt;</code></td><td><code>link</code></td></tr>
+            <tr><td><code>&lt;h1&gt;</code>&ndash;<code>&lt;h6&gt;</code></td><td><code>heading</code></td><td><code>&lt;img alt&gt;</code></td><td><code>img</code></td></tr>
+            <tr><td><code>&lt;input type="text"&gt;</code></td><td><code>textbox</code></td><td><code>&lt;input type="search"&gt;</code></td><td><code>searchbox</code></td></tr>
+            <tr><td><code>&lt;input type="checkbox"&gt;</code></td><td><code>checkbox</code></td><td><code>&lt;input type="radio"&gt;</code></td><td><code>radio</code></td></tr>
+            <tr><td><code>&lt;input type="range"&gt;</code></td><td><code>slider</code></td><td><code>&lt;input type="number"&gt;</code></td><td><code>spinbutton</code></td></tr>
+            <tr><td><code>&lt;textarea&gt;</code></td><td><code>textbox</code></td><td><code>&lt;select&gt;</code></td><td><code>combobox</code></td></tr>
+            <tr><td><code>&lt;nav&gt;</code></td><td><code>navigation</code></td><td><code>&lt;main&gt;</code></td><td><code>main</code></td></tr>
+            <tr><td><code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code></td><td><code>list</code></td><td><code>&lt;li&gt;</code></td><td><code>listitem</code></td></tr>
+            <tr><td><code>&lt;table&gt;</code></td><td><code>table</code></td><td><code>&lt;tr&gt;</code> / <code>&lt;td&gt;</code></td><td><code>row</code> / <code>cell</code></td></tr>
+            <tr><td><code>&lt;progress&gt;</code></td><td><code>progressbar</code></td><td><code>&lt;dialog&gt;</code></td><td><code>dialog</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Common assertions</h3>
+      <div class="code"><pre><code>await expect(locator).toHaveRole('button');
+await expect(locator).toHaveAccessibleName('Save');
+await expect(locator).toHaveAccessibleDescription(/12 characters/);
+await expect(locator).toBeVisible();
+await expect(locator).toBeEnabled();
+await expect(locator).toBeChecked();
+await expect(locator).toHaveAttribute('aria-expanded', 'true');
+await expect(page.getByRole('row')).toHaveCount(10);</code></pre></div>
+
+      <h3>Debugging</h3>
+      <div class="code"><pre><code>console.log(await page.getByRole('button').count());          // how many match?
+console.log(await page.locator('main').ariaSnapshot());       // roles + names tree
+await page.getByRole('button', { name: 'Save' }).highlight(); // outline on screen</code></pre></div>
+
+      <div class="callout tip">
+        <span class="title">One-line decision rule</span>
+        Ask: <em>"How would a screen reader user describe this element?"</em> If the answer is a role plus a name &mdash; "the Save button", "the Email field" &mdash; that is your locator. If it has no role or no name, fix the markup or fall back to <code class="inline">getByTestId()</code>.
+      </div>
+    </section>
+
+    <!-- 12. RELATED -->
+    <section class="doc" id="related" data-searchable>
+      <h2><span class="num">12</span>Related Topics</h2>
+      <ul>
+        <li><strong>Locators</strong> &mdash; the core abstraction, strict mode, chaining, and auto-waiting.</li>
+        <li><strong><code class="inline">getByLabel</code> / <code class="inline">getByPlaceholder</code></strong> &mdash; the natural fallbacks for form fields whose role alone is not enough.</li>
+        <li><strong><code class="inline">getByText</code></strong> &mdash; for static content that has no interactive role.</li>
+        <li><strong><code class="inline">getByTestId</code></strong> &mdash; for elements that are intentionally anonymous to assistive technology.</li>
+        <li><strong>ARIA roles and accessible names</strong> &mdash; what <code class="inline">getByRole()</code> reads, and why good markup is the real prerequisite.</li>
+        <li><strong>Auto-waiting and actionability</strong> &mdash; the checks that make role locators reliable without sleeps.</li>
+        <li><strong>Web-first assertions</strong> &mdash; <code class="inline">toBeVisible</code>, <code class="inline">toBeChecked</code>, <code class="inline">toHaveAccessibleName</code>, and why they retry.</li>
+        <li><strong>ARIA snapshots</strong> &mdash; <code class="inline">ariaSnapshot()</code> and <code class="inline">toMatchAriaSnapshot()</code> for whole-tree assertions.</li>
+        <li><strong>Test codegen and the Inspector</strong> &mdash; generating and debugging locators interactively.</li>
+        <li><strong>Accessibility testing</strong> &mdash; axe, keyboard-only runs, and screen readers, which role locators complement but do not replace.</li>
+      </ul>
+    </section>
+
+    <!-- 13. TAKEAWAYS -->
+    <section class="doc" id="takeaways" data-searchable>
+      <h2><span class="num">13</span>Key Takeaways</h2>
+      <ul>
+        <li><code class="inline">getByRole()</code> is Playwright's recommended default locator: it matches ARIA role, accessible name, and state, so tests read like user intent instead of DOM structure.</li>
+        <li>Introduced in <strong>v1.27</strong>; <code class="inline">exact</code> arrived in v1.28 and the <code class="inline">description</code> option in v1.60.</li>
+        <li>HTML elements already carry implicit roles, so <code class="inline">&lt;button&gt;</code>, <code class="inline">&lt;a href&gt;</code>, and <code class="inline">&lt;h2&gt;</code> need no ARIA to be located by role.</li>
+        <li>It returns a <strong>Locator</strong>, not a Promise &mdash; never <code class="inline">await</code> the call itself.</li>
+        <li><code class="inline">name</code> is a case-insensitive substring match by default; use <code class="inline">exact: true</code> or a regex when names overlap.</li>
+        <li>Strict mode makes ambiguous locators fail. Fix the ambiguity with <code class="inline">name</code>, scoping, or <code class="inline">filter()</code> &mdash; not with <code class="inline">.first()</code>.</li>
+        <li>State options (<code class="inline">checked</code>, <code class="inline">disabled</code>, <code class="inline">expanded</code>, <code class="inline">pressed</code>, <code class="inline">selected</code>) and <code class="inline">level</code> express the UI's condition directly in the locator.</li>
+        <li>Hidden elements are excluded by default; <code class="inline">includeHidden: true</code> exists but usually signals a markup problem.</li>
+        <li>Chain from a container and use <code class="inline">filter()</code> to reach one row or card &mdash; robust tests never depend on DOM order.</li>
+        <li>Role locators give early accessibility feedback, but they are not an accessibility audit: pair them with axe and manual keyboard/screen reader checks.</li>
+      </ul>
+    </section>
+
+    <footer class="doc-footer">
+      Playwright <code>getByRole()</code> Reference &middot; @playwright/test v1.27+ (verified against v1.63) &middot; Self-contained help page &middot; Confirm option availability against your installed Playwright version.
+    </footer>
+  </main>
+</div>
+
+<button id="toTop" aria-label="Back to top">&#8593;</button>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Copy-to-clipboard buttons ---------- */
+  document.querySelectorAll('.code').forEach(function (block) {
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var text = pre.innerText;
+      var done = function () {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+    block.appendChild(btn);
+  });
+
+  function fallbackCopy(text, done) {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'absolute';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+    document.body.removeChild(area);
+    done();
+  }
+
+  /* ---------- Expand / collapse all function entries ---------- */
+  var allDetails = document.querySelectorAll('details.fn');
+  var expandAll = document.getElementById('expandAll');
+  var collapseAll = document.getElementById('collapseAll');
+  if (expandAll) {
+    expandAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = true; });
+    });
+  }
+  if (collapseAll) {
+    collapseAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = false; });
+    });
+  }
+
+  /* ---------- Client-side search ---------- */
+  var search = document.getElementById('search');
+  var counter = document.getElementById('resultCount');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('[data-searchable]'));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+
+  var noResults = document.createElement('div');
+  noResults.className = 'no-results';
+  noResults.hidden = true;
+  noResults.textContent = 'No matching sections found. Try a different keyword.';
+  var firstSection = sections[0];
+  if (firstSection && firstSection.parentNode) {
+    firstSection.parentNode.insertBefore(noResults, firstSection);
+  }
+
+  function runSearch(rawQuery) {
+    var query = rawQuery.trim().toLowerCase();
+    var matches = 0;
+
+    sections.forEach(function (section) {
+      var haystack = (section.textContent || '').toLowerCase();
+      var hit = query === '' || haystack.indexOf(query) !== -1;
+      section.classList.toggle('search-hidden', !hit);
+      if (hit) { matches++; }
+    });
+
+    navLinks.forEach(function (link) {
+      var target = document.querySelector(link.getAttribute('href'));
+      var hidden = target && target.classList.contains('search-hidden');
+      link.classList.toggle('nav-dim', !!hidden);
+    });
+
+    if (query === '') {
+      counter.textContent = '';
+      noResults.hidden = true;
+    } else {
+      counter.textContent = matches + (matches === 1 ? ' section matches' : ' sections match');
+      noResults.hidden = matches !== 0;
+    }
+  }
+
+  if (search) {
+    search.addEventListener('input', function () { runSearch(search.value); });
+    search.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        search.value = '';
+        runSearch('');
+      }
+    });
+  }
+
+  /* ---------- Back-to-top button ---------- */
+  var toTop = document.getElementById('toTop');
+  function onScroll() {
+    if (window.scrollY > 400) {
+      toTop.classList.add('show');
+    } else {
+      toTop.classList.remove('show');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ---------- Mobile menu toggle ---------- */
+  var menuToggle = document.getElementById('menuToggle');
+  var sidebar = document.getElementById('sidebar');
+  if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', function () {
+      var open = sidebar.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', String(open));
+    });
+    sidebar.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && window.innerWidth <= 980) {
+        sidebar.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>XPath in JavaScript / Playwright — Help Reference</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface-alt: #eef2f7;
+    --border: #d9e0ea;
+    --text: #1c2533;
+    --text-muted: #5b6779;
+    --primary: #0b6bcb;
+    --primary-dark: #084f96;
+    --accent: #7c3aed;
+    --code-bg: #101826;
+    --code-text: #e6edf6;
+    --tip-bg: #e8f6ee;
+    --tip-border: #34a853;
+    --warn-bg: #fdf3e3;
+    --warn-border: #e08a00;
+    --note-bg: #e8f1fd;
+    --note-border: #0b6bcb;
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 6px 18px rgba(16, 24, 40, 0.06);
+    --radius: 10px;
+    --sidebar-w: 280px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+
+  code, pre, kbd {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+  }
+
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    max-width: 1500px;
+    margin: 0 auto;
+    gap: 0;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 22px 18px 40px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.02rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .brand .logo {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 0.85rem;
+  }
+  .brand small {
+    display: block;
+    font-weight: 500;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+  }
+
+  .search-wrap { margin: 16px 0 8px; }
+  .search-wrap label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  #search {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--surface-alt);
+    color: var(--text);
+  }
+  #search:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(11, 107, 203, 0.15);
+  }
+  #resultCount {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-height: 16px;
+    margin-top: 6px;
+  }
+
+  .nav ul { list-style: none; margin: 10px 0 0; padding: 0; }
+  .nav li { margin: 1px 0; }
+  .nav a {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 7px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .nav a:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav a.nav-dim { opacity: 0.32; }
+  .nav .group {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #8b96a8;
+    margin: 16px 0 4px 12px;
+    font-weight: 700;
+  }
+
+  /* ---------- Main ---------- */
+  main { padding: 30px 40px 100px; min-width: 0; }
+
+  .page-header {
+    background: linear-gradient(135deg, #0b6bcb, #7c3aed);
+    color: #fff;
+    border-radius: 14px;
+    padding: 30px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+  }
+  .page-header .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.72rem;
+    opacity: 0.9;
+    font-weight: 600;
+  }
+  .page-header h1 { margin: 8px 0 10px; font-size: 2rem; line-height: 1.2; }
+  .page-header p { margin: 0; opacity: 0.94; max-width: 70ch; }
+  .badges { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  section.doc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 26px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+    scroll-margin-top: 16px;
+  }
+  section.doc.search-hidden { display: none; }
+
+  h2 {
+    font-size: 1.4rem;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--surface-alt);
+    color: var(--text);
+  }
+  h2 .num {
+    display: inline-block;
+    background: var(--surface-alt);
+    color: var(--primary);
+    font-size: 0.8rem;
+    padding: 2px 9px;
+    border-radius: 6px;
+    margin-right: 10px;
+    vertical-align: middle;
+    font-weight: 700;
+  }
+  h3 { font-size: 1.12rem; margin: 22px 0 10px; color: var(--primary-dark); }
+  h4 { font-size: 0.98rem; margin: 16px 0 6px; color: var(--text); }
+  p { margin: 10px 0; }
+  ul, ol { margin: 10px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+
+  .lead { font-size: 1.02rem; color: var(--text-muted); }
+
+  /* ---------- Code ---------- */
+  .code { position: relative; margin: 14px 0; }
+  .code pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 18px;
+    border-radius: 9px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    margin: 0;
+    tab-size: 2;
+  }
+  .code code { color: inherit; }
+  .copy-btn {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    background: rgba(255,255,255,0.12);
+    color: #dce6f5;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.24); }
+  .copy-btn.copied { background: #34a853; border-color: #34a853; color: #fff; }
+
+  code.inline {
+    background: var(--surface-alt);
+    color: #b4245a;
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Tables ---------- */
+  .table-wrap { overflow-x: auto; margin: 14px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+    min-width: 640px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--surface-alt);
+    font-weight: 700;
+    color: var(--text);
+    position: sticky;
+    top: 0;
+  }
+  tbody tr:nth-child(even) { background: #fafbfd; }
+  td code, th code {
+    background: #eef2f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #b4245a;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Callouts ---------- */
+  .callout {
+    border-left: 4px solid;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  .callout .title { font-weight: 700; display: block; margin-bottom: 3px; }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.note { background: var(--note-bg); border-color: var(--note-border); }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .card {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px 16px;
+  }
+  .card h4 { margin: 0 0 6px; color: var(--primary-dark); }
+  .card p { margin: 0; font-size: 0.88rem; color: var(--text-muted); }
+
+  /* ---------- Function details ---------- */
+  details.fn {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    margin: 10px 0;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  details.fn > summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 0.94rem;
+    background: var(--surface-alt);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  details.fn > summary::-webkit-details-marker { display: none; }
+  details.fn > summary::after {
+    content: "+";
+    font-size: 1.15rem;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  details.fn[open] > summary::after { content: "\2013"; }
+  details.fn[open] > summary { border-bottom: 1px solid var(--border); }
+  .fn-body { padding: 6px 18px 18px; }
+  .fn-body dl { margin: 0; }
+  .fn-body dt {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-top: 14px;
+  }
+  .fn-body dd { margin: 4px 0 0; }
+
+  .controls { display: flex; gap: 8px; margin: 6px 0 14px; flex-wrap: wrap; }
+  .controls button {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 6px 13px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .controls button:hover { background: #e2e9f3; }
+
+  /* ---------- Q&A ---------- */
+  .qa { border-left: 3px solid var(--accent); padding: 2px 0 2px 16px; margin: 16px 0; }
+  .qa .q { font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .qa .a { color: var(--text-muted); font-size: 0.93rem; }
+
+  /* ---------- Misc ---------- */
+  .no-results {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: #7a4a00;
+    padding: 14px 18px;
+    border-radius: 9px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  [hidden] { display: none !important; }
+
+  #toTop {
+    position: fixed;
+    bottom: 26px;
+    right: 26px;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 50;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; }
+  #toTop:hover { transform: translateY(-3px); background: var(--primary-dark); }
+
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 60;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 13px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  footer.doc-footer {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    text-align: center;
+    padding: 10px 0 40px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 82%;
+      max-width: 320px;
+      height: 100vh;
+      z-index: 55;
+      transform: translateX(-102%);
+      transition: transform .25s ease;
+      box-shadow: var(--shadow);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: block; }
+    main { padding: 70px 18px 90px; }
+    .page-header { padding: 22px 20px; }
+    .page-header h1 { font-size: 1.5rem; }
+    section.doc { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">&#9776; Menu</button>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="logo">XP</span>
+      <span>Help Portal<small>Playwright &middot; JavaScript</small></span>
+    </div>
+
+    <div class="search-wrap">
+      <label for="search">Search this page</label>
+      <input id="search" type="search" placeholder="e.g. contains(), following-sibling, xpath=" autocomplete="off" />
+      <div id="resultCount" role="status" aria-live="polite"></div>
+    </div>
+
+    <nav class="nav" aria-label="Page sections">
+      <div class="group">Overview</div>
+      <ul>
+        <li><a href="#what">What Is It?</a></li>
+        <li><a href="#syntax">Syntax</a></li>
+        <li><a href="#inplaywright">XPath in Playwright</a></li>
+      </ul>
+      <div class="group">Reference</div>
+      <ul>
+        <li><a href="#reference">Function Reference</a></li>
+        <li><a href="#axes">Axes &amp; Predicates</a></li>
+        <li><a href="#functions">Detailed Functions</a></li>
+      </ul>
+      <div class="group">Practice</div>
+      <ul>
+        <li><a href="#examples">Practical Examples</a></li>
+        <li><a href="#beforeafter">Before vs After</a></li>
+        <li><a href="#mistakes">Common Mistakes</a></li>
+        <li><a href="#bestpractices">Best Practices</a></li>
+      </ul>
+      <div class="group">Learn</div>
+      <ul>
+        <li><a href="#interview">Interview Questions</a></li>
+        <li><a href="#cheatsheet">Cheat Sheet</a></li>
+        <li><a href="#related">Related Topics</a></li>
+        <li><a href="#takeaways">Key Takeaways</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="page-header">
+      <div class="eyebrow">Selector Reference</div>
+      <h1>XPath in JavaScript / Playwright</h1>
+      <p>XML Path Language expressions used to locate elements in the DOM &mdash; how to write them, when to use them, and how Playwright evaluates them.</p>
+      <div class="badges">
+        <span class="badge">@playwright/test</span>
+        <span class="badge">XPath 1.0</span>
+        <span class="badge">locator('xpath=...')</span>
+        <span class="badge">Beginner &rarr; Advanced</span>
+      </div>
+    </header>
+
+    <!-- 1. WHAT IS IT -->
+    <section class="doc" id="what" data-searchable>
+      <h2><span class="num">01</span>What Is It?</h2>
+      <p class="lead"><strong>XPath</strong> (XML Path Language) is a W3C query language for selecting nodes from an XML or HTML document. In a browser it runs over the parsed DOM through the native <code class="inline">document.evaluate()</code> API, and in Playwright you use it through <code class="inline">locator('xpath=...')</code>.</p>
+
+      <p>XPath treats a document as a <em>tree of nodes</em>. You write a path through that tree &mdash; much like a file system path &mdash; optionally filtered by predicates and functions:</p>
+      <div class="code"><pre><code>//div[@class="card"]//a[contains(@href, "/product/")]</code></pre></div>
+
+      <h3>Why it exists</h3>
+      <p>XPath predates CSS selectors and was designed for XML documents, where CSS had no equivalent. It remains valuable in testing because it can do things CSS cannot:</p>
+      <ul>
+        <li><strong>Search by text</strong> &mdash; <code class="inline">//button[text()="Submit"]</code> (CSS has no text selector).</li>
+        <li><strong>Traverse upwards and sideways</strong> &mdash; select a parent, ancestor, or following sibling of a known element.</li>
+        <li><strong>Use boolean logic</strong> &mdash; combine conditions with <code class="inline">and</code> / <code class="inline">or</code> / <code class="inline">not()</code>.</li>
+      </ul>
+
+      <h3>What problem it solves</h3>
+      <p>When a stable, unique attribute does not exist and CSS cannot express the relationship, XPath lets you describe the element by its <em>position, text, or neighbours</em>. For example: "the <code class="inline">Delete</code> button inside the row whose name cell says 'Ada'".</p>
+
+      <h3>Where it is commonly used</h3>
+      <ul>
+        <li>Playwright tests, via <code class="inline">page.locator('xpath=//...')</code>.</li>
+        <li>Browser DevTools (the <code class="inline">$x()</code> console helper) for quick DOM inspection.</li>
+        <li>Selenium, Appium, and other automation tools that accept XPath locators.</li>
+        <li>XML processing (XSLT, XQuery, config transforms) &mdash; outside the browser.</li>
+      </ul>
+
+      <h3>When a tester should use it</h3>
+      <p>Use XPath as a <strong>fallback</strong>, not a default. Playwright's own guidance is to prefer user-facing locators (<code class="inline">getByRole</code>, <code class="inline">getByLabel</code>, <code class="inline">getByText</code>, <code class="inline">getByTestId</code>). Reach for XPath when: you must locate by exact text, you need parent/sibling navigation CSS cannot express, or you are maintaining an existing XPath-based suite.</p>
+
+      <div class="callout note">
+        <span class="title">XPath 1.0 only</span>
+        Browsers implement <strong>XPath 1.0</strong>. Functions from later specs such as <code class="inline">matches()</code>, <code class="inline">ends-with()</code>, and <code class="inline">lower-case()</code> are <strong>XPath 2.0+</strong> and will throw a syntax error in a browser. Use <code class="inline">contains()</code>, <code class="inline">starts-with()</code>, <code class="inline">translate()</code>, and <code class="inline">normalize-space()</code> instead.
+      </div>
+    </section>
+
+    <!-- 2. SYNTAX -->
+    <section class="doc" id="syntax" data-searchable>
+      <h2><span class="num">02</span>Syntax</h2>
+
+      <h3>Basic form</h3>
+      <div class="code"><pre><code>//tag[predicate]/child::tag[@attribute="value"]</code></pre></div>
+
+      <p>Broken down for <code class="inline">//div[@class="card"]/a[contains(@href, "/product/")]</code>:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Part</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>//</code></td><td>Relative path &mdash; search from anywhere in the document (descendant-or-self).</td></tr>
+            <tr><td><code>/</code></td><td>Absolute path &mdash; start at the document root.</td></tr>
+            <tr><td><code>div</code></td><td>Node test &mdash; match elements named <code>div</code>. Use <code>*</code> to match any element.</td></tr>
+            <tr><td><code>[...]</code></td><td>Predicate &mdash; a filter applied to the nodes matched so far.</td></tr>
+            <tr><td><code>@class</code></td><td>Attribute axis &mdash; the <code>class</code> attribute of the node.</td></tr>
+            <tr><td><code>contains(...)</code></td><td>Function &mdash; true when the first string contains the second.</td></tr>
+            <tr><td><code>/a</code></td><td>Step to a child element named <code>a</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="title">Absolute vs relative</span>
+        A single leading <code class="inline">/</code> starts at the document root, so <code class="inline">/html/body/div[3]/table</code> breaks the moment markup changes. The double slash <code class="inline">//</code> means "anywhere below", which is almost always what you want.
+      </div>
+
+      <h3>Path expression variants</h3>
+      <div class="code"><pre><code>//button                       // any button, anywhere
+//div[@id="main"]              // div whose id is exactly "main"
+//*[@data-qa="submit"]         // any element carrying a data attribute
+//a[text()="Read more"]        // anchor whose full text is "Read more"
+//input[@type="text"][1]       // the first text input among the matches
+//li[last()]                   // the last li in each parent
+//span[normalize-space()="Ok"] // compare ignoring surrounding whitespace
+(//div[@class="card"])[3]      // the 3rd card among all matches (parenthesised)
+//ul/li[2]/following-sibling::li  // siblings after the 2nd li</code></pre></div>
+
+      <div class="callout tip">
+        <span class="title">Index placement matters</span>
+        <code class="inline">//ul/li[2]</code> means "the 2nd <code class="inline">li</code> within each <code class="inline">ul</code>". <code class="inline">(//ul/li)[2]</code> means "the 2nd <code class="inline">li</code> across the whole document". Wrap the expression in parentheses when you want a global index.
+      </div>
+
+      <h3>Operators</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>and</code></td><td>Both conditions true</td><td><code>//input[@type="text" and @required]</code></td></tr>
+            <tr><td><code>or</code></td><td>Either condition true</td><td><code>//button[@type="submit" or @type="reset"]</code></td></tr>
+            <tr><td><code>not()</code></td><td>Negates an expression</td><td><code>//input[not(@disabled)]</code></td></tr>
+            <tr><td><code>=</code>, <code>!=</code></td><td>Equality / inequality</td><td><code>//a[@target!="_blank"]</code></td></tr>
+            <tr><td><code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code></td><td>Numeric comparison</td><td><code>//div[@data-qty &gt; 3]</code></td></tr>
+            <tr><td><code>|</code></td><td>Union of two node sets</td><td><code>//h1 | //h2</code></td></tr>
+            <tr><td><code>+ - * div mod</code></td><td>Arithmetic</td><td><code>//li[position() mod 2 = 0]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. IN PLAYWRIGHT -->
+    <section class="doc" id="inplaywright" data-searchable>
+      <h2><span class="num">03</span>XPath in Playwright</h2>
+      <p>Playwright ships an <code class="inline">xpath</code> selector engine. You pass an XPath expression to <code class="inline">locator()</code>, and it returns a normal locator that supports all the usual actions and assertions.</p>
+
+      <div class="code"><pre><code>// Explicit engine prefix
+const submit = page.locator('xpath=//button[@type="submit"]');
+
+// Auto-detected: expressions starting with // or .. are treated as XPath
+const title = page.locator('//h1');
+
+// Chained: scope XPath to the result of a previous locator
+const price = page.locator('.product-card').locator('xpath=.//span[@class="price"]');</code></pre></div>
+
+      <h3>Key facts</h3>
+      <ul>
+        <li><strong>Strict mode applies.</strong> If an XPath matches more than one element, actions and assertions throw a strict-mode violation. Narrow the expression or use <code class="inline">.first()</code> / <code class="inline">.nth()</code>.</li>
+        <li><strong>Auto-waiting applies.</strong> XPath locators are auto-waited just like CSS locators &mdash; no manual sleeps.</li>
+        <li><strong>It is the browser's engine.</strong> Expressions are evaluated by <code class="inline">document.evaluate()</code>, so only XPath 1.0 is supported.</li>
+        <li><strong>XPath does not pierce shadow DOM.</strong> Playwright's CSS engine does cross open shadow roots; XPath does not. For shadow DOM use role/text/CSS locators.</li>
+        <li><strong>Use a relative prefix in chains.</strong> After a chained locator, start with <code class="inline">.//</code> or <code class="inline">./</code> so the search stays scoped to that element.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="title">page.$x() is deprecated</span>
+        Older examples use <code class="inline">await page.$x('//button')</code>, which returned an array of ElementHandles. That API is deprecated and has since been removed &mdash; migrate to <code class="inline">page.locator('xpath=//button')</code>. The modern locator is auto-waiting, retrying, and works with <code class="inline">expect</code>.
+      </div>
+
+      <h3>Using XPath with assertions</h3>
+      <div class="code"><pre><code>await expect(page.locator('xpath=//h1')).toHaveText('Dashboard');
+await expect(page.locator('xpath=//ul/li')).toHaveCount(3);
+await expect(page.locator('xpath=//button[@type="submit"]')).toBeEnabled();</code></pre></div>
+
+      <h3>Prefer CSS or user-facing locators first</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>Best: user-facing</h4>
+          <p><code class="inline">getByRole('button', { name: 'Save' })</code> &mdash; stable, accessible, readable.</p>
+        </div>
+        <div class="card">
+          <h4>Good: test id / CSS</h4>
+          <p><code class="inline">getByTestId('save-btn')</code> or <code class="inline">locator('.card .title')</code> &mdash; fast and concise.</p>
+        </div>
+        <div class="card">
+          <h4>Fallback: XPath</h4>
+          <p><code class="inline">locator('xpath=//td[text()="Ada"]/..')</code> &mdash; when text or traversal is required.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. REFERENCE -->
+    <section class="doc" id="reference" data-searchable>
+      <h2><span class="num">04</span>Function / Method Reference</h2>
+      <p>XPath 1.0 functions you can use inside predicates, plus the Playwright APIs that consume XPath. Grouped logically.</p>
+
+      <h3>Core node-set / string functions</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Function</th><th>Purpose</th><th>Syntax</th><th>Return / Result</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>contains()</code></td><td>Substring test</td><td><code>contains(haystack, needle)</code></td><td>Boolean</td><td><code>//div[contains(@class,"card")]</code></td></tr>
+            <tr><td><code>starts-with()</code></td><td>Prefix test</td><td><code>starts-with(str, prefix)</code></td><td>Boolean</td><td><code>//a[starts-with(@href,"/docs")]</code></td></tr>
+            <tr><td><code>text()</code></td><td>Node test for text nodes</td><td><code>text()</code> / <code>text()="x"</code></td><td>Node set / Boolean</td><td><code>//button[text()="Submit"]</code></td></tr>
+            <tr><td><code>normalize-space()</code></td><td>Trim and collapse whitespace</td><td><code>normalize-space(str)</code></td><td>String</td><td><code>//span[normalize-space()="Ok"]</code></td></tr>
+            <tr><td><code>string-length()</code></td><td>Length of a string</td><td><code>string-length(str)</code></td><td>Number</td><td><code>//p[string-length(text())&gt;0]</code></td></tr>
+            <tr><td><code>concat()</code></td><td>Join strings</td><td><code>concat(a, b, ...)</code></td><td>String</td><td><code>//div[@id=concat("row-",@data-id)]</code></td></tr>
+            <tr><td><code>translate()</code></td><td>Character substitution (case-insensitive trick)</td><td><code>translate(str, from, to)</code></td><td>String</td><td><code>//div[translate(@class,"CARD","card")="card"]</code></td></tr>
+            <tr><td><code>string()</code></td><td>Convert a node to its string value</td><td><code>string(node)</code></td><td>String</td><td><code>string(//title)</code></td></tr>
+            <tr><td><code>substring()</code></td><td>Extract part of a string</td><td><code>substring(str, start[, len])</code></td><td>String</td><td><code>//div[substring(@id,1,4)="row-"]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Numbers, boolean &amp; position</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Function</th><th>Purpose</th><th>Syntax</th><th>Return / Result</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>count()</code></td><td>Number of nodes in a set</td><td><code>count(node-set)</code></td><td>Number</td><td><code>count(//li) &gt; 2</code></td></tr>
+            <tr><td><code>position()</code></td><td>Position in the current context</td><td><code>position()</code></td><td>Number</td><td><code>//li[position()&lt;=3]</code></td></tr>
+            <tr><td><code>last()</code></td><td>Size of the context node set</td><td><code>last()</code></td><td>Number</td><td><code>//li[last()]</code></td></tr>
+            <tr><td><code>not()</code></td><td>Boolean negation</td><td><code>not(expr)</code></td><td>Boolean</td><td><code>//input[not(@disabled)]</code></td></tr>
+            <tr><td><code>boolean()</code></td><td>Convert to boolean</td><td><code>boolean(expr)</code></td><td>Boolean</td><td><code>//div[boolean(@data-id)]</code></td></tr>
+            <tr><td><code>number()</code></td><td>Convert to number</td><td><code>number(str)</code></td><td>Number</td><td><code>number(@data-qty) &gt; 3</code></td></tr>
+            <tr><td><code>floor() ceil() round()</code></td><td>Rounding</td><td><code>round(number)</code></td><td>Number</td><td><code>//li[round(@data-x)=2]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <span class="title">Functions that do NOT exist in the browser</span>
+        <code class="inline">matches()</code>, <code class="inline">ends-with()</code>, <code class="inline">lower-case()</code>, <code class="inline">upper-case()</code>, <code class="inline">replace()</code>, and <code class="inline">tokenize()</code> are XPath 2.0+. They fail in browsers. Emulate case-insensitivity with <code class="inline">translate()</code>.
+      </div>
+
+      <h3>Playwright APIs that use XPath</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>API</th><th>Purpose</th><th>Syntax</th><th>Result</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>page.locator()</code></td><td>Create an XPath locator</td><td><code>page.locator('xpath=EXPR')</code></td><td>Locator</td><td><code>page.locator('xpath=//h1')</code></td></tr>
+            <tr><td>Auto-detect</td><td>Expressions starting with <code>//</code> or <code>..</code></td><td><code>page.locator('//h1')</code></td><td>Locator</td><td><code>page.locator('//a[@href]')</code></td></tr>
+            <tr><td><code>.locator()</code> chain</td><td>Scope XPath to a parent locator</td><td><code>parent.locator('xpath=.//span')</code></td><td>Locator</td><td><code>card.locator('xpath=.//a')</code></td></tr>
+            <tr><td><code>.first() /.nth()</code></td><td>Resolve strict-mode multi-matches</td><td><code>loc.first()</code></td><td>Locator</td><td><code>page.locator('//li').nth(2)</code></td></tr>
+            <tr><td><code>expect(locator)</code></td><td>Assert on an XPath locator</td><td><code>expect(loc).toHaveText(x)</code></td><td>Pass/Fail</td><td><code>await expect(loc).toHaveCount(3)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. AXES AND PREDICATES -->
+    <section class="doc" id="axes" data-searchable>
+      <h2><span class="num">05</span>Axes &amp; Predicates</h2>
+      <p>Axes define the direction in which the XPath moves from the current node. They are what let XPath navigate up and sideways, which CSS cannot do.</p>
+
+      <h3>Axis reference</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Axis</th><th>Selects</th><th>Abbreviation</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>child</code></td><td>Direct children</td><td>default step</td><td><code>//ul/child::li</code> = <code>//ul/li</code></td></tr>
+            <tr><td><code>descendant</code></td><td>All descendants</td><td><code>//</code></td><td><code>//div/descendant::span</code></td></tr>
+            <tr><td><code>parent</code></td><td>Direct parent</td><td><code>..</code></td><td><code>//td[text()="Ada"]/parent::tr</code></td></tr>
+            <tr><td><code>ancestor</code></td><td>All ancestors up to root</td><td>&mdash;</td><td><code>//span/ancestor::section</code></td></tr>
+            <tr><td><code>following-sibling</code></td><td>Later siblings</td><td>&mdash;</td><td><code>//h2/following-sibling::p</code></td></tr>
+            <tr><td><code>preceding-sibling</code></td><td>Earlier siblings</td><td>&mdash;</td><td><code>//p/preceding-sibling::h2</code></td></tr>
+            <tr><td><code>self</code></td><td>The node itself</td><td><code>.</code></td><td><code>//a/self::a</code></td></tr>
+            <tr><td><code>following</code></td><td>Everything after in document order</td><td>&mdash;</td><td><code>//label/following::input[1]</code></td></tr>
+            <tr><td><code>preceding</code></td><td>Everything before in document order</td><td>&mdash;</td><td><code>//input/preceding::label[1]</code></td></tr>
+            <tr><td><code>attribute</code></td><td>Attributes</td><td><code>@</code></td><td><code>//div/attribute::id</code> = <code>//div/@id</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Predicate patterns</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Goal</th><th>Predicate</th></tr></thead>
+          <tbody>
+            <tr><td>Attribute equals value</td><td><code>[@type="submit"]</code></td></tr>
+            <tr><td>Attribute contains value</td><td><code>[contains(@class, "active")]</code></td></tr>
+            <tr><td>Attribute starts with value</td><td><code>[starts-with(@id, "row-")]</code></td></tr>
+            <tr><td>Attribute exists</td><td><code>[@disabled]</code></td></tr>
+            <tr><td>Attribute absent</td><td><code>[not(@disabled)]</code></td></tr>
+            <tr><td>Exact text</td><td><code>[text()="Submit"]</code></td></tr>
+            <tr><td>Trimmed text equals</td><td><code>[normalize-space()="Submit"]</code></td></tr>
+            <tr><td>Text contains</td><td><code>[contains(text(), "Sub")]</code></td></tr>
+            <tr><td>Positional (per parent)</td><td><code>[2]</code></td></tr>
+            <tr><td>Positional (global)</td><td><code>(//li)[2]</code></td></tr>
+            <tr><td>Last child</td><td><code>[last()]</code></td></tr>
+            <tr><td>Range</td><td><code>[position() &lt;= 3]</code></td></tr>
+            <tr><td>Multiple conditions</td><td><code>[@type="text" and not(@disabled)]</code></td></tr>
+            <tr><td>Direct text child only</td><td><code>[text()="Next"]</code> vs nested text</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <span class="title">text() is exact and literal</span>
+        <code class="inline">//button[text()="Submit"]</code> matches only if the button has a single text child exactly equal to <code class="inline">Submit</code>. If the markup is <code class="inline">&lt;button&gt; Submit &lt;/button&gt;</code> (with spaces) or <code class="inline">&lt;button&gt;&lt;b&gt;Submit&lt;/b&gt;&lt;/button&gt;</code>, it fails. Use <code class="inline">normalize-space()</code> for whitespace and <code class="inline">contains(., "Submit")</code> to match text anywhere inside.
+      </div>
+    </section>
+
+    <!-- 6. DETAILED FUNCTIONS -->
+    <section class="doc" id="functions" data-searchable>
+      <h2><span class="num">06</span>Detailed Explanation of Key Functions</h2>
+      <p>Expand any function for its full description. Use the buttons to open or close all entries.</p>
+
+      <div class="controls">
+        <button type="button" id="expandAll">Expand all</button>
+        <button type="button" id="collapseAll">Collapse all</button>
+      </div>
+
+      <!-- contains -->
+      <details class="fn">
+        <summary>contains()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Returns true when the first string argument contains the second anywhere inside it. It is the workhorse of resilient XPath, because it does not require an exact match.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>contains(haystack, needle)</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">haystack</code> &mdash; the string to search (often <code class="inline">@class</code>, <code class="inline">@href</code>, or <code class="inline">text()</code>). <code class="inline">needle</code> &mdash; the substring to find. Both are strings.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>A boolean used as a predicate, keeping only the nodes for which it is true.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('xpath=//button[contains(@class,"btn-primary")]').click();
+await page.locator('xpath=//a[contains(@href,"/products/")]').first().click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Matches every button whose <code class="inline">class</code> attribute includes <code class="inline">btn-primary</code>, and every product link.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Partial class, id, href, data-attribute, and text matching when values carry dynamic suffixes.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>It is a plain substring test, so <code class="inline">contains(@class,"card")</code> also matches <code class="inline">card-header</code> and <code class="inline">discard</code> if present. Add a space (<code class="inline">" card "</code>) or use <code class="inline">normalize-space()</code> on a token when exactness matters.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- starts-with -->
+      <details class="fn">
+        <summary>starts-with()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Returns true when a string begins with the given prefix. Useful for generated ids and URLs that share a stable prefix.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>starts-with(string, prefix)</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">string</code> &mdash; value to test; <code class="inline">prefix</code> &mdash; the required leading substring.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Boolean, used as a predicate.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('xpath=//input[starts-with(@id,"user-")]').fill('ada');</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Matches the input whose id starts with <code class="inline">user-</code>, e.g. <code class="inline">user-email</code> or <code class="inline">user-name</code>.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Framework-generated ids (<code class="inline">react-select-1-input</code>), route prefixes, and versioned asset URLs.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>There is no <code class="inline">ends-with()</code> in XPath 1.0. To match a suffix, combine <code class="inline">substring()</code> and <code class="inline">string-length()</code>.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- normalize-space -->
+      <details class="fn">
+        <summary>normalize-space()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Trims leading and trailing whitespace and collapses internal runs of whitespace to a single space, returning a clean string for comparison.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>normalize-space([string])</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>Optional node or string. With no argument it normalises the string value of the current node.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>A normalised string, compared against the literal in the predicate.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('xpath=//button[normalize-space()="Save changes"]').click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Matches the button even when the markup contains extra spaces or newlines around its label.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Text-based matching where the DOM comes from a template with indentation or line breaks.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>The most common cause of "working in DevTools but failing in the test" text XPath. Prefer it over raw <code class="inline">text()</code> comparisons.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- text() -->
+      <details class="fn">
+        <summary>text()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>A node test that selects the text nodes of an element, used to filter elements by their textual content.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>//tag[text()="value"]
+//tag[contains(text(), "value")]</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>None &mdash; it is a node test. Comparison happens against the string in the predicate.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>A node set of text nodes. Used in a predicate it yields a boolean filter.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('xpath=//td[text()="Ada"]/..').getByRole('button', { name: 'Edit' }).click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Finds the table row containing the cell "Ada" and clicks its Edit button.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Locating a row, card, or list item by a known label, then acting on a child control.</dd>
+
+            <dt>Important Notes</dt>
+            <dd><code class="inline">text()</code> matches only <em>direct</em> text children. If the label is wrapped in a <code class="inline">&lt;span&gt;</code>, use <code class="inline">contains(., "Ada")</code> (dot = string value of all descendants) instead.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- last -->
+      <details class="fn">
+        <summary>last()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Returns the number of nodes in the current context node set. In a predicate it selects the final node(s).</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>//li[last()]
+//li[last()-1]</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>None &mdash; it takes no arguments.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>A number equal to the size of the context set. Enables indexing from the end.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('xpath=//table//tr[last()]/td[1]').click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Targets the first cell of the last row of a table.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Selecting the most recently added row or item in a dynamically growing list.</dd>
+
+            <dt>Important Notes</dt>
+            <dd><code class="inline">last()</code> is per context. In <code class="inline">//ul/li[last()]</code> it means the last <code class="inline">li</code> of <em>each</em> <code class="inline">ul</code>. Wrap in parentheses for a global "last of all".</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- position -->
+      <details class="fn">
+        <summary>position()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Returns the 1-based index of the current node within its context node set, enabling range and parity selection.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>//li[position() = 2]
+//li[position() &lt;= 3]
+//tr[position() mod 2 = 0]</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>None. It is a number function evaluated per node during the predicate.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>A number from 1 to the size of the set.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await expect(page.locator('xpath=//tbody/tr[position() &lt;= 5]')).toHaveCount(5);</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Matches the first five body rows and asserts there are exactly five.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Pagination assertions, "first N items", alternating-row (even/odd) logic.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Numbers in a predicate are shorthand for <code class="inline">position() = n</code>, so <code class="inline">[2]</code> and <code class="inline">[position()=2]</code> are equivalent.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- count -->
+      <details class="fn">
+        <summary>count()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Counts the nodes in a node set. Used inside a predicate it lets you reason about quantities of elements.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>count(node-set)</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>A node set, e.g. <code class="inline">//li</code> or <code class="inline">.//span</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>A number.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator('xpath=//div[count(.//li) &gt; 2]').first().click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Matches the first container holding more than two list items.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Rare: for asserting a count in tests, prefer Playwright's <code class="inline">toHaveCount()</code> on a locator, which gives clearer failures.</dd>
+
+            <dt>Important Notes</dt>
+            <dd><code class="inline">count()</code> returns a number that cannot be used directly in a Playwright assertion &mdash; it only filters nodes. Use <code class="inline">await expect(loc).toHaveCount(n)</code> for count assertions.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- not -->
+      <details class="fn">
+        <summary>not()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Boolean negation. Keeps nodes for which the inner expression is false.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>not(expression)</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>Any boolean-producing expression, e.g. <code class="inline">@disabled</code> or <code class="inline">contains(@class,"hidden")</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Boolean, inverted.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await expect(page.locator('xpath=//button[not(@disabled)]')).toHaveCount(3);</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Asserts that exactly three enabled buttons are present.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Selecting the first interactive control, or excluding hidden/disabled/hidden-by-class elements.</dd>
+
+            <dt>Important Notes</dt>
+            <dd><code class="inline">not(contains(@class,"x"))</code> is true when the attribute is absent too, which is usually the intent, but be explicit if it is not.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- axes example -->
+      <details class="fn">
+        <summary>Parent &amp; sibling navigation (axes)</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Move up or sideways through the tree from a known anchor element &mdash; something CSS cannot express directly.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>//anchor/parent::tag
+//anchor/ancestor::tag
+//anchor/following-sibling::tag[1]
+//anchor/preceding-sibling::tag[1]</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>The axis determines direction; the following node test and optional predicate narrow the result.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>A node set of the requested relatives.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator(
+  'xpath=//td[normalize-space()="Ada"]/parent::tr//button[@data-action="delete"]'
+).click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Finds the row containing "Ada" and clicks its delete button.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Row-scoped actions, selecting a form input from its label, or the error message after a field.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Add <code class="inline">[1]</code> to <code class="inline">following-sibling</code> / <code class="inline">preceding-sibling</code> when you want the nearest one, since without it the axis returns all matching siblings.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- translate -->
+      <details class="fn">
+        <summary>translate() &mdash; case-insensitive matching</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Replaces characters in one string with the corresponding characters from another. Commonly abused to implement a case-insensitive comparison, since XPath 1.0 has no <code class="inline">lower-case()</code>.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>translate(string, fromChars, toChars)</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">string</code> to transform; <code class="inline">fromChars</code> the characters to replace; <code class="inline">toChars</code> their replacements. Characters present in <code class="inline">fromChars</code> but past the end of <code class="inline">toChars</code> are removed.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>The transformed string.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.locator(
+  'xpath=//div[translate(@data-state,"ACTIVE","active")="active"]'
+).click();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Matches the element regardless of the case used in the <code class="inline">data-state</code> attribute.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Case-insensitive matching of class names, statuses, and text.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Only translates the exact characters you list &mdash; you must include both uppercase and lowercase sets for full case-insensitivity. It is verbose, so prefer a stable lowercase attribute when one exists.</dd>
+          </dl>
+        </div>
+      </details>
+    </section>
+
+    <!-- 7. EXAMPLES -->
+    <section class="doc" id="examples" data-searchable>
+      <h2><span class="num">07</span>Practical Examples</h2>
+
+      <h3>Example 1 &mdash; Basic Usage</h3>
+      <p>The simplest XPath locator: find a button by its id and click it.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('click a button located with XPath', async ({ page }) =&gt; {
+  await page.goto('https://example.com');
+
+  const login = page.locator('xpath=//button[@id="login"]');
+  await expect(login).toBeVisible();
+  await login.click();
+});</code></pre></div>
+
+      <h3>Example 2 &mdash; Real-World Usage</h3>
+      <p>A login flow using text and attribute XPath, with assertions on the outcome.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('user can log in (XPath locators)', async ({ page }) =&gt; {
+  await page.goto('https://demo.example.com/login');
+
+  await page.locator('xpath=//input[@type="email"]').fill('qa@example.com');
+  await page.locator('xpath=//input[@name="password"]').fill('secret123');
+  await page.locator('xpath=//button[normalize-space()="Log in"]').click();
+
+  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page.locator('xpath=//h1[contains(., "Welcome")]')).toBeVisible();
+});</code></pre></div>
+
+      <h3>Example 3 &mdash; Multiple Functions</h3>
+      <p>Combining <code class="inline">contains()</code>, <code class="inline">starts-with()</code>, <code class="inline">normalize-space()</code>, predicates, and axes in one search.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('filter the order table', async ({ page }) =&gt; {
+  await page.goto('/orders');
+
+  // Rows whose status cell contains "shipped" and whose id starts with "ORD-"
+  const shipped = page.locator(
+    'xpath=//tr[starts-with(@id,"ORD-") and contains(@data-status,"shipped")]'
+  );
+  await expect(shipped).toHaveCount(3);
+
+  // The action button in the row labelled "Ada"
+  await page.locator(
+    'xpath=//td[normalize-space()="Ada"]/parent::tr//button[text()="View"]'
+  ).click();
+
+  await expect(page.locator('xpath=//h2[contains(text(),"Order details")]')).toBeVisible();
+});</code></pre></div>
+
+      <h3>Example 4 &mdash; Negative Scenario</h3>
+      <p>An XPath that looks correct but matches nothing, with the reason why.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('this XPath fails on purpose', async ({ page }) =&gt; {
+  await page.goto('https://example.com');
+
+  // Markup is: &lt;button&gt; Submit &lt;/button&gt;  (note the surrounding spaces)
+  await expect(page.locator('xpath=//button[text()="Submit"]')).toBeVisible();
+});</code></pre></div>
+      <p><strong>Why it fails:</strong> <code class="inline">text()="Submit"</code> requires an exact match including whitespace, but the text node is <code class="inline">" Submit "</code>. The assertion retries until the timeout and then fails with a "waiting for locator" message. Fix it with <code class="inline">//button[normalize-space()="Submit"]</code> or <code class="inline">//button[contains(., "Submit")]</code>.</p>
+
+      <h3>Example 5 &mdash; Advanced Usage</h3>
+      <p>Chained and scoped XPath, positional predicates, global indexing, and a polled assertion.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('advanced XPath techniques', async ({ page }) =&gt; {
+  await page.goto('/catalogue');
+
+  const firstCard = page.locator('xpath=(//div[@class="card"])[1]');
+
+  // Chain: keep the XPath relative to the card
+  await expect(firstCard.locator('xpath=.//h3')).toContainText('Laptop');
+  await firstCard.locator('xpath=.//button[@data-action="add"]').click();
+
+  // Positional range within one container
+  await expect(page.locator('xpath=//ul[@id="cart"]/li[position() &lt;= 3]')).toHaveCount(3);
+
+  // Last row added to the cart
+  const lastRow = page.locator('xpath=//table[@id="cart"]//tr[last()]');
+  await expect(lastRow).toContainText('Laptop');
+
+  // Sibling navigation: the badge next to the "Cart" heading
+  const badge = page.locator('xpath=//h2[normalize-space()="Cart"]/following-sibling::span[1]');
+  await expect(badge).toBeVisible();
+
+  // Poll a non-locator value
+  await expect.poll(async () =&gt; await page.locator('xpath=//ul[@id="cart"]/li').count())
+    .toBe(1);
+});</code></pre></div>
+    </section>
+
+    <!-- 8. BEFORE AFTER -->
+    <section class="doc" id="beforeafter" data-searchable>
+      <h2><span class="num">08</span>Before vs After</h2>
+      <p>Playwright removed the old <code class="inline">page.$x()</code> API in favour of XPath locators. This is a genuine migration every XPath-based suite faces.</p>
+
+      <h3>Without locators (deprecated <code class="inline">page.$x()</code>)</h3>
+      <div class="code"><pre><code>// Old approach: returns ElementHandles, no auto-waiting, no assertions
+import { test, expect } from '@playwright/test';
+
+test('old style', async ({ page }) =&gt; {
+  await page.goto('/inbox');
+
+  const [handle] = await page.$x('//button[text()="Compose"]');
+  await handle.click();
+
+  const body = await page.$x('//div[@class="status"]');
+  expect(await body[0].textContent()).toBe('Ready'); // no retry: flaky
+});</code></pre></div>
+
+      <h3>With XPath locators (current API)</h3>
+      <div class="code"><pre><code>// Modern approach: auto-waiting locator + retrying assertion
+import { test, expect } from '@playwright/test';
+
+test('new style', async ({ page }) =&gt; {
+  await page.goto('/inbox');
+
+  await page.locator('xpath=//button[normalize-space()="Compose"]').click();
+
+  await expect(page.locator('xpath=//div[@class="status"]')).toHaveText('Ready');
+});</code></pre></div>
+
+      <h3>Why the "after" version is better</h3>
+      <ul>
+        <li><strong>Auto-waiting</strong> &mdash; the locator waits for the element to be actionable; the old handle was resolved once and could go stale.</li>
+        <li><strong>Retrying assertions</strong> &mdash; <code class="inline">toHaveText()</code> retries; reading <code class="inline">textContent()</code> once does not.</li>
+        <li><strong>Strict mode</strong> &mdash; an ambiguous XPath fails loudly instead of silently using the first match.</li>
+        <li><strong>Uniform API</strong> &mdash; XPath locators compose with <code class="inline">.first()</code>, <code class="inline">.filter()</code>, chaining, and every Playwright action.</li>
+      </ul>
+
+      <h3>Reference: CSS vs XPath for the same element</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Goal</th><th>CSS / Playwright</th><th>XPath</th></tr></thead>
+          <tbody>
+            <tr><td>By id</td><td><code>#login</code></td><td><code>//button[@id="login"]</code></td></tr>
+            <tr><td>By class</td><td><code>.card-title</code></td><td><code>//h3[contains(@class,"card-title")]</code></td></tr>
+            <tr><td>By text</td><td><code>getByText('Submit')</code></td><td><code>//button[normalize-space()="Submit"]</code></td></tr>
+            <tr><td>Parent</td><td>not directly supported</td><td><code>//td[text()="Ada"]/..</code></td></tr>
+            <tr><td>Next sibling</td><td><code>+</code> combinator (forward only)</td><td><code>//h2/following-sibling::p[1]</code></td></tr>
+            <tr><td>Nth match</td><td><code>locator('li').nth(2)</code></td><td><code>(//li)[3]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9. MISTAKES -->
+    <section class="doc" id="mistakes" data-searchable>
+      <h2><span class="num">09</span>Common Mistakes</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mistake</th><th>Why It Happens</th><th>Incorrect Example</th><th>Correct Example</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Using an absolute path</td>
+              <td>Copied from browser tools, which generate full paths.</td>
+              <td><code>/html/body/div[3]/div[2]/button</code></td>
+              <td><code>//button[@id="save"]</code></td>
+            </tr>
+            <tr>
+              <td>Exact <code>text()</code> with whitespace</td>
+              <td>Indented markup produces text nodes with spaces.</td>
+              <td><code>//button[text()="Submit"]</code></td>
+              <td><code>//button[normalize-space()="Submit"]</code></td>
+            </tr>
+            <tr>
+              <td>Using <code>text()</code> when the label is nested</td>
+              <td><code>text()</code> matches only direct text children.</td>
+              <td><code>//button[text()="Save"]</code> on <code>&lt;button&gt;&lt;b&gt;Save&lt;/b&gt;&lt;/button&gt;</code></td>
+              <td><code>//button[contains(.,"Save")]</code></td>
+            </tr>
+            <tr>
+              <td>Substring collision in <code>contains(@class)</code></td>
+              <td><code>contains</code> is a raw substring test.</td>
+              <td><code>//div[contains(@class,"card")]</code> also matches <code>card-header</code></td>
+              <td><code>//div[contains(concat(" ",normalize-space(@class)," ")," card ")]</code></td>
+            </tr>
+            <tr>
+              <td>Ignoring strict mode</td>
+              <td>An XPath matching many elements errors on action.</td>
+              <td><code>page.locator('//button').click()</code></td>
+              <td><code>page.locator('//button[@type="submit"]')</code></td>
+            </tr>
+            <tr>
+              <td>Wrong index placement</td>
+              <td>Confusing per-parent and global indexing.</td>
+              <td><code>//ul/li[2]</code> expecting the 2nd item overall</td>
+              <td><code>(//ul/li)[2]</code></td>
+            </tr>
+            <tr>
+              <td>Forgetting <code>@</code> for attributes</td>
+              <td>Mixing element names with attribute names.</td>
+              <td><code>//input[type="text"]</code></td>
+              <td><code>//input[@type="text"]</code></td>
+            </tr>
+            <tr>
+              <td>Using XPath 2.0 functions</td>
+              <td>Assumed from other tools; browsers only support 1.0.</td>
+              <td><code>//*[ends-with(@id,"-x")]</code></td>
+              <td><code>//*[substring(@id, string-length(@id)-1)="-x"]</code></td>
+            </tr>
+            <tr>
+              <td>Absolute vs relative in a chain</td>
+              <td>Starting a chained XPath with <code>//</code> escapes the parent scope.</td>
+              <td><code>card.locator('xpath=//span')</code></td>
+              <td><code>card.locator('xpath=.//span')</code></td>
+            </tr>
+            <tr>
+              <td>Expecting XPath to cross shadow DOM</td>
+              <td>The XPath engine stops at shadow boundaries.</td>
+              <td><code>locator('xpath=//my-widget//button')</code></td>
+              <td>Use <code>getByRole</code> / CSS, which pierce open shadow roots</td>
+            </tr>
+            <tr>
+              <td>Mixing quotes badly</td>
+              <td>Attribute values containing the quote character.</td>
+              <td><code>//a[@title="He said "hi""]</code></td>
+              <td><code>//a[contains(@title, "hi")]</code> or use single quotes</td>
+            </tr>
+            <tr>
+              <td>Still using <code>page.$x()</code></td>
+              <td>Found in older tutorials; API removed.</td>
+              <td><code>const [el] = await page.$x('//button')</code></td>
+              <td><code>page.locator('xpath=//button')</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 10. BEST PRACTICES -->
+    <section class="doc" id="bestpractices" data-searchable>
+      <h2><span class="num">10</span>Best Practices</h2>
+      <ol>
+        <li><strong>Prefer user-facing locators first.</strong> Use <code class="inline">getByRole</code> / <code class="inline">getByLabel</code> / <code class="inline">getByTestId</code> before reaching for XPath.</li>
+        <li><strong>Always use relative paths.</strong> Start with <code class="inline">//</code> or <code class="inline">.//</code>, never <code class="inline">/html/body/...</code>.</li>
+        <li><strong>Anchor on a stable attribute or a test id.</strong> <code class="inline">[@data-testid="x"]</code> beats structural position.</li>
+        <li><strong>Prefer <code class="inline">normalize-space()</code> for text.</strong> It absorbs the whitespace that templates introduce.</li>
+        <li><strong>Match a distinctive substring, not full sentences.</strong> <code class="inline">contains(., "shipped")</code> survives copy changes.</li>
+        <li><strong>Avoid positional predicates when a unique attribute exists.</strong> Positions shift when rows are added or removed.</li>
+        <li><strong>Keep expressions short.</strong> A long XPath is a brittle locator that will be hard to debug.</li>
+        <li><strong>Scope chained XPath with <code class="inline">.//</code>.</strong> It keeps the search inside the parent element.</li>
+        <li><strong>Aim for exactly one match.</strong> Respect strict mode rather than papering over it with <code class="inline">.first()</code>.</li>
+        <li><strong>Remember XPath 1.0 only.</strong> Do not use 2.0 functions in a browser context.</li>
+        <li><strong>Do not use XPath to cross shadow DOM.</strong> Switch to CSS or role-based locators there.</li>
+        <li><strong>Keep XPath out of page objects' internals where possible.</strong> Isolate fragile expressions in one place so they are easy to update.</li>
+      </ol>
+    </section>
+
+    <!-- 11. INTERVIEW -->
+    <section class="doc" id="interview" data-searchable>
+      <h2><span class="num">11</span>Interview Questions</h2>
+
+      <h3>Beginner Questions</h3>
+      <div class="qa">
+        <div class="q">1. What is XPath and how does Playwright evaluate it?</div>
+        <div class="a">XPath is a W3C language for selecting nodes in an XML/HTML document. Playwright passes the expression to the browser, which evaluates it with <code class="inline">document.evaluate()</code>, and returns a locator.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2. How do you use an XPath in a Playwright locator?</div>
+        <div class="a">Pass it to <code class="inline">locator()</code>: <code class="inline">page.locator('xpath=//button[@id="login"]')</code>. Expressions beginning with <code class="inline">//</code> or <code class="inline">..</code> are auto-detected as XPath.</div>
+      </div>
+      <div class="qa">
+        <div class="q">3. What is the difference between <code class="inline">/</code> and <code class="inline">//</code>?</div>
+        <div class="a">A single <code class="inline">/</code> starts at the document root (absolute). <code class="inline">//</code> searches any descendant of the current context (relative), which is far more resilient.</div>
+      </div>
+      <div class="qa">
+        <div class="q">4. How do you find an element by its text?</div>
+        <div class="a"><code class="inline">//button[text()="Submit"]</code> for an exact match, or <code class="inline">//button[normalize-space()="Submit"]</code> to ignore surrounding whitespace.</div>
+      </div>
+      <div class="qa">
+        <div class="q">5. What does <code class="inline">@</code> mean in XPath?</div>
+        <div class="a">It is shorthand for the attribute axis, so <code class="inline">[@id="x"]</code> tests the <code class="inline">id</code> attribute of the current node.</div>
+      </div>
+
+      <h3>Intermediate Questions</h3>
+      <div class="qa">
+        <div class="q">1. Why does <code class="inline">//button[text()="Submit"]</code> fail when the button clearly says Submit?</div>
+        <div class="a">Very often the text node has leading or trailing whitespace, or the label is wrapped in a child element so it is not a direct text child. Use <code class="inline">normalize-space()</code> or <code class="inline">contains(., "Submit")</code>.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2. What is the difference between <code class="inline">//ul/li[2]</code> and <code class="inline">(//ul/li)[2]</code>?</div>
+        <div class="a">The first selects the 2nd <code class="inline">li</code> within each <code class="inline">ul</code>. The second selects the 2nd <code class="inline">li</code> across the whole document, because parentheses turn the whole set into the context.</div>
+      </div>
+      <div class="qa">
+        <div class="q">3. How do you select the parent of an element in XPath, and why can't CSS do it?</div>
+        <div class="a">With the parent axis: <code class="inline">//td[text()="Ada"]/..</code>. CSS selectors match downward only, so they have no general parent selector; XPath can traverse any axis.</div>
+      </div>
+      <div class="qa">
+        <div class="q">4. Which XPath version do browsers support, and what does that restrict?</div>
+        <div class="a">XPath 1.0 only. Functions from 2.0 such as <code class="inline">matches()</code>, <code class="inline">ends-with()</code>, and <code class="inline">lower-case()</code> are unavailable; use <code class="inline">contains()</code>, <code class="inline">translate()</code>, and <code class="inline">substring()</code> workarounds.</div>
+      </div>
+      <div class="qa">
+        <div class="q">5. How does Playwright's strict mode affect XPath locators?</div>
+        <div class="a">If an XPath resolves to more than one element, actions and assertions throw a strict-mode violation. You must narrow the expression or resolve it explicitly with <code class="inline">.first()</code> / <code class="inline">.nth()</code>.</div>
+      </div>
+
+      <h3>Advanced Questions</h3>
+      <div class="qa">
+        <div class="q">1. How do you match a class token exactly with <code class="inline">contains(@class)</code>?</div>
+        <div class="a">Pad the attribute with spaces so the token cannot match as a substring: <code class="inline">contains(concat(" ", normalize-space(@class), " "), " card ")</code>.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2. Why should a chained XPath start with <code class="inline">.//</code> rather than <code class="inline">//</code>?</div>
+        <div class="a">Because <code class="inline">//</code> restarts the search from the document root, escaping the parent locator's scope. <code class="inline">.//</code> keeps it relative to the element the chained locator resolves to.</div>
+      </div>
+      <div class="qa">
+        <div class="q">3. Why can XPath not locate elements inside a shadow root, and what do you use instead?</div>
+        <div class="a">XPath is evaluated against a document's node tree, and shadow roots are separate trees that <code class="inline">document.evaluate()</code> traversal does not cross by default. Playwright's CSS engine pierces open shadow roots, and role/text locators work too &mdash; use those.</div>
+      </div>
+      <div class="qa">
+        <div class="q">4. How would you migrate a suite that uses <code class="inline">page.$x()</code> to modern Playwright?</div>
+        <div class="a">Replace each <code class="inline">page.$x(expr)</code> with <code class="inline">page.locator('xpath=' + expr)</code>, drop the array-destructuring pattern, and use locator actions plus <code class="inline">expect</code> assertions so auto-waiting and retrying apply.</div>
+      </div>
+      <div class="qa">
+        <div class="q">5. When is XPath the right choice over CSS or role-based locators?</div>
+        <div class="a">When you must locate by exact text, need upward or sibling traversal that CSS cannot express, or are maintaining an existing XPath suite. Otherwise role/test-id locators are preferred for stability and readability.</div>
+      </div>
+    </section>
+
+    <!-- 12. CHEAT SHEET -->
+    <section class="doc" id="cheatsheet" data-searchable>
+      <h2><span class="num">12</span>Quick Reference / Cheat Sheet</h2>
+
+      <h3>Path &amp; attributes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Expression / Syntax</th></tr></thead>
+          <tbody>
+            <tr><td>Any tag, anywhere</td><td><code>//button</code></td></tr>
+            <tr><td>Any element</td><td><code>//*</code></td></tr>
+            <tr><td>By id</td><td><code>//*[@id="login"]</code></td></tr>
+            <tr><td>By attribute</td><td><code>//input[@name="email"]</code></td></tr>
+            <tr><td>Attribute exists</td><td><code>//input[@required]</code></td></tr>
+            <tr><td>Attribute absent</td><td><code>//input[not(@disabled)]</code></td></tr>
+            <tr><td>Class token</td><td><code>//div[contains(@class,"card")]</code></td></tr>
+            <tr><td>Exact class token</td><td><code>//div[contains(concat(" ",normalize-space(@class)," ")," card ")]</code></td></tr>
+            <tr><td>Id prefix</td><td><code>//input[starts-with(@id,"user-")]</code></td></tr>
+            <tr><td>Attr ends with (1.0)</td><td><code>//*[substring(@id,string-length(@id)-3)="-btn"]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Text &amp; position</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Expression / Syntax</th></tr></thead>
+          <tbody>
+            <tr><td>Exact text</td><td><code>//button[text()="Submit"]</code></td></tr>
+            <tr><td>Trimmed text</td><td><code>//button[normalize-space()="Submit"]</code></td></tr>
+            <tr><td>Text anywhere inside</td><td><code>//button[contains(., "Submit")]</code></td></tr>
+            <tr><td>Nth (per parent)</td><td><code>//ul/li[2]</code></td></tr>
+            <tr><td>Nth (global)</td><td><code>(//ul/li)[2]</code></td></tr>
+            <tr><td>Last child</td><td><code>//li[last()]</code></td></tr>
+            <tr><td>First three</td><td><code>//li[position() &lt;= 3]</code></td></tr>
+            <tr><td>Even rows</td><td><code>//tr[position() mod 2 = 0]</code></td></tr>
+            <tr><td>Case-insensitive text</td><td>Compare <code>translate(text(),"ABC","abc")</code> to <code>"submit"</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Axes &amp; Playwright usage</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Expression / Syntax</th></tr></thead>
+          <tbody>
+            <tr><td>Parent</td><td><code>//td[text()="Ada"]/..</code></td></tr>
+            <tr><td>Ancestor</td><td><code>//span/ancestor::section</code></td></tr>
+            <tr><td>Next sibling</td><td><code>//h2/following-sibling::p[1]</code></td></tr>
+            <tr><td>Previous sibling</td><td><code>//p/preceding-sibling::h2[1]</code></td></tr>
+            <tr><td>Child step</td><td><code>//ul/li</code></td></tr>
+            <tr><td>Playwright locator</td><td><code>page.locator('xpath=//h1')</code></td></tr>
+            <tr><td>Auto-detected</td><td><code>page.locator('//h1')</code></td></tr>
+            <tr><td>Scoped chain</td><td><code>card.locator('xpath=.//a')</code></td></tr>
+            <tr><td>Assert count</td><td><code>await expect(loc).toHaveCount(3)</code></td></tr>
+            <tr><td>Assert text</td><td><code>await expect(loc).toHaveText('Ada')</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 13. RELATED -->
+    <section class="doc" id="related" data-searchable>
+      <h2><span class="num">13</span>Related Topics</h2>
+      <ul>
+        <li><strong>Locators</strong> &mdash; the Playwright abstraction that wraps every selector engine, including XPath.</li>
+        <li><strong>getByRole / getByLabel / getByTestId</strong> &mdash; the recommended user-facing locators that often replace XPath.</li>
+        <li><strong>CSS selectors</strong> &mdash; the faster, downward-only alternative for attribute and class matching.</li>
+        <li><strong>Strict mode</strong> &mdash; why an XPath matching several elements fails, and how to resolve it.</li>
+        <li><strong>Auto-waiting</strong> &mdash; the actionability checks that make XPath locators reliable.</li>
+        <li><strong>Shadow DOM</strong> &mdash; why XPath stops at shadow boundaries and CSS does not.</li>
+        <li><strong>Assertions (<code class="inline">expect</code>)</strong> &mdash; what you do with a locator once it is found.</li>
+        <li><strong>DOM traversal</strong> &mdash; understanding nodes, parents, siblings, and attributes.</li>
+      </ul>
+    </section>
+
+    <!-- 14. TAKEAWAYS -->
+    <section class="doc" id="takeaways" data-searchable>
+      <h2><span class="num">14</span>Key Takeaways</h2>
+      <ul>
+        <li>XPath is a node-selection language evaluated by the browser's XPath 1.0 engine; in Playwright you use it through <code class="inline">locator('xpath=...')</code>.</li>
+        <li>Use relative paths (<code class="inline">//</code>, <code class="inline">.//</code>) and anchor on stable attributes or test ids &mdash; never absolute <code class="inline">/html/body</code> paths.</li>
+        <li><code class="inline">text()</code> is exact and only matches direct text children; reach for <code class="inline">normalize-space()</code> and <code class="inline">contains(., ...)</code> for real-world text.</li>
+        <li>XPath's advantage over CSS is traversal &mdash; parents, ancestors, and siblings &mdash; and text-based matching.</li>
+        <li>Browsers only support XPath 1.0: no <code class="inline">matches()</code>, <code class="inline">ends-with()</code>, or <code class="inline">lower-case()</code>.</li>
+        <li>Playwright's strict mode applies to XPath: an expression matching multiple elements is an error, not a first-match shortcut.</li>
+        <li><code class="inline">page.$x()</code> is gone &mdash; migrate to locators so you get auto-waiting, retrying assertions, and chaining.</li>
+        <li>XPath cannot pierce shadow DOM; use CSS or role-based locators there, and prefer user-facing locators generally.</li>
+      </ul>
+    </section>
+
+    <footer class="doc-footer">
+      Playwright XPath Reference &middot; JavaScript &middot; Self-contained help page &middot; Verify behaviour against the official Playwright documentation for your installed version.
+    </footer>
+  </main>
+</div>
+
+<button id="toTop" aria-label="Back to top">&#8593;</button>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Copy-to-clipboard buttons ---------- */
+  document.querySelectorAll('.code').forEach(function (block) {
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var text = pre.innerText;
+      var done = function () {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+    block.appendChild(btn);
+  });
+
+  function fallbackCopy(text, done) {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'absolute';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+    document.body.removeChild(area);
+    done();
+  }
+
+  /* ---------- Expand / collapse all function entries ---------- */
+  var allDetails = document.querySelectorAll('details.fn');
+  var expandAll = document.getElementById('expandAll');
+  var collapseAll = document.getElementById('collapseAll');
+  if (expandAll) {
+    expandAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = true; });
+    });
+  }
+  if (collapseAll) {
+    collapseAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = false; });
+    });
+  }
+
+  /* ---------- Client-side search ---------- */
+  var search = document.getElementById('search');
+  var counter = document.getElementById('resultCount');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('[data-searchable]'));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+
+  var noResults = document.createElement('div');
+  noResults.className = 'no-results';
+  noResults.hidden = true;
+  noResults.textContent = 'No matching sections found. Try a different keyword.';
+  var firstSection = sections[0];
+  if (firstSection && firstSection.parentNode) {
+    firstSection.parentNode.insertBefore(noResults, firstSection);
+  }
+
+  function runSearch(rawQuery) {
+    var query = rawQuery.trim().toLowerCase();
+    var matches = 0;
+
+    sections.forEach(function (section) {
+      var haystack = (section.textContent || '').toLowerCase();
+      var hit = query === '' || haystack.indexOf(query) !== -1;
+      section.classList.toggle('search-hidden', !hit);
+      if (hit) { matches++; }
+    });
+
+    navLinks.forEach(function (link) {
+      var target = document.querySelector(link.getAttribute('href'));
+      var hidden = target && target.classList.contains('search-hidden');
+      link.classList.toggle('nav-dim', !!hidden);
+    });
+
+    if (query === '') {
+      counter.textContent = '';
+      noResults.hidden = true;
+    } else {
+      counter.textContent = matches + (matches === 1 ? ' section matches' : ' sections match');
+      noResults.hidden = matches !== 0;
+    }
+  }
+
+  if (search) {
+    search.addEventListener('input', function () { runSearch(search.value); });
+    search.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        search.value = '';
+        runSearch('');
+      }
+    });
+  }
+
+  /* ---------- Back-to-top button ---------- */
+  var toTop = document.getElementById('toTop');
+  function onScroll() {
+    if (window.scrollY > 400) {
+      toTop.classList.add('show');
+    } else {
+      toTop.classList.remove('show');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ---------- Mobile menu toggle ---------- */
+  var menuToggle = document.getElementById('menuToggle');
+  var sidebar = document.getElementById('sidebar');
+  if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', function () {
+      var open = sidebar.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', String(open));
+    });
+    sidebar.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && window.innerWidth <= 980) {
+        sidebar.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

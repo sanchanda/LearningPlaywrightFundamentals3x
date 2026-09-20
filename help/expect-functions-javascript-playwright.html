@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>expect Functions in JavaScript / Playwright — Help Reference</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface-alt: #eef2f7;
+    --border: #d9e0ea;
+    --text: #1c2533;
+    --text-muted: #5b6779;
+    --primary: #0b6bcb;
+    --primary-dark: #084f96;
+    --accent: #7c3aed;
+    --code-bg: #101826;
+    --code-text: #e6edf6;
+    --tip-bg: #e8f6ee;
+    --tip-border: #34a853;
+    --warn-bg: #fdf3e3;
+    --warn-border: #e08a00;
+    --note-bg: #e8f1fd;
+    --note-border: #0b6bcb;
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 6px 18px rgba(16, 24, 40, 0.06);
+    --radius: 10px;
+    --sidebar-w: 280px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+
+  code, pre, kbd {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+  }
+
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    max-width: 1500px;
+    margin: 0 auto;
+    gap: 0;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 22px 18px 40px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.02rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .brand .logo {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 0.85rem;
+  }
+  .brand small {
+    display: block;
+    font-weight: 500;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+  }
+
+  .search-wrap { margin: 16px 0 8px; }
+  .search-wrap label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  #search {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--surface-alt);
+    color: var(--text);
+  }
+  #search:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(11, 107, 203, 0.15);
+  }
+  #resultCount {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-height: 16px;
+    margin-top: 6px;
+  }
+
+  .nav ul { list-style: none; margin: 10px 0 0; padding: 0; }
+  .nav li { margin: 1px 0; }
+  .nav a {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 7px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .nav a:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav a.nav-dim { opacity: 0.32; }
+  .nav .group {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #8b96a8;
+    margin: 16px 0 4px 12px;
+    font-weight: 700;
+  }
+
+  /* ---------- Main ---------- */
+  main { padding: 30px 40px 100px; min-width: 0; }
+
+  .page-header {
+    background: linear-gradient(135deg, #0b6bcb, #7c3aed);
+    color: #fff;
+    border-radius: 14px;
+    padding: 30px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+  }
+  .page-header .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.72rem;
+    opacity: 0.9;
+    font-weight: 600;
+  }
+  .page-header h1 { margin: 8px 0 10px; font-size: 2rem; line-height: 1.2; }
+  .page-header p { margin: 0; opacity: 0.94; max-width: 70ch; }
+  .badges { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  section.doc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 26px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+    scroll-margin-top: 16px;
+  }
+  section.doc.search-hidden { display: none; }
+
+  h2 {
+    font-size: 1.4rem;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--surface-alt);
+    color: var(--text);
+  }
+  h2 .num {
+    display: inline-block;
+    background: var(--surface-alt);
+    color: var(--primary);
+    font-size: 0.8rem;
+    padding: 2px 9px;
+    border-radius: 6px;
+    margin-right: 10px;
+    vertical-align: middle;
+    font-weight: 700;
+  }
+  h3 { font-size: 1.12rem; margin: 22px 0 10px; color: var(--primary-dark); }
+  h4 { font-size: 0.98rem; margin: 16px 0 6px; color: var(--text); }
+  p { margin: 10px 0; }
+  ul, ol { margin: 10px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+
+  .lead { font-size: 1.02rem; color: var(--text-muted); }
+
+  /* ---------- Code ---------- */
+  .code { position: relative; margin: 14px 0; }
+  .code pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 18px;
+    border-radius: 9px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    margin: 0;
+    tab-size: 2;
+  }
+  .code code { color: inherit; }
+  .copy-btn {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    background: rgba(255,255,255,0.12);
+    color: #dce6f5;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.24); }
+  .copy-btn.copied { background: #34a853; border-color: #34a853; color: #fff; }
+
+  code.inline {
+    background: var(--surface-alt);
+    color: #b4245a;
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Tables ---------- */
+  .table-wrap { overflow-x: auto; margin: 14px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+    min-width: 640px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--surface-alt);
+    font-weight: 700;
+    color: var(--text);
+    position: sticky;
+    top: 0;
+  }
+  tbody tr:nth-child(even) { background: #fafbfd; }
+  td code, th code {
+    background: #eef2f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #b4245a;
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Callouts ---------- */
+  .callout {
+    border-left: 4px solid;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  .callout .title { font-weight: 700; display: block; margin-bottom: 3px; }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.note { background: var(--note-bg); border-color: var(--note-border); }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .card {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px 16px;
+  }
+  .card h4 { margin: 0 0 6px; color: var(--primary-dark); }
+  .card p { margin: 0; font-size: 0.88rem; color: var(--text-muted); }
+
+  /* ---------- Function details ---------- */
+  details.fn {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    margin: 10px 0;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  details.fn > summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 0.94rem;
+    background: var(--surface-alt);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  details.fn > summary::-webkit-details-marker { display: none; }
+  details.fn > summary::after {
+    content: "+";
+    font-size: 1.15rem;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  details.fn[open] > summary::after { content: "\2013"; }
+  details.fn[open] > summary { border-bottom: 1px solid var(--border); }
+  .fn-body { padding: 6px 18px 18px; }
+  .fn-body dl { margin: 0; }
+  .fn-body dt {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-top: 14px;
+  }
+  .fn-body dd { margin: 4px 0 0; }
+
+  .controls { display: flex; gap: 8px; margin: 6px 0 14px; flex-wrap: wrap; }
+  .controls button {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 6px 13px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .controls button:hover { background: #e2e9f3; }
+
+  /* ---------- Q&A ---------- */
+  .qa { border-left: 3px solid var(--accent); padding: 2px 0 2px 16px; margin: 16px 0; }
+  .qa .q { font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .qa .a { color: var(--text-muted); font-size: 0.93rem; }
+
+  /* ---------- Misc ---------- */
+  .no-results {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: #7a4a00;
+    padding: 14px 18px;
+    border-radius: 9px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  [hidden] { display: none !important; }
+
+  #toTop {
+    position: fixed;
+    bottom: 26px;
+    right: 26px;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 50;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; }
+  #toTop:hover { transform: translateY(-3px); background: var(--primary-dark); }
+
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 60;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 13px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  footer.doc-footer {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    text-align: center;
+    padding: 10px 0 40px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 82%;
+      max-width: 320px;
+      height: 100vh;
+      z-index: 55;
+      transform: translateX(-102%);
+      transition: transform .25s ease;
+      box-shadow: var(--shadow);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: block; }
+    main { padding: 70px 18px 90px; }
+    .page-header { padding: 22px 20px; }
+    .page-header h1 { font-size: 1.5rem; }
+    section.doc { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">&#9776; Menu</button>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="logo">PW</span>
+      <span>Help Portal<small>Playwright &middot; JavaScript</small></span>
+    </div>
+
+    <div class="search-wrap">
+      <label for="search">Search this page</label>
+      <input id="search" type="search" placeholder="e.g. toBeVisible, expect.poll" autocomplete="off" />
+      <div id="resultCount" role="status" aria-live="polite"></div>
+    </div>
+
+    <nav class="nav" aria-label="Page sections">
+      <div class="group">Overview</div>
+      <ul>
+        <li><a href="#what">What Is It?</a></li>
+        <li><a href="#syntax">Syntax</a></li>
+        <li><a href="#which">Which expect Do I Use?</a></li>
+      </ul>
+      <div class="group">Reference</div>
+      <ul>
+        <li><a href="#reference">Function Reference</a></li>
+        <li><a href="#functions">Detailed Functions</a></li>
+      </ul>
+      <div class="group">Practice</div>
+      <ul>
+        <li><a href="#examples">Practical Examples</a></li>
+        <li><a href="#beforeafter">Before vs After</a></li>
+        <li><a href="#mistakes">Common Mistakes</a></li>
+        <li><a href="#bestpractices">Best Practices</a></li>
+      </ul>
+      <div class="group">Learn</div>
+      <ul>
+        <li><a href="#interview">Interview Questions</a></li>
+        <li><a href="#cheatsheet">Cheat Sheet</a></li>
+        <li><a href="#related">Related Topics</a></li>
+        <li><a href="#takeaways">Key Takeaways</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="page-header">
+      <div class="eyebrow">Assertion Reference</div>
+      <h1>expect Functions in JavaScript / Playwright</h1>
+      <p>Assertions used to verify expected conditions in Playwright tests &mdash; from auto-retrying web-first matchers to generic value checks.</p>
+      <div class="badges">
+        <span class="badge">@playwright/test</span>
+        <span class="badge">JavaScript</span>
+        <span class="badge">Auto-retrying</span>
+        <span class="badge">Beginner &rarr; Advanced</span>
+      </div>
+    </header>
+
+    <!-- 1. WHAT IS IT -->
+    <section class="doc" id="what" data-searchable>
+      <h2><span class="num">01</span>What Is It?</h2>
+      <p class="lead"><code class="inline">expect</code> is the assertion function exported by <code class="inline">@playwright/test</code>. It checks whether a value or a page element matches what you expect, and it fails the test when it does not.</p>
+
+      <p>Playwright's <code class="inline">expect</code> exists to solve two different problems:</p>
+      <ul>
+        <li><strong>Verifying application state</strong> &mdash; "is this button visible?", "does this heading contain 'Welcome'?", "did the URL change?"</li>
+        <li><strong>Verifying plain values</strong> &mdash; "is this array length 3?", "does this object equal that one?", "did this function throw?"</li>
+      </ul>
+
+      <h3>Why it exists</h3>
+      <p>Web UIs are asynchronous. Elements appear, disappear, and change after network calls. A traditional assertion that runs once would fail flakily if it checked a millisecond too early. Playwright's <strong>web-first assertions</strong> solve this by <em>auto-retrying</em> the check until it passes or a timeout is reached.</p>
+
+      <h3>What problem it solves</h3>
+      <ul>
+        <li><strong>Flaky tests</strong> &mdash; constant retrying removes the need for manual <code class="inline">sleep</code> calls.</li>
+        <li><strong>Readable tests</strong> &mdash; <code class="inline">await expect(page.getByRole('button')).toBeVisible()</code> reads like plain English.</li>
+        <li><strong>Clear failures</strong> &mdash; when an assertion fails, Playwright prints the expected value, the actual value, and (for locators) the element it looked at.</li>
+      </ul>
+
+      <h3>Where it is commonly used</h3>
+      <ul>
+        <li>End-to-end UI tests written with the Playwright Test runner.</li>
+        <li>Component tests via Playwright's experimental component testing.</li>
+        <li>API tests, using the built-in <code class="inline">request</code> fixture and <code class="inline">toBeOK()</code>.</li>
+      </ul>
+
+      <h3>When a tester should use it</h3>
+      <p>Use <code class="inline">expect</code> whenever you state a claim about the application. If a step in your test is "the page should show X", that statement belongs in an <code class="inline">expect</code>. Verification steps are the whole point of an automated test &mdash; without assertions, a test only proves that no exception was thrown.</p>
+
+      <div class="callout note">
+        <span class="title">Two kinds of expect</span>
+        Playwright's <code class="inline">expect</code> combines the generic matchers from the Jest <code class="inline">expect</code> library (no retry) with Playwright's own web-first matchers (auto-retry). Knowing which is which is the single most important concept on this page.
+      </div>
+    </section>
+
+    <!-- 2. SYNTAX -->
+    <section class="doc" id="syntax" data-searchable>
+      <h2><span class="num">02</span>Syntax</h2>
+
+      <h3>Basic form</h3>
+      <div class="code"><pre><code>await expect(locator).toBeVisible();</code></pre></div>
+
+      <p>Broken down:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Token</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>expect</code></td><td>The assertion entry point, imported from <code>@playwright/test</code>.</td></tr>
+            <tr><td><code>(locator)</code></td><td>The thing being checked. Can be a <em>Locator</em>, a <em>Page</em>, an <em>APIResponse</em>, or any plain value.</td></tr>
+            <tr><td><code>.toBeVisible()</code></td><td>The matcher. It defines what condition must be true.</td></tr>
+            <tr><td><code>await</code></td><td>Required for every web-first matcher. Web-first matchers return a Promise because they retry asynchronously.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="title">Forgetting await</span>
+        If you omit <code class="inline">await</code> on a web-first matcher, the test may pass without ever checking anything (an unawaited promise). Generic matchers like <code class="inline">toBe</code> are synchronous and do <em>not</em> take <code class="inline">await</code>.
+      </div>
+
+      <h3>Syntax variants</h3>
+      <div class="code"><pre><code>// 1. Web-first assertion on a locator (auto-retrying, needs await)
+await expect(page.getByRole('button', { name: 'Submit' })).toBeEnabled();
+
+// 2. Generic assertion on a plain value (synchronous, no await)
+expect(items.length).toBe(3);
+
+// 3. Negated assertion
+await expect(page.getByTestId('spinner')).not.toBeVisible();
+
+// 4. Soft assertion (does not stop the test on failure)
+await expect.soft(page.getByText('Hello')).toBeVisible();
+
+// 5. Polled assertion (retries an arbitrary async value)
+await expect.poll(async () =&gt; await page.locator('.row').count()).toBeGreaterThan(5);
+
+// 6. Custom timeout for one assertion
+await expect(page.getByText('Saved')).toBeVisible({ timeout: 10_000 });</code></pre></div>
+
+      <h3>Importing</h3>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';</code></pre></div>
+      <p>In a JavaScript Playwright project, <code class="inline">test</code> and <code class="inline">expect</code> come from the same package. There is no separate import for assertions.</p>
+    </section>
+
+    <!-- 3. WHICH EXPECT -->
+    <section class="doc" id="which" data-searchable>
+      <h2><span class="num">03</span>Which expect Do I Use?</h2>
+      <p>Before memorising matchers, decide which of the three families applies. This choice determines whether you get auto-retrying behaviour.</p>
+
+      <div class="cards">
+        <div class="card">
+          <h4>Locator / Page / APIResponse</h4>
+          <p>Auto-retrying <strong>web-first</strong> assertions. Always <code class="inline">await</code>. Retry until timeout.</p>
+        </div>
+        <div class="card">
+          <h4>Plain JavaScript value</h4>
+          <p>Synchronous <strong>generic</strong> assertions. No retry, no await. Fail immediately.</p>
+        </div>
+        <div class="card">
+          <h4>Any async value</h4>
+          <p>Wrap in <code class="inline">expect.poll()</code> to gain retrying behaviour around a custom expression.</p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>You have&hellip;</th><th>Use</th><th>Retries?</th><th>Await?</th></tr></thead>
+          <tbody>
+            <tr><td>A <code>Locator</code></td><td><code>expect(locator).toBeVisible()</code></td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>A <code>Page</code></td><td><code>expect(page).toHaveURL(...)</code></td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>An <code>APIResponse</code></td><td><code>expect(response).toBeOK()</code></td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>A string / number / array</td><td><code>expect(value).toEqual(...)</code></td><td>No</td><td>No</td></tr>
+            <tr><td>A custom async value</td><td><code>expect.poll(fn).toBe(...)</code></td><td>Yes</td><td>Yes</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. REFERENCE -->
+    <section class="doc" id="reference" data-searchable>
+      <h2><span class="num">04</span>Function / Method Reference</h2>
+      <p>Grouped by category. Web-first (auto-retrying) matchers are listed first because they are used most often in UI tests.</p>
+
+      <h3>Locator assertions (auto-retrying)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Matcher</th><th>Purpose</th><th>Syntax</th><th>Result</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>toBeVisible()</code></td><td>Element is visible</td><td><code>expect(loc).toBeVisible()</code></td><td>Pass/Fail</td><td><code>await expect(btn).toBeVisible()</code></td></tr>
+            <tr><td><code>toBeHidden()</code></td><td>Element is hidden or absent</td><td><code>expect(loc).toBeHidden()</code></td><td>Pass/Fail</td><td><code>await expect(spinner).toBeHidden()</code></td></tr>
+            <tr><td><code>toBeEnabled()</code></td><td>Element is not disabled</td><td><code>expect(loc).toBeEnabled()</code></td><td>Pass/Fail</td><td><code>await expect(btn).toBeEnabled()</code></td></tr>
+            <tr><td><code>toBeDisabled()</code></td><td>Element is disabled</td><td><code>expect(loc).toBeDisabled()</code></td><td>Pass/Fail</td><td><code>await expect(btn).toBeDisabled()</code></td></tr>
+            <tr><td><code>toBeEditable()</code></td><td>Element accepts input</td><td><code>expect(loc).toBeEditable()</code></td><td>Pass/Fail</td><td><code>await expect(input).toBeEditable()</code></td></tr>
+            <tr><td><code>toBeChecked()</code></td><td>Checkbox/radio is checked</td><td><code>expect(loc).toBeChecked()</code></td><td>Pass/Fail</td><td><code>await expect(box).toBeChecked()</code></td></tr>
+            <tr><td><code>toBeFocused()</code></td><td>Element has focus</td><td><code>expect(loc).toBeFocused()</code></td><td>Pass/Fail</td><td><code>await expect(input).toBeFocused()</code></td></tr>
+            <tr><td><code>toBeAttached()</code></td><td>Element exists in the DOM</td><td><code>expect(loc).toBeAttached()</code></td><td>Pass/Fail</td><td><code>await expect(el).toBeAttached()</code></td></tr>
+            <tr><td><code>toBeEmpty()</code></td><td>Input has no value / container has no text</td><td><code>expect(loc).toBeEmpty()</code></td><td>Pass/Fail</td><td><code>await expect(input).toBeEmpty()</code></td></tr>
+            <tr><td><code>toBeInViewport()</code></td><td>Element intersects the viewport</td><td><code>expect(loc).toBeInViewport([ratio])</code></td><td>Pass/Fail</td><td><code>await expect(el).toBeInViewport()</code></td></tr>
+            <tr><td><code>toHaveText()</code></td><td>Exact text (whitespace-normalised)</td><td><code>expect(loc).toHaveText(str|re|arr)</code></td><td>Pass/Fail</td><td><code>await expect(h1).toHaveText('Home')</code></td></tr>
+            <tr><td><code>toContainText()</code></td><td>Text contains substring</td><td><code>expect(loc).toContainText(str|re|arr)</code></td><td>Pass/Fail</td><td><code>await expect(p).toContainText('error')</code></td></tr>
+            <tr><td><code>toHaveValue()</code></td><td>Input/textarea/select value</td><td><code>expect(loc).toHaveValue(str|re)</code></td><td>Pass/Fail</td><td><code>await expect(email).toHaveValue('a@b.com')</code></td></tr>
+            <tr><td><code>toHaveValues()</code></td><td>Selected values of a multi-select</td><td><code>expect(loc).toHaveValues(arr)</code></td><td>Pass/Fail</td><td><code>await expect(sel).toHaveValues(['a','b'])</code></td></tr>
+            <tr><td><code>toHaveCount()</code></td><td>Number of matching elements</td><td><code>expect(loc).toHaveCount(n)</code></td><td>Pass/Fail</td><td><code>await expect(rows).toHaveCount(5)</code></td></tr>
+            <tr><td><code>toHaveAttribute()</code></td><td>Attribute exists or equals value</td><td><code>expect(loc).toHaveAttribute(name[, val])</code></td><td>Pass/Fail</td><td><code>await expect(a).toHaveAttribute('href', '/x')</code></td></tr>
+            <tr><td><code>toHaveClass()</code></td><td>Class attribute matches</td><td><code>expect(loc).toHaveClass(str|re|arr)</code></td><td>Pass/Fail</td><td><code>await expect(el).toHaveClass(/active/)</code></td></tr>
+            <tr><td><code>toContainClass()</code></td><td>Class attribute contains a class</td><td><code>expect(loc).toContainClass(str)</code></td><td>Pass/Fail</td><td><code>await expect(el).toContainClass('active')</code></td></tr>
+            <tr><td><code>toHaveId()</code></td><td>Element id matches</td><td><code>expect(loc).toHaveId(str|re)</code></td><td>Pass/Fail</td><td><code>await expect(el).toHaveId('main')</code></td></tr>
+            <tr><td><code>toHaveCSS()</code></td><td>Computed CSS property value</td><td><code>expect(loc).toHaveCSS(name, value)</code></td><td>Pass/Fail</td><td><code>await expect(el).toHaveCSS('display', 'none')</code></td></tr>
+            <tr><td><code>toHaveJSProperty()</code></td><td>DOM element JS property</td><td><code>expect(loc).toHaveJSProperty(name, value)</code></td><td>Pass/Fail</td><td><code>await expect(el).toHaveJSProperty('disabled', true)</code></td></tr>
+            <tr><td><code>toHaveRole()</code></td><td>ARIA role</td><td><code>expect(loc).toHaveRole(role)</code></td><td>Pass/Fail</td><td><code>await expect(el).toHaveRole('button')</code></td></tr>
+            <tr><td><code>toHaveAccessibleName()</code></td><td>Accessible name</td><td><code>expect(loc).toHaveAccessibleName(str|re)</code></td><td>Pass/Fail</td><td><code>await expect(btn).toHaveAccessibleName('Close')</code></td></tr>
+            <tr><td><code>toHaveAccessibleDescription()</code></td><td>Accessible description</td><td><code>expect(loc).toHaveAccessibleDescription(str|re)</code></td><td>Pass/Fail</td><td><code>await expect(btn).toHaveAccessibleDescription(/help/i)</code></td></tr>
+            <tr><td><code>toMatchAriaSnapshot()</code></td><td>ARIA structure snapshot</td><td><code>expect(loc).toMatchAriaSnapshot(yaml)</code></td><td>Pass/Fail</td><td><code>await expect(nav).toMatchAriaSnapshot(yml)</code></td></tr>
+            <tr><td><code>toHaveScreenshot()</code></td><td>Visual comparison of an element</td><td><code>expect(loc).toHaveScreenshot([name])</code></td><td>Pass/Fail</td><td><code>await expect(card).toHaveScreenshot()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Page assertions (auto-retrying)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Matcher</th><th>Purpose</th><th>Syntax</th><th>Result</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>toHaveURL()</code></td><td>Page URL matches</td><td><code>expect(page).toHaveURL(str|re)</code></td><td>Pass/Fail</td><td><code>await expect(page).toHaveURL(/dashboard/)</code></td></tr>
+            <tr><td><code>toHaveTitle()</code></td><td>Document title matches</td><td><code>expect(page).toHaveTitle(str|re)</code></td><td>Pass/Fail</td><td><code>await expect(page).toHaveTitle('Home')</code></td></tr>
+            <tr><td><code>toHaveScreenshot()</code></td><td>Full-page screenshot comparison</td><td><code>expect(page).toHaveScreenshot([name])</code></td><td>Pass/Fail</td><td><code>await expect(page).toHaveScreenshot()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>API response assertions (auto-retrying)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Matcher</th><th>Purpose</th><th>Syntax</th><th>Result</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>toBeOK()</code></td><td>Status is in the 200&ndash;299 range</td><td><code>expect(response).toBeOK()</code></td><td>Pass/Fail</td><td><code>await expect(resp).toBeOK()</code></td></tr>
+            <tr><td><code>toHaveProperty()</code></td><td>JSON body has a path/value (generic)</td><td><code>expect(body).toHaveProperty(path[, val])</code></td><td>Pass/Fail</td><td><code>expect(body).toHaveProperty('id', 1)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Generic value matchers (no retry, no await)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Matcher</th><th>Purpose</th><th>Syntax</th><th>Result</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>toBe()</code></td><td>Strict identity (<code>Object.is</code>)</td><td><code>expect(v).toBe(x)</code></td><td>Pass/Fail</td><td><code>expect(n).toBe(42)</code></td></tr>
+            <tr><td><code>toEqual()</code></td><td>Deep equality</td><td><code>expect(v).toEqual(x)</code></td><td>Pass/Fail</td><td><code>expect(obj).toEqual({a:1})</code></td></tr>
+            <tr><td><code>toStrictEqual()</code></td><td>Deep equality incl. type/undefined keys</td><td><code>expect(v).toStrictEqual(x)</code></td><td>Pass/Fail</td><td><code>expect(obj).toStrictEqual({a:1})</code></td></tr>
+            <tr><td><code>toContain()</code></td><td>Array/string contains an item</td><td><code>expect(v).toContain(x)</code></td><td>Pass/Fail</td><td><code>expect(list).toContain('a')</code></td></tr>
+            <tr><td><code>toHaveLength()</code></td><td>Length of a string/array</td><td><code>expect(v).toHaveLength(n)</code></td><td>Pass/Fail</td><td><code>expect(arr).toHaveLength(3)</code></td></tr>
+            <tr><td><code>toMatch()</code></td><td>String matches string/RegExp</td><td><code>expect(v).toMatch(str|re)</code></td><td>Pass/Fail</td><td><code>expect(s).toMatch(/^ab/)</code></td></tr>
+            <tr><td><code>toMatchObject()</code></td><td>Object partially matches</td><td><code>expect(v).toMatchObject(obj)</code></td><td>Pass/Fail</td><td><code>expect(u).toMatchObject({role:'admin'})</code></td></tr>
+            <tr><td><code>toHaveProperty()</code></td><td>Object has a path/value</td><td><code>expect(v).toHaveProperty(path[, val])</code></td><td>Pass/Fail</td><td><code>expect(o).toHaveProperty('a.b', 1)</code></td></tr>
+            <tr><td><code>toBeTruthy()/toBeFalsy()</code></td><td>Truthiness check</td><td><code>expect(v).toBeTruthy()</code></td><td>Pass/Fail</td><td><code>expect(flag).toBeTruthy()</code></td></tr>
+            <tr><td><code>toBeNull()/toBeUndefined()/toBeDefined()</code></td><td>Null-ish checks</td><td><code>expect(v).toBeNull()</code></td><td>Pass/Fail</td><td><code>expect(x).toBeDefined()</code></td></tr>
+            <tr><td><code>toBeNaN()</code></td><td>Value is NaN</td><td><code>expect(v).toBeNaN()</code></td><td>Pass/Fail</td><td><code>expect(NaN).toBeNaN()</code></td></tr>
+            <tr><td><code>toBeGreaterThan()</code> &amp; family</td><td>Numeric comparisons</td><td><code>expect(v).toBeGreaterThan(n)</code></td><td>Pass/Fail</td><td><code>expect(count).toBeGreaterThan(0)</code></td></tr>
+            <tr><td><code>toBeCloseTo()</code></td><td>Float comparison with precision</td><td><code>expect(v).toBeCloseTo(n[, digits])</code></td><td>Pass/Fail</td><td><code>expect(0.1+0.2).toBeCloseTo(0.3)</code></td></tr>
+            <tr><td><code>toThrow()/toThrowError()</code></td><td>Function throws</td><td><code>expect(fn).toThrow([msg])</code></td><td>Pass/Fail</td><td><code>expect(() =&gt; f()).toThrow('bad')</code></td></tr>
+            <tr><td><code>toBeInstanceOf()</code></td><td>Instance check</td><td><code>expect(v).toBeInstanceOf(C)</code></td><td>Pass/Fail</td><td><code>expect(map).toBeInstanceOf(Map)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Modifiers, utilities and asymmetric matchers</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>API</th><th>Purpose</th><th>Syntax</th><th>Result</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>.not</code></td><td>Inverts the matcher</td><td><code>expect(v).not.toBe(x)</code></td><td>Pass/Fail</td><td><code>await expect(el).not.toBeVisible()</code></td></tr>
+            <tr><td><code>expect.soft()</code></td><td>Failure does not abort the test</td><td><code>expect.soft(v).toBe(x)</code></td><td>Defers failure</td><td><code>await expect.soft(el).toBeVisible()</code></td></tr>
+            <tr><td><code>expect.poll()</code></td><td>Retries an async function</td><td><code>await expect.poll(fn).toBe(x)</code></td><td>Retries/timeout</td><td><code>await expect.poll(() =&gt; n()).toBe(3)</code></td></tr>
+            <tr><td><code>expect.configure()</code></td><td>Pre-set options (e.g. timeout)</td><td><code>const e = expect.configure({timeout:2000})</code></td><td>New expect</td><td><code>e(el).toBeVisible()</code></td></tr>
+            <tr><td><code>expect.extend()</code></td><td>Register custom matchers</td><td><code>expect.extend({ toBeX })</code></td><td>Adds matchers</td><td><code>expect.extend({toBeEven})</code></td></tr>
+            <tr><td><code>expect.any()</code></td><td>Any instance of a type</td><td><code>expect.any(Class)</code></td><td>Asymmetric</td><td><code>expect.any(Number)</code></td></tr>
+            <tr><td><code>expect.anything()</code></td><td>Anything but null/undefined</td><td><code>expect.anything()</code></td><td>Asymmetric</td><td><code>expect.anything()</code></td></tr>
+            <tr><td><code>expect.arrayContaining()</code></td><td>Array contains given items</td><td><code>expect.arrayContaining(arr)</code></td><td>Asymmetric</td><td><code>expect.arrayContaining([1,2])</code></td></tr>
+            <tr><td><code>expect.objectContaining()</code></td><td>Object contains given props</td><td><code>expect.objectContaining(obj)</code></td><td>Asymmetric</td><td><code>expect.objectContaining({id:1})</code></td></tr>
+            <tr><td><code>expect.stringContaining()</code></td><td>String contains substring</td><td><code>expect.stringContaining(str)</code></td><td>Asymmetric</td><td><code>expect.stringContaining('err')</code></td></tr>
+            <tr><td><code>expect.stringMatching()</code></td><td>String matches pattern</td><td><code>expect.stringMatching(re)</code></td><td>Asymmetric</td><td><code>expect.stringMatching(/^t/)</code></td></tr>
+            <tr><td><code>expect.closeTo()</code></td><td>Loose numeric comparison</td><td><code>expect.closeTo(n[, digits])</code></td><td>Asymmetric</td><td><code>expect.closeTo(0.3, 2)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <span class="title">Version note</span>
+        Newer matchers such as <code class="inline">toMatchAriaSnapshot()</code>, <code class="inline">toContainClass()</code>, <code class="inline">toHaveAccessibleName()</code>, <code class="inline">toHaveRole()</code> and <code class="inline">toBeOK()</code> were added in recent Playwright 1.4x releases. Run <code class="inline">npx playwright --version</code> and check the release notes if a matcher is not recognised.
+      </div>
+    </section>
+
+    <!-- 5. DETAILED FUNCTIONS -->
+    <section class="doc" id="functions" data-searchable>
+      <h2><span class="num">05</span>Detailed Explanation of Key Functions</h2>
+      <p>Expand any function below for its full description. Use the buttons to open or close all entries.</p>
+
+      <div class="controls">
+        <button type="button" id="expandAll">Expand all</button>
+        <button type="button" id="collapseAll">Collapse all</button>
+      </div>
+
+      <!-- toBeVisible -->
+      <details class="fn">
+        <summary>toBeVisible()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts that the element is present in the DOM and visible to a user. Playwright retries until the element becomes visible or the timeout expires.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toBeVisible();
+await expect(locator).toBeVisible({ timeout: 10_000 });</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>None required. An optional <code class="inline">options</code> object accepts <code class="inline">timeout</code> (milliseconds, overrides the default).</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Returns a Promise that resolves when the check passes and rejects with a timeout error when it does not.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.goto('https://playwright.dev');
+await expect(page.getByRole('link', { name: 'Get started' })).toBeVisible();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>The test continues once the "Get started" link is rendered and on screen. If it never appears, the assertion fails after the timeout and the report shows the locator that was unresolved.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Verifying that a page loaded, a modal appeared, a validation message is shown, or a button is ready to click.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>An element with <code class="inline">opacity: 0</code> is still considered <em>visible</em> by Playwright, because it occupies layout space. Use <code class="inline">toBeHidden()</code> to assert absence, which passes for both "hidden" and "not in the DOM".</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toBeHidden -->
+      <details class="fn">
+        <summary>toBeHidden()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts that the element is either not attached to the DOM, or is attached but not visible.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toBeHidden();</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>Optional <code class="inline">options.timeout</code>. A locator resolving to multiple elements is an error, so narrow it first.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when the element is hidden or absent; rejects on timeout otherwise.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.getByRole('button', { name: 'Close' }).click();
+await expect(page.getByTestId('loading-spinner')).toBeHidden();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes as soon as the spinner is removed or hidden after the click. This is the idiomatic way to wait for loading states to finish.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Waiting for spinners, toasts, modals, or error banners to disappear.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Because it also passes when the element does not exist, <code class="inline">toBeHidden()</code> is convenient but less strict than asserting the element exists and is then hidden.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toHaveText -->
+      <details class="fn">
+        <summary>toHaveText()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts that the element's text equals the expected value exactly (after whitespace normalisation). Also supports regular expressions and arrays for multiple elements.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toHaveText('Dashboard');
+await expect(locator).toHaveText(/Dash\w+/);
+await expect(locator).toHaveText(['One', 'Two']);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">expected</code> &mdash; a string, RegExp, or an array of those (for locators matching several elements). Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when the normalised text matches. When an array is given, the number of elements must match the array length.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.goto('https://example.com/login');
+await page.getByLabel('Username').fill('demo');
+await page.getByRole('button', { name: 'Sign in' }).click();
+await expect(page.locator('h1')).toHaveText('Welcome, demo');</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes when the heading's text is exactly "Welcome, demo". Extra surrounding whitespace is ignored; a partial match would fail.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Asserting headings, labels, table cells, or lists of values where the full text matters.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Use <code class="inline">toContainText()</code> for substrings. Order matters for arrays. Text is normalised (leading/trailing whitespace trimmed, internal runs collapsed).</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toContainText -->
+      <details class="fn">
+        <summary>toContainText()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts that the element's text contains the given substring, regular expression, or one of several expected values.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toContainText('error');
+await expect(locator).toContainText(/error|failure/i);
+await expect(locator).toContainText(['error', 'required']);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">expected</code> &mdash; string, RegExp, or array. Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when any (for arrays) of the expected values is found in the element's text.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.getByLabel('Email').fill('not-an-email');
+await page.getByRole('button', { name: 'Submit' }).click();
+await expect(page.getByRole('alert')).toContainText('valid email');</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes if the alert text includes "valid email", e.g. "Please enter a valid email address."</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Error messages, success banners, paragraphs, and any text where only part of the content is stable.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Prefer a regex or a distinctive substring over full sentences, which are brittle when copy changes.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toHaveValue -->
+      <details class="fn">
+        <summary>toHaveValue()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts the current value of an <code class="inline">&lt;input&gt;</code>, <code class="inline">&lt;textarea&gt;</code>, or <code class="inline">&lt;select&gt;</code> element.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toHaveValue('demo@example.com');
+await expect(locator).toHaveValue(/@example\.com$/);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">expected</code> &mdash; string or RegExp. Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when the element's value matches. For a <code class="inline">&lt;select&gt;</code>, it matches the selected option value.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>const email = page.getByLabel('Email');
+await email.fill('demo@example.com');
+await expect(email).toHaveValue('demo@example.com');</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes because the input's value is exactly the string that was typed in.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Verifying pre-filled forms, autocomplete results, clear buttons, and dropdown selections.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>For multi-select elements use <code class="inline">toHaveValues()</code> with an array. Do not confuse input <em>value</em> with input <em>text content</em>.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toHaveCount -->
+      <details class="fn">
+        <summary>toHaveCount()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts how many elements the locator resolves to.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toHaveCount(5);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">count</code> &mdash; a number (integer). Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when the resolved element count equals the expected number; otherwise retries until timeout.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.goto('https://demo.playwright.dev/todomvc');
+await page.getByLabel('New Todo').fill('Buy milk');
+await page.getByLabel('New Todo').press('Enter');
+await expect(page.locator('.todo-list li')).toHaveCount(1);</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes once exactly one to-do list item exists &mdash; useful for asserting that list items were added or removed.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Testing dynamic lists, filtering, search results, and rows added or deleted from a table.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Unlike most locator assertions, <code class="inline">toHaveCount()</code> does not require the locator to resolve to a single element.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toHaveAttribute -->
+      <details class="fn">
+        <summary>toHaveAttribute()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts that an element has a given attribute, optionally with a specific value.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toHaveAttribute('href');
+await expect(locator).toHaveAttribute('href', '/docs/intro');
+await expect(locator).toHaveAttribute('aria-expanded', /true|false/);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">name</code> (string) and optional <code class="inline">value</code> (string or RegExp). Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>If only the name is given, resolves when the attribute exists. If a value is given, resolves when it matches.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.getByRole('link', { name: 'Docs' }).click();
+await expect(page.getByRole('link', { name: 'API' })).toHaveAttribute('href', '/docs/api');</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes when the link's <code class="inline">href</code> attribute is exactly <code class="inline">/docs/api</code>.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Checking links, image <code class="inline">src</code> and <code class="inline">alt</code>, form <code class="inline">type</code> or <code class="inline">disabled</code>, and ARIA state attributes.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Attribute matching is case-sensitive on the value; use a RegExp with <code class="inline">i</code> if case varies.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toHaveClass -->
+      <details class="fn">
+        <summary>toHaveClass() and toContainClass()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd><code class="inline">toHaveClass()</code> asserts the element's full class list; <code class="inline">toContainClass()</code> asserts that one specific class is present.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toHaveClass('btn btn-primary');
+await expect(locator).toHaveClass(/active/);
+await expect(locator).toContainClass('active');</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">expected</code> &mdash; string, RegExp, or array of class names. Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd><code class="inline">toHaveClass()</code> requires the full class set to match; <code class="inline">toContainClass()</code> only requires the named class to be present.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.getByRole('tab', { name: 'Settings' }).click();
+await expect(page.getByRole('tab', { name: 'Settings' })).toContainClass('selected');</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes when the selected tab carries the <code class="inline">selected</code> class, regardless of other classes on the element.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Asserting active/selected/disabled visual states driven by CSS classes.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Class order does not matter for <code class="inline">toHaveClass()</code>, but the set must match exactly &mdash; which is why <code class="inline">toContainClass()</code> or a regex is usually more robust.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- enabled disabled -->
+      <details class="fn">
+        <summary>toBeEnabled() and toBeDisabled()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Assert whether a form control (or an element inheriting a disabled fieldset) is enabled or disabled.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toBeEnabled();
+await expect(locator).toBeDisabled();</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when the enabled/disabled state is confirmed.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>const submit = page.getByRole('button', { name: 'Submit' });
+await expect(submit).toBeDisabled();
+await page.getByLabel('I agree').check();
+await expect(submit).toBeEnabled();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>The button starts disabled, then becomes enabled once the consent checkbox is checked.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Form validation flows, gated actions, and loading states that disable buttons.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Playwright uses the native <code class="inline">disabled</code> state and <code class="inline">aria-disabled</code>, not just a greyed-out CSS style.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toBeChecked -->
+      <details class="fn">
+        <summary>toBeChecked()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts that a checkbox or radio button is checked.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).toBeChecked();
+await expect(locator).not.toBeChecked();</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when the checked state matches. Pair with <code class="inline">.not</code> to assert unchecked.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>const terms = page.getByRole('checkbox', { name: 'Accept terms' });
+await expect(terms).not.toBeChecked();
+await terms.check();
+await expect(terms).toBeChecked();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes after <code class="inline">check()</code> sets the checkbox and the assertion observes <code class="inline">checked</code>.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Terms-of-service, filters, settings toggles, and radio groups.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Works with <code class="inline">&lt;input type="checkbox"&gt;</code> and <code class="inline">"radio"</code>. For custom ARIA toggles, assert the state attribute with <code class="inline">toHaveAttribute()</code> instead.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toHaveURL -->
+      <details class="fn">
+        <summary>toHaveURL()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts the current page URL, retrying until it matches (handy right after navigation or redirects).</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(page).toHaveURL('https://example.com/dashboard');
+await expect(page).toHaveURL(/\/dashboard/);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">expected</code> &mdash; string or RegExp. Optional <code class="inline">options.timeout</code>. Also accepts a base URL option in some versions.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when <code class="inline">page.url()</code> matches. With a string, the comparison is a full-match after resolving relative to <code class="inline">baseURL</code>.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.getByRole('button', { name: 'Log in' }).click();
+await expect(page).toHaveURL(/\/dashboard$/);</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes once the SPA finishes routing to a URL ending in <code class="inline">/dashboard</code>.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Login redirects, route guards, deep links, and query-string assertions.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Prefer a RegExp for query strings, which vary in order. This is a <em>Page</em> assertion &mdash; call it on <code class="inline">page</code>, not on a locator.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toHaveTitle -->
+      <details class="fn">
+        <summary>toHaveTitle()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts the document title, retrying until it matches.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(page).toHaveTitle('Playwright');
+await expect(page).toHaveTitle(/Playwright/);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">expected</code> &mdash; string or RegExp. Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when the title matches exactly (string) or matches the pattern (RegExp).</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.goto('https://playwright.dev');
+await expect(page).toHaveTitle(/Playwright/);</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes when the browser tab title contains "Playwright".</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Smoke-testing navigation on client-rendered apps where the title is set after load.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>The string form must match the full title; use a RegExp for partial matches.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toBeOK -->
+      <details class="fn">
+        <summary>toBeOK()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Asserts that an API response status is in the successful 2xx range.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(response).toBeOK();</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>Optional <code class="inline">options.timeout</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves for status codes 200&ndash;299; rejects otherwise, printing the status and status text.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>const response = await request.get('/api/users/1');
+await expect(response).toBeOK();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes when the endpoint responds with 2xx. A 404 or 500 fails the test immediately.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>API tests, and verifying background calls made during a UI test.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Only usable on an <code class="inline">APIResponse</code> object from the <code class="inline">request</code> fixture or <code class="inline">page.waitForResponse()</code>. It does not check the response body.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toEqual -->
+      <details class="fn">
+        <summary>toEqual() &mdash; generic value comparison</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Performs a deep, recursive equality check on plain JavaScript values. It is a generic matcher, so it does <strong>not</strong> retry and does <strong>not</strong> take <code class="inline">await</code>.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>expect(actual).toEqual(expected);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd><code class="inline">expected</code> &mdash; any value, including asymmetric matchers such as <code class="inline">expect.any()</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Throws immediately if the values differ. <code class="inline">undefined</code> properties are ignored, unlike <code class="inline">toStrictEqual()</code>.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>const response = await request.get('/api/user/1');
+const body = await response.json();
+expect(body).toEqual({ id: 1, name: 'Ada', role: 'admin' });</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes when the parsed body is deeply equal to the expected object.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>API payload checks, utility-function tests, and any non-UI value comparison.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Do not await it. If you need retrying on a value that changes over time, wrap the source in <code class="inline">expect.poll()</code>.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- expect.poll -->
+      <details class="fn">
+        <summary>expect.poll()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Retries an arbitrary async (or sync) function until the following matcher passes, giving non-locator values the same auto-retrying behaviour as web-first assertions.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect.poll(async () =&gt; expression, options).toBe(expected);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>The function to poll; <code class="inline">options.timeout</code> (default 5s), <code class="inline">options.intervals</code> (array of retry delays in ms), and <code class="inline">options.message</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Awaits the promise chain: it calls the function repeatedly and applies the matcher until it passes or the timeout expires.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await expect.poll(async () =&gt; {
+  const response = await page.request.get('/api/status');
+  return (await response.json()).state;
+}, { timeout: 10_000 }).toBe('ready');</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Polls the endpoint until <code class="inline">state</code> becomes <code class="inline">'ready'</code>, or fails after 10 seconds.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Asserting DB or backend state that updates asynchronously after a UI action, or counting DOM nodes.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Keep the polled function side-effect-free and fast. Any thrown error inside it is treated as a retry, not an immediate failure, unless you rethrow deliberately.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- expect.soft -->
+      <details class="fn">
+        <summary>expect.soft()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Runs an assertion without aborting the test on failure. The test is marked failed, but execution continues so remaining assertions still run.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect.soft(locator).toBeVisible();
+expect.soft(value).toBe(3);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>The same value/locator as <code class="inline">expect</code>, followed by any matcher. Web-first usage still needs <code class="inline">await</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Never throws mid-test; failures are collected and reported at the end of the test. Use <code class="inline">test.info().errors</code> to inspect them.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>test('dashboard widgets', async ({ page }) =&gt; {
+  await page.goto('/dashboard');
+  await expect.soft(page.getByTestId('sales')).toBeVisible();
+  await expect.soft(page.getByTestId('orders')).toBeVisible();
+  await expect.soft(page.getByTestId('users')).toBeVisible();
+});</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>All three widgets are checked even if the first is missing, and the report lists every widget that failed.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Verifying many independent UI elements in one pass, or running a "health check" test that should report all issues.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Do not use soft assertions for preconditions &mdash; if a later step depends on the value, a hard assertion gives a clearer failure.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- not -->
+      <details class="fn">
+        <summary>.not modifier</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Inverts any matcher: the assertion passes when the normal matcher would fail.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(locator).not.toBeVisible();
+expect(value).not.toEqual(0);</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>None &mdash; it is a property that returns the negated assertion object.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Behaves exactly like the underlying matcher but with the opposite expectation.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.getByRole('button', { name: 'Delete' }).click();
+await expect(page.getByText('Are you sure?')).not.toBeVisible();</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>Passes once the confirmation dialog's text is gone from the screen.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Asserting absence, unchanged state, or that an action had no effect.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Negated web-first assertions still retry, so they wait for the condition to become false. Avoid double negatives that are hard to read.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <!-- toHaveScreenshot -->
+      <details class="fn">
+        <summary>toHaveScreenshot()</summary>
+        <div class="fn-body">
+          <dl>
+            <dt>Purpose</dt>
+            <dd>Compares the current rendering of a page or element against a stored baseline image, catching unintended visual changes.</dd>
+
+            <dt>Syntax</dt>
+            <div class="code"><pre><code>await expect(page).toHaveScreenshot();
+await expect(locator).toHaveScreenshot('card.png', { maxDiffPixels: 50 });</code></pre></div>
+
+            <dt>Parameters</dt>
+            <dd>Optional name; options include <code class="inline">maxDiffPixels</code>, <code class="inline">maxDiffPixelRatio</code>, <code class="inline">threshold</code>, <code class="inline">animations</code>, and <code class="inline">mask</code>.</dd>
+
+            <dt>Return / Result</dt>
+            <dd>Resolves when the image matches within tolerance. On failure it writes actual/expected/diff images to the test output folder.</dd>
+
+            <dt>Example</dt>
+            <div class="code"><pre><code>await page.goto('/pricing');
+await expect(page.getByTestId('plan-card')).toHaveScreenshot('plan-card.png', {
+  maxDiffPixelRatio: 0.01,
+});</code></pre></div>
+
+            <dt>Expected Result</dt>
+            <dd>The baseline is created on the first run; subsequent runs compare against it and fail on pixel differences beyond the tolerance.</dd>
+
+            <dt>Common Usage</dt>
+            <dd>Visual regression testing of layouts, themes, and responsive breakpoints.</dd>
+
+            <dt>Important Notes</dt>
+            <dd>Visual tests are environment-sensitive (fonts, OS, device scale). Run them in a consistent CI container image and update baselines with <code class="inline">--update-snapshots</code> only when the change is intended.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <div class="callout note">
+        <span class="title">Full matcher list</span>
+        This page covers the most-used matchers in depth. Every matcher shown in the reference tables above is a real Playwright / Jest-expect API &mdash; check the official Playwright "Assertions" docs for the complete, version-specific list.
+      </div>
+    </section>
+
+    <!-- 6. EXAMPLES -->
+    <section class="doc" id="examples" data-searchable>
+      <h2><span class="num">06</span>Practical Examples</h2>
+
+      <h3>Example 1 &mdash; Basic Usage</h3>
+      <p>The simplest possible assertion: open a page and confirm a heading is visible.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('home page shows a heading', async ({ page }) =&gt; {
+  await page.goto('https://example.com');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+});</code></pre></div>
+
+      <h3>Example 2 &mdash; Real-World Usage</h3>
+      <p>A login flow that verifies the redirect URL, a welcome message, and that the login form is gone.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('user can log in', async ({ page }) =&gt; {
+  await page.goto('https://demo.example.com/login');
+
+  await page.getByLabel('Email').fill('qa@example.com');
+  await page.getByLabel('Password').fill('secret123');
+  await page.getByRole('button', { name: 'Log in' }).click();
+
+  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible();
+  await expect(page.getByLabel('Password')).toBeHidden();
+});</code></pre></div>
+
+      <h3>Example 3 &mdash; Multiple Functions</h3>
+      <p>Combining locator assertions, value assertions, counting, and generic matchers in one test.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('to-do list behaves correctly', async ({ page }) =&gt; {
+  await page.goto('https://demo.playwright.dev/todomvc');
+  const input = page.getByPlaceholder('What needs to be done?');
+  const items = page.locator('.todo-list li');
+
+  await input.fill('Buy milk');
+  await input.press('Enter');
+  await input.fill('Walk the dog');
+  await input.press('Enter');
+
+  await expect(items).toHaveCount(2);
+  await expect(items.first()).toHaveText('Buy milk');
+  await expect(items.nth(1)).toContainText('dog');
+
+  await expect(input).toBeEmpty();
+  await expect(page).toHaveTitle(/TodoMVC/);
+  expect(await items.count()).toBeGreaterThan(0);
+});</code></pre></div>
+
+      <h3>Example 4 &mdash; Negative Scenario</h3>
+      <p>An assertion that is expected to fail, with an explanation of why.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('this assertion fails on purpose', async ({ page }) =&gt; {
+  await page.goto('https://example.com');
+
+  // The button does not exist on this page, so this assertion will time out.
+  await expect(page.getByRole('button', { name: 'Buy now' })).toBeVisible();
+});</code></pre></div>
+      <p><strong>Why it fails:</strong> the locator resolves to zero elements, so the matcher retries until the 5-second timeout and then fails with "Locator: getByRole('button', { name: 'Buy now' }) ... waiting for element to be visible". To assert the opposite, use <code class="inline">.not.toBeVisible()</code>.</p>
+
+      <h3>Example 5 &mdash; Advanced Usage</h3>
+      <p>API verification, polled backend state, and soft assertions in a single test.</p>
+      <div class="code"><pre><code>import { test, expect } from '@playwright/test';
+
+test('order is processed end to end', async ({ page, request }) =&gt; {
+  // API-level assertion
+  const health = await request.get('/api/health');
+  await expect(health).toBeOK();
+  const healthBody = await health.json();
+  expect(healthBody).toMatchObject({ status: 'up' });
+
+  // UI action that triggers background processing
+  await page.goto('/orders/new');
+  await page.getByRole('button', { name: 'Place order' }).click();
+
+  // Poll the backend until the order is confirmed
+  await expect.poll(async () =&gt; {
+    const res = await request.get('/api/orders/latest');
+    return (await res.json()).status;
+  }, { timeout: 15_000, intervals: [500, 1000, 2000] }).toBe('confirmed');
+
+  // Soft assertions collect all failures before reporting
+  await expect.soft(page.getByTestId('order-id')).toBeVisible();
+  await expect.soft(page.getByText('Thank you')).toBeVisible();
+
+  // Custom, reusable expect with a longer timeout
+  const slow = expect.configure({ timeout: 10_000 });
+  await slow(page.getByTestId('receipt')).toBeVisible();
+});</code></pre></div>
+    </section>
+
+    <!-- 7. BEFORE AFTER -->
+    <section class="doc" id="beforeafter" data-searchable>
+      <h2><span class="num">07</span>Before vs After</h2>
+      <p>Playwright's assertions replace manual waiting patterns. This comparison is meaningful because the "before" version is a real, common approach in older tools.</p>
+
+      <h3>Without web-first assertions (manual polling)</h3>
+      <div class="code"><pre><code>// Traditional approach: wait, read, compare, repeat by hand
+import { test, expect } from '@playwright/test';
+
+test('message appears', async ({ page }) =&gt; {
+  await page.goto('/inbox');
+  await page.waitForTimeout(3000);            // guess how long to wait
+
+  const text = await page.locator('.status').textContent();
+  expect(text).toBe('Sent');                  // no retry: flaky if too early
+});</code></pre></div>
+
+      <h3>With web-first assertions</h3>
+      <div class="code"><pre><code>// Playwright approach: declare the condition, let the framework retry
+import { test, expect } from '@playwright/test';
+
+test('message appears', async ({ page }) =&gt; {
+  await page.goto('/inbox');
+  await expect(page.locator('.status')).toHaveText('Sent'); // retries automatically
+});</code></pre></div>
+
+      <h3>Why the "after" version is better</h3>
+      <ul>
+        <li><strong>No fixed sleeps</strong> &mdash; the assertion returns as soon as the condition holds, so fast runs stay fast.</li>
+        <li><strong>No flakiness</strong> &mdash; slow environments simply retry until the timeout instead of failing.</li>
+        <li><strong>Better failures</strong> &mdash; the error shows the expected value and the actual element state, not just "undefined !== 'Sent'".</li>
+        <li><strong>Less code</strong> &mdash; one line replaces a wait plus a read plus a compare.</li>
+      </ul>
+    </section>
+
+    <!-- 8. MISTAKES -->
+    <section class="doc" id="mistakes" data-searchable>
+      <h2><span class="num">08</span>Common Mistakes</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mistake</th><th>Why It Happens</th><th>Incorrect Example</th><th>Correct Example</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Forgetting <code>await</code></td>
+              <td>Web-first matchers return a promise; an unawaited one never blocks the test.</td>
+              <td><code>expect(loc).toBeVisible();</code></td>
+              <td><code>await expect(loc).toBeVisible();</code></td>
+            </tr>
+            <tr>
+              <td>Awaiting a generic matcher</td>
+              <td>Confusing sync value matchers with async web-first matchers.</td>
+              <td><code>await expect(n).toBe(3);</code></td>
+              <td><code>expect(n).toBe(3);</code></td>
+            </tr>
+            <tr>
+              <td>Asserting on a resolved value instead of the locator</td>
+              <td>Reading text once removes all retrying behaviour.</td>
+              <td><code>expect(await loc.textContent()).toBe('Done');</code></td>
+              <td><code>await expect(loc).toHaveText('Done');</code></td>
+            </tr>
+            <tr>
+              <td>Using <code>waitForTimeout()</code> before an assertion</td>
+              <td>Habit from older tools; wastes time and still flaky.</td>
+              <td><code>await page.waitForTimeout(2000);<br>await expect(el).toBeVisible();</code></td>
+              <td><code>await expect(el).toBeVisible();</code></td>
+            </tr>
+            <tr>
+              <td>Non-specific locator in an assertion</td>
+              <td>Broad locators resolve to many elements and error out.</td>
+              <td><code>await expect(page.locator('button')).toBeVisible();</code></td>
+              <td><code>await expect(page.getByRole('button', { name: 'Save' })).toBeVisible();</code></td>
+            </tr>
+            <tr>
+              <td>Exact-text assertions on changing copy</td>
+              <td>Marketing or i18n text changes break the test.</td>
+              <td><code>toHaveText('Your order #12345 has shipped successfully')</code></td>
+              <td><code>toContainText(/has shipped/i)</code></td>
+            </tr>
+            <tr>
+              <td>Asserting visibility to check existence</td>
+              <td>Overlapping overlays or CSS can make existing elements invisible.</td>
+              <td><code>await expect(el).toBeVisible()</code> to check presence</td>
+              <td><code>await expect(el).toBeAttached()</code> for presence</td>
+            </tr>
+            <tr>
+              <td>Treating <code>.not.toBeVisible()</code> as "does not exist"</td>
+              <td>It also passes when the element is simply hidden.</td>
+              <td>Relying on it to prove an element was removed</td>
+              <td><code>await expect(el).toHaveCount(0)</code> to prove absence</td>
+            </tr>
+            <tr>
+              <td>Using hard assertions for every check</td>
+              <td>One failure hides all the others, slowing diagnosis.</td>
+              <td>Ten sequential <code>await expect(...)</code> calls</td>
+              <td><code>await expect.soft(...)</code> for independent checks</td>
+            </tr>
+            <tr>
+              <td>Overriding timeouts everywhere</td>
+              <td>Hides real slowness and slows the whole suite.</td>
+              <td><code>{ timeout: 120_000 }</code> on every assertion</td>
+              <td>Set a sensible <code>expect.timeout</code> once in the config</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9. BEST PRACTICES -->
+    <section class="doc" id="bestpractices" data-searchable>
+      <h2><span class="num">09</span>Best Practices</h2>
+      <ol>
+        <li><strong>Always <code class="inline">await</code> web-first assertions.</strong> It is the most common cause of tests that pass without checking anything.</li>
+        <li><strong>Assert on the locator, not a resolved value.</strong> <code class="inline">await expect(locator).toHaveText(...)</code> retries; reading <code class="inline">textContent()</code> first does not.</li>
+        <li><strong>Use user-facing locators.</strong> Prefer <code class="inline">getByRole</code>, <code class="inline">getByLabel</code>, and <code class="inline">getByText</code> in assertions &mdash; they are resilient to DOM refactors and read like the user's intent.</li>
+        <li><strong>Never use <code class="inline">waitForTimeout()</code> before an assertion.</strong> Let the auto-retry mechanism do the waiting.</li>
+        <li><strong>Keep assertions specific.</strong> A locator matching one element produces clear failures; a broad locator produces "strict mode violation" noise.</li>
+        <li><strong>Assert the outcome, not the implementation.</strong> Check that the success banner shows, not that a particular CSS class was toggled, unless the class truly is the contract.</li>
+        <li><strong>Prefer <code class="inline">toContainText()</code> over <code class="inline">toHaveText()</code></strong> for human-readable copy that may change slightly.</li>
+        <li><strong>Use <code class="inline">expect.soft()</code> for independent checks</strong> so one missing widget does not hide the others.</li>
+        <li><strong>Group related assertions near the action</strong> they verify, so a failure points directly at the step that broke.</li>
+        <li><strong>Centralise timeouts.</strong> Configure a project-wide <code class="inline">expect: { timeout }</code> and override only for known-slow cases.</li>
+        <li><strong>Use <code class="inline">expect.poll()</code> for backend state,</strong> not for DOM state &mdash; the DOM already has web-first matchers.</li>
+        <li><strong>Keep visual assertions deterministic.</strong> Mask dynamic content and run screenshot tests in a consistent CI image.</li>
+      </ol>
+    </section>
+
+    <!-- 10. INTERVIEW -->
+    <section class="doc" id="interview" data-searchable>
+      <h2><span class="num">10</span>Interview Questions</h2>
+
+      <h3>Beginner Questions</h3>
+      <div class="qa">
+        <div class="q">1. What is <code class="inline">expect</code> in Playwright and where does it come from?</div>
+        <div class="a">It is the assertion library exported by <code class="inline">@playwright/test</code>. It combines generic value matchers with Playwright's auto-retrying web-first matchers. It is imported alongside <code class="inline">test</code> from the same package.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2. Why do web-first assertions need <code class="inline">await</code>?</div>
+        <div class="a">Because they retry asynchronously and return a Promise. Without <code class="inline">await</code>, the test does not wait for the result and the assertion may never be evaluated.</div>
+      </div>
+      <div class="qa">
+        <div class="q">3. What is the difference between <code class="inline">toHaveText()</code> and <code class="inline">toContainText()</code>?</div>
+        <div class="a"><code class="inline">toHaveText()</code> requires the full, normalised text to match; <code class="inline">toContainText()</code> passes when the text contains the given substring or matches the given pattern.</div>
+      </div>
+      <div class="qa">
+        <div class="q">4. How do you assert that an element is not visible?</div>
+        <div class="a">Use the <code class="inline">.not</code> modifier: <code class="inline">await expect(locator).not.toBeVisible()</code>. Note it passes if the element is hidden or absent.</div>
+      </div>
+      <div class="qa">
+        <div class="q">5. What does <code class="inline">toBeChecked()</code> verify?</div>
+        <div class="a">That a checkbox or radio button is in the checked state. Use <code class="inline">.not.toBeChecked()</code> for the unchecked case.</div>
+      </div>
+
+      <h3>Intermediate Questions</h3>
+      <div class="qa">
+        <div class="q">1. Why is <code class="inline">await expect(locator).toHaveText('x')</code> safer than <code class="inline">expect(await locator.textContent()).toBe('x')</code>?</div>
+        <div class="a">The first auto-retries until the text matches or times out. The second reads the value once, so it fails immediately if the UI has not updated yet &mdash; a classic source of flakiness.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2. When would you use <code class="inline">expect.poll()</code>?</div>
+        <div class="a">When the value you need to assert is not a locator property &mdash; for example, backend state fetched over HTTP, a database record, or a computed counter that updates asynchronously.</div>
+      </div>
+      <div class="qa">
+        <div class="q">3. What does <code class="inline">expect.soft()</code> do and when is it useful?</div>
+        <div class="a">It records a failure without aborting the test, so all soft assertions run. It is useful when verifying several independent elements and you want a complete list of failures.</div>
+      </div>
+      <div class="qa">
+        <div class="q">4. How does Playwright decide whether an element is "visible"?</div>
+        <div class="a">An element is visible when it is attached and has a non-empty bounding box and is not hidden by <code class="inline">display:none</code>, <code class="inline">visibility:hidden</code>, or zero opacity is <em>not</em> excluded &mdash; note that <code class="inline">opacity:0</code> still counts as visible because the element occupies space.</div>
+      </div>
+      <div class="qa">
+        <div class="q">5. Why might <code class="inline">await expect(page.locator('button')).toBeVisible()</code> fail even though a button is on the page?</div>
+        <div class="a">Because the locator matches more than one element, which is a strict-mode violation. Narrow the locator to a single, uniquely identified element.</div>
+      </div>
+
+      <h3>Advanced Questions</h3>
+      <div class="qa">
+        <div class="q">1. How would you give one assertion a longer timeout without changing global settings?</div>
+        <div class="a">Pass an options object: <code class="inline">await expect(locator).toBeVisible({ timeout: 10_000 })</code>. For a set of assertions, create a configured expect: <code class="inline">const slow = expect.configure({ timeout: 10_000 })</code>.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2. What is the difference between <code class="inline">toEqual()</code> and <code class="inline">toStrictEqual()</code>?</div>
+        <div class="a"><code class="inline">toEqual()</code> ignores properties whose value is <code class="inline">undefined</code> and does not check the prototype; <code class="inline">toStrictEqual()</code> also verifies the type/prototype and treats <code class="inline">undefined</code> properties as significant.</div>
+      </div>
+      <div class="qa">
+        <div class="q">3. How do custom matchers get registered in Playwright?</div>
+        <div class="a">With <code class="inline">expect.extend({ ... })</code>, providing an object whose keys are matcher names returning <code class="inline">{ pass, message }</code>. They then work on any <code class="inline">expect</code> call, including <code class="inline">.not</code>.</div>
+      </div>
+      <div class="qa">
+        <div class="q">4. A web-first assertion is polling for 30 seconds and then failing. How do you diagnose it?</div>
+        <div class="a">Inspect the trace/report to see the locator Playwright tried and the element state it observed. Common causes: a broad locator (strict-mode violation), the element is inside an iframe or shadow root not reached by the locator, or the app is genuinely slower than the timeout.</div>
+      </div>
+      <div class="qa">
+        <div class="q">5. How can a flaky visual assertion be made reliable?</div>
+        <div class="a">Mask dynamic regions, disable animations, set a small <code class="inline">maxDiffPixelRatio</code>, and run the tests in a container image that pins the OS, fonts, and browser version so rendering is reproducible.</div>
+      </div>
+    </section>
+
+    <!-- 11. CHEAT SHEET -->
+    <section class="doc" id="cheatsheet" data-searchable>
+      <h2><span class="num">11</span>Quick Reference / Cheat Sheet</h2>
+
+      <h3>Most-used assertions</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Function / Syntax</th></tr></thead>
+          <tbody>
+            <tr><td>Verify visibility</td><td><code>await expect(loc).toBeVisible()</code></td></tr>
+            <tr><td>Verify hidden / absent</td><td><code>await expect(loc).toBeHidden()</code></td></tr>
+            <tr><td>Verify exact text</td><td><code>await expect(loc).toHaveText('Home')</code></td></tr>
+            <tr><td>Verify partial text</td><td><code>await expect(loc).toContainText(/welcome/i)</code></td></tr>
+            <tr><td>Verify input value</td><td><code>await expect(loc).toHaveValue('a@b.com')</code></td></tr>
+            <tr><td>Verify element count</td><td><code>await expect(loc).toHaveCount(5)</code></td></tr>
+            <tr><td>Verify attribute</td><td><code>await expect(loc).toHaveAttribute('href', '/x')</code></td></tr>
+            <tr><td>Verify class</td><td><code>await expect(loc).toContainClass('active')</code></td></tr>
+            <tr><td>Verify enabled / disabled</td><td><code>await expect(loc).toBeEnabled()</code> / <code>toBeDisabled()</code></td></tr>
+            <tr><td>Verify checked</td><td><code>await expect(loc).toBeChecked()</code></td></tr>
+            <tr><td>Verify CSS</td><td><code>await expect(loc).toHaveCSS('display', 'none')</code></td></tr>
+            <tr><td>Verify URL</td><td><code>await expect(page).toHaveURL(/dashboard/)</code></td></tr>
+            <tr><td>Verify title</td><td><code>await expect(page).toHaveTitle(/Home/)</code></td></tr>
+            <tr><td>Verify API success</td><td><code>await expect(response).toBeOK()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Generic value matchers</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Function / Syntax</th></tr></thead>
+          <tbody>
+            <tr><td>Strict identity</td><td><code>expect(v).toBe(42)</code></td></tr>
+            <tr><td>Deep equality</td><td><code>expect(v).toEqual({ a: 1 })</code></td></tr>
+            <tr><td>Strict deep equality</td><td><code>expect(v).toStrictEqual({ a: 1 })</code></td></tr>
+            <tr><td>Array/string contains</td><td><code>expect(v).toContain('x')</code></td></tr>
+            <tr><td>Length</td><td><code>expect(v).toHaveLength(3)</code></td></tr>
+            <tr><td>Pattern match</td><td><code>expect(s).toMatch(/^ab/)</code></td></tr>
+            <tr><td>Truthiness</td><td><code>expect(v).toBeTruthy()</code> / <code>toBeFalsy()</code></td></tr>
+            <tr><td>Numeric comparison</td><td><code>expect(n).toBeGreaterThan(0)</code></td></tr>
+            <tr><td>Function throws</td><td><code>expect(() =&gt; f()).toThrow('bad')</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Modifiers &amp; utilities</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Function / Syntax</th></tr></thead>
+          <tbody>
+            <tr><td>Negate any matcher</td><td><code>expect(v).not.toBe(x)</code></td></tr>
+            <tr><td>Continue after failure</td><td><code>await expect.soft(loc).toBeVisible()</code></td></tr>
+            <tr><td>Retry a custom value</td><td><code>await expect.poll(() =&gt; v()).toBe(3)</code></td></tr>
+            <tr><td>Reusable timeout</td><td><code>const e = expect.configure({ timeout: 10_000 })</code></td></tr>
+            <tr><td>Custom matcher</td><td><code>expect.extend({ toBeEven })</code></td></tr>
+            <tr><td>Partial object</td><td><code>expect(obj).toMatchObject({ id: 1 })</code></td></tr>
+            <tr><td>One assertion timeout</td><td><code>toBeVisible({ timeout: 10_000 })</code></td></tr>
+            <tr><td>Any of a type</td><td><code>expect.any(Number)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 12. RELATED -->
+    <section class="doc" id="related" data-searchable>
+      <h2><span class="num">12</span>Related Topics</h2>
+      <ul>
+        <li><strong>Locators</strong> &mdash; <code class="inline">getByRole</code>, <code class="inline">getByLabel</code>, <code class="inline">getByTestId</code>; what you pass into <code class="inline">expect</code>.</li>
+        <li><strong>Auto-waiting</strong> &mdash; the actionability checks that make locator assertions reliable.</li>
+        <li><strong>Test configuration</strong> &mdash; setting <code class="inline">expect.timeout</code> globally in <code class="inline">playwright.config</code>.</li>
+        <li><strong>Fixtures</strong> &mdash; the <code class="inline">page</code> and <code class="inline">request</code> fixtures that assertions operate on.</li>
+        <li><strong>Test hooks</strong> &mdash; <code class="inline">beforeEach</code> / <code class="inline">afterEach</code> for arranging state before assertions.</li>
+        <li><strong>Test runner features</strong> &mdash; retries, annotations, and <code class="inline">test.step()</code> for grouping assertions.</li>
+        <li><strong>Debugging tools</strong> &mdash; the Trace Viewer, which shows each assertion result and the DOM at failure time.</li>
+        <li><strong>Visual testing</strong> &mdash; <code class="inline">toHaveScreenshot()</code>, baselines, and diff configuration.</li>
+      </ul>
+    </section>
+
+    <!-- 13. TAKEAWAYS -->
+    <section class="doc" id="takeaways" data-searchable>
+      <h2><span class="num">13</span>Key Takeaways</h2>
+      <ul>
+        <li><code class="inline">expect</code> comes from <code class="inline">@playwright/test</code> and mixes auto-retrying web-first matchers with synchronous generic matchers.</li>
+        <li>Web-first assertions (locator, page, APIResponse) need <code class="inline">await</code>; generic value matchers do not.</li>
+        <li>Assert on the locator, not on a resolved value &mdash; that is what gives you retrying and readable failures.</li>
+        <li>Use <code class="inline">.not</code> to negate, <code class="inline">expect.soft()</code> to keep going after a failure, and <code class="inline">expect.poll()</code> to retry non-locator values.</li>
+        <li>Prefer user-facing locators (<code class="inline">getByRole</code>, <code class="inline">getByLabel</code>) and specific text matchers to keep assertions stable.</li>
+        <li>Never use <code class="inline">waitForTimeout()</code> as a substitute for an assertion&rsquo;s built-in retry.</li>
+        <li>Centralise timeouts in configuration and override per assertion only when genuinely needed.</li>
+        <li>Good assertions verify user-visible outcomes, not implementation details.</li>
+      </ul>
+    </section>
+
+    <footer class="doc-footer">
+      Playwright <code class="inline">expect</code> Reference &middot; JavaScript &middot; Self-contained help page &middot; Verify APIs against the official Playwright documentation for your installed version.
+    </footer>
+  </main>
+</div>
+
+<button id="toTop" aria-label="Back to top">&#8593;</button>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Copy-to-clipboard buttons ---------- */
+  document.querySelectorAll('.code').forEach(function (block) {
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var text = pre.innerText;
+      var done = function () {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+    block.appendChild(btn);
+  });
+
+  function fallbackCopy(text, done) {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'absolute';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+    document.body.removeChild(area);
+    done();
+  }
+
+  /* ---------- Expand / collapse all function entries ---------- */
+  var allDetails = document.querySelectorAll('details.fn');
+  var expandAll = document.getElementById('expandAll');
+  var collapseAll = document.getElementById('collapseAll');
+  if (expandAll) {
+    expandAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = true; });
+    });
+  }
+  if (collapseAll) {
+    collapseAll.addEventListener('click', function () {
+      allDetails.forEach(function (d) { d.open = false; });
+    });
+  }
+
+  /* ---------- Client-side search ---------- */
+  var search = document.getElementById('search');
+  var counter = document.getElementById('resultCount');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('[data-searchable]'));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+
+  var noResults = document.createElement('div');
+  noResults.className = 'no-results';
+  noResults.hidden = true;
+  noResults.textContent = 'No matching sections found. Try a different keyword.';
+  var firstSection = sections[0];
+  if (firstSection && firstSection.parentNode) {
+    firstSection.parentNode.insertBefore(noResults, firstSection);
+  }
+
+  function runSearch(rawQuery) {
+    var query = rawQuery.trim().toLowerCase();
+    var matches = 0;
+
+    sections.forEach(function (section) {
+      var haystack = (section.textContent || '').toLowerCase();
+      var hit = query === '' || haystack.indexOf(query) !== -1;
+      section.classList.toggle('search-hidden', !hit);
+      if (hit) { matches++; }
+    });
+
+    navLinks.forEach(function (link) {
+      var target = document.querySelector(link.getAttribute('href'));
+      var hidden = target && target.classList.contains('search-hidden');
+      link.classList.toggle('nav-dim', !!hidden);
+    });
+
+    if (query === '') {
+      counter.textContent = '';
+      noResults.hidden = true;
+    } else {
+      counter.textContent = matches + (matches === 1 ? ' section matches' : ' sections match');
+      noResults.hidden = matches !== 0;
+    }
+  }
+
+  if (search) {
+    search.addEventListener('input', function () { runSearch(search.value); });
+    search.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        search.value = '';
+        runSearch('');
+      }
+    });
+  }
+
+  /* ---------- Back-to-top button ---------- */
+  var toTop = document.getElementById('toTop');
+  function onScroll() {
+    if (window.scrollY > 400) {
+      toTop.classList.add('show');
+    } else {
+      toTop.classList.remove('show');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ---------- Mobile menu toggle ---------- */
+  var menuToggle = document.getElementById('menuToggle');
+  var sidebar = document.getElementById('sidebar');
+  if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', function () {
+      var open = sidebar.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', String(open));
+    });
+    sidebar.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && window.innerWidth <= 980) {
+        sidebar.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
