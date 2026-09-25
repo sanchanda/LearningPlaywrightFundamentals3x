@@ -8,3 +8,8 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 .env
+user-session.json
+allure-results/
+allure-report/
+reports/
+tta-report/
