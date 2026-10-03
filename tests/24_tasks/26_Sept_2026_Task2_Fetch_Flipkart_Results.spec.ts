@@ -16,7 +16,7 @@ async function getProductNames(page: Page) {
             const card = productCards.nth(i);
             const productName = await card.locator(".RG5Slk").innerText();
             const productPrice = await card.locator(".hZ3P6w.DeU9vF").innerText();
-            console.log(`Product Name ${productCount} : ${productName} , Price : ${productPrice}`);
+            console.log(`Product No: ${productCount} Product Name : ${productName} , Price : ${productPrice}`);
             productCount++;
         }
 
@@ -38,7 +38,6 @@ async function getProductNames(page: Page) {
 
 test("Fetch DSLR Camera Results from flipkat", async ({ page }) => {
     test.setTimeout(120_000);
-
     await page.goto("https://www.flipkart.com/");
     await page.locator("input[name='q']").first().fill("DSLR Camera");
     await page.locator("input[name='q']").first().press('Enter');
