@@ -16,7 +16,7 @@ async function getProductNames(page: Page) {
             const card = productCards.nth(i);
             const productName = await card.locator(".RG5Slk").innerText();
             const productPrice = await card.locator(".hZ3P6w.DeU9vF").innerText();
-            console.log(`Product No: ${productCount} Product Name : ${productName} , Price : ${productPrice}`);
+            console.log(`Product No: ${productCount} , Product Name : ${productName} , Price : ${productPrice}`);
             productCount++;
         }
 
