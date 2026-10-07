@@ -13,3 +13,4 @@ allure-results/
 allure-report/
 reports/
 tta-report/
+tests/15_File_Download/out/
