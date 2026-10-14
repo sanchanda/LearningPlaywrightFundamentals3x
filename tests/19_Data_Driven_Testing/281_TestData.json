@@ -1,0 +1,17 @@
+[
+    {
+        "name": "santosh",
+        "experience": 25,
+        "isTrainer": true,
+        "middleName": "",
+        "skills": [
+            "JavaScript",
+            "Playwright",
+            "UFT"
+        ],
+        "address": {
+            "city": "Mumbai",
+            "country": "India"
+        }
+    }
+]
